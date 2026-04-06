@@ -157,7 +157,6 @@
       <UButton
         :class="$style.button"
         color="bgAccent"
-        class="text-white px-4 py-2"
         size="xl"
         :loading="loading"
         :disabled="loading"
@@ -247,9 +246,11 @@
     align-items: center;
     width: 100%;
     height: rem(67);
+    padding: rem(8) rem(16);
     font-family: var(--a-font-body);
     font-size: rem(24);
     font-weight: 400;
+    color: var(--a-text-white);
     border-radius: var(--a-borderR--input);
     cursor: pointer;
 

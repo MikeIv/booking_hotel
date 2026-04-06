@@ -157,7 +157,7 @@ const updateCheckbox = (key: string, value: boolean) => {
     .p-checkbox-checked {
       background-color: var(--a-whiteBg);
       border-color: var(--a-border-primary);
-      &:before {
+      &::before {
         content: "✓";
         color: var(--a-text-primary);
         font-size: rem(14);

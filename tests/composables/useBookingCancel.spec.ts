@@ -16,7 +16,11 @@ vi.stubGlobal("useApiHelpers", () => ({
 
 const mockForceReset = vi.fn();
 vi.mock("~/stores/booking", () => ({
-  useBookingStore: () => ({ forceReset: mockForceReset }),
+  useBookingStore: () => ({
+    forceReset: mockForceReset,
+    setLoading: vi.fn(),
+    setServerRequest: vi.fn(),
+  }),
 }));
 
 const mockToastAdd = vi.fn();
@@ -29,8 +33,16 @@ describe("useBookingCancel", () => {
     mockRouterPush.mockResolvedValue(undefined);
   });
 
-  const makeComposable = (uuid: string | null) =>
-    useBookingCancel(computed(() => uuid));
+  const makeComposable = (
+    uuid: string | null,
+    bookingNumber: string | null = null,
+    confirmationEmail = "",
+  ) =>
+    useBookingCancel(
+      computed(() => uuid),
+      computed(() => bookingNumber),
+      computed(() => confirmationEmail),
+    );
 
   describe("openCancelBookingPopup", () => {
     it("должен открывать попап и сбрасывать ошибку", () => {
@@ -98,10 +110,14 @@ describe("useBookingCancel", () => {
       expect(isCancelBookingPopupOpen.value).toBe(false);
     });
 
-    it("должен вызывать POST, сбрасывать стор и переходить на / при успехе", async () => {
+    it("должен вызывать POST, сбрасывать стор и переходить на /cancellation при успехе", async () => {
       mockPost.mockResolvedValue({ success: true });
 
-      const { confirmCancelBooking } = makeComposable("booking-uuid-123");
+      const { confirmCancelBooking } = makeComposable(
+        "booking-uuid-123",
+        "BN-1",
+        "guest@example.com",
+      );
       await confirmCancelBooking();
 
       expect(mockPost).toHaveBeenCalledWith(
@@ -110,7 +126,10 @@ describe("useBookingCancel", () => {
         expect.any(Object),
       );
       expect(mockForceReset).toHaveBeenCalled();
-      expect(mockRouterPush).toHaveBeenCalledWith("/");
+      expect(mockRouterPush).toHaveBeenCalledWith({
+        path: "/cancellation",
+        query: { bookingNumber: "BN-1", email: "guest@example.com" },
+      });
     });
 
     it("должен закрывать попап и сбрасывать ошибку при успехе", async () => {

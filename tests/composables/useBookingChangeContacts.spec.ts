@@ -31,7 +31,11 @@ const mockAuthUserRef = ref<{
   country?: string;
 } | null>(null);
 vi.mock("~/stores/auth", () => ({
-  useAuthStore: () => ({ user: mockAuthUserRef.value }),
+  useAuthStore: () => ({
+    get user() {
+      return mockAuthUserRef.value;
+    },
+  }),
 }));
 
 describe("useBookingChangeContacts", () => {
@@ -180,10 +184,37 @@ describe("useBookingChangeContacts", () => {
     });
 
     it("должен быть false во время выполнения запроса", async () => {
-      let resolvePost!: (v: unknown) => void;
+      createdBookingRef.value = {
+        order: {
+          start_at: "2025-01-10T00:00:00Z",
+          end_at: "2025-01-12T00:00:00Z",
+        },
+        rooms: [
+          {
+            room_type_code: "DBL",
+            rate_plan_code: "STD",
+            packages: [],
+            adults: 1,
+            children: 0,
+            children_ages: [],
+            guests: [
+              {
+                id: 1,
+                surname: "Иванов",
+                name: "Иван",
+                middle_name: "",
+                phone: "+79001234567",
+                email: "ivan@example.com",
+              },
+            ],
+          },
+        ],
+      };
+
+      let resolvePut!: (v: unknown) => void;
       mockPut.mockReturnValue(
         new Promise((resolve) => {
-          resolvePost = resolve;
+          resolvePut = resolve;
         }),
       );
 
@@ -201,7 +232,7 @@ describe("useBookingChangeContacts", () => {
       const promise = confirmChangeContacts();
       expect(canSubmitContactChange.value).toBe(false);
 
-      resolvePost({ success: true });
+      resolvePut!({ success: true });
       await promise;
     });
   });
@@ -284,8 +315,35 @@ describe("useBookingChangeContacts", () => {
       expect(mockPut).not.toHaveBeenCalled();
     });
 
-    it("должен вызывать PUT /v1/users/profile с booking_change", async () => {
+    it("должен вызывать PUT /v1/booking/:uuid с обновлёнными контактами в rooms", async () => {
       mockPut.mockResolvedValue({ success: true });
+
+      createdBookingRef.value = {
+        order: {
+          start_at: "2025-01-10T00:00:00Z",
+          end_at: "2025-01-12T00:00:00Z",
+        },
+        rooms: [
+          {
+            room_type_code: "DBL",
+            rate_plan_code: "STD",
+            packages: [],
+            adults: 1,
+            children: 0,
+            children_ages: [],
+            guests: [
+              {
+                id: 1,
+                surname: "Старый",
+                name: "Старый",
+                middle_name: "",
+                phone: "+79000000000",
+                email: "old@example.com",
+              },
+            ],
+          },
+        ],
+      };
 
       const { contactForm, confirmChangeContacts } =
         makeComposable("booking-uuid");
@@ -293,17 +351,24 @@ describe("useBookingChangeContacts", () => {
       await confirmChangeContacts();
 
       expect(mockPut).toHaveBeenCalledWith(
-        "/v1/users/profile",
+        "/v1/booking/booking-uuid",
         expect.objectContaining({
-          name: "Иван",
-          email: "ivan@example.com",
-          booking_change: expect.objectContaining({
-            uuid: "booking-uuid",
-            contacts: expect.objectContaining({
-              email: "ivan@example.com",
-              phone: "+79001234567",
+          start_at: "2025-01-10",
+          end_at: "2025-01-12",
+          rooms: expect.arrayContaining([
+            expect.objectContaining({
+              room_type_code: "DBL",
+              rate_plan_code: "STD",
+              guests: expect.arrayContaining([
+                expect.objectContaining({
+                  surname: "Иванов",
+                  name: "Иван",
+                  email: "ivan@example.com",
+                  phone: "+79001234567",
+                }),
+              ]),
             }),
-          }),
+          ]),
         }),
         expect.any(Object),
       );
@@ -311,6 +376,33 @@ describe("useBookingChangeContacts", () => {
 
     it("должен загружать обновлённое бронирование и устанавливать success при успехе", async () => {
       mockPut.mockResolvedValue({ success: true });
+
+      createdBookingRef.value = {
+        order: {
+          start_at: "2025-01-10T00:00:00Z",
+          end_at: "2025-01-12T00:00:00Z",
+        },
+        rooms: [
+          {
+            room_type_code: "DBL",
+            rate_plan_code: "STD",
+            packages: [],
+            adults: 1,
+            children: 0,
+            children_ages: [],
+            guests: [
+              {
+                id: 1,
+                surname: "Иванов",
+                name: "Иван",
+                middle_name: "",
+                phone: "+79001234567",
+                email: "ivan@example.com",
+              },
+            ],
+          },
+        ],
+      };
 
       const { contactForm, changeContactsSuccess, confirmChangeContacts } =
         makeComposable("booking-uuid");

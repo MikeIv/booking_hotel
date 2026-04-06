@@ -1,14 +1,9 @@
+/* Тема @nuxt/ui; Tailwind подключает модуль @nuxt/ui через @tailwindcss/vite (без utility в нашем коде). */
 @use "base/global";
 @use "base/fonts";
 @use "variables/colors";
 @use "variables/rounding";
-@use "variables/primevue";
-@use "tailwindcss" as *;
 @use "@nuxt/ui" as *;
-
-/* @tailwind base;
-@tailwind components;
-@tailwind utilities; */
 
 :root {
   --system-font:

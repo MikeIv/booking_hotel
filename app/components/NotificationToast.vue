@@ -471,7 +471,7 @@ if (import.meta?.env?.DEV) {
     --notification-action-primary-bg,
     rgb(255 255 255 / 20%)
   );
-  color: var(--notification-action-primary-text, var(--a-white, #ffffff));
+  color: var(--notification-action-primary-text, var(--a-white, #fff));
 }
 
 .notification-action-primary:hover {
@@ -512,7 +512,7 @@ if (import.meta?.env?.DEV) {
 }
 
 .notification-close-button:hover {
-  color: var(--notification-close-color-hover, var(--a-white, #ffffff));
+  color: var(--notification-close-color-hover, var(--a-white, #fff));
 }
 
 .notification-close-button:focus {

@@ -8,7 +8,7 @@
     <form :class="$style.subscribeForm" @submit.prevent>
       <fieldset :class="$style.emailFieldset">
         <label :class="$style.emailLabel" for="footer-email">
-          <span class="sr-only">E-mail для подписки</span>
+          <span :class="$style.srOnly">E-mail для подписки</span>
           <input
             id="footer-email"
             type="email"
@@ -65,7 +65,7 @@
     }
   }
 
-  .sr-only {
+  .srOnly {
     position: absolute;
     width: 1px;
     height: 1px;

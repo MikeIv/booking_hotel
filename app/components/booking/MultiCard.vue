@@ -1161,7 +1161,7 @@
   }
 
   :global {
-    .p-popover:before {
+    .p-popover::before {
       left: 20px;
     }
 

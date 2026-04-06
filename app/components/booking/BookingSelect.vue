@@ -425,12 +425,12 @@
     transition: background-color 0.2s ease;
 
     &:hover {
-      background: var(--a-bg-light);
+      background: var(--a-lightPrimaryBg);
       color: var(--a-text-dark);
     }
 
     &.selected {
-      background: var(--a-bg-light);
+      background: var(--a-lightPrimaryBg);
       color: var(--a-text-dark);
       font-weight: 500;
     }

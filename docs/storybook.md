@@ -1,0 +1,80 @@
+# Storybook в проекте
+
+Краткая документация по модулю витрины компонентов: назначение, как устроен запуск, настройки и добавление историй.
+
+## Назначение
+
+**Storybook** — изолированная среда для разработки и проверки UI-компонентов без полного приложения. В этом репозитории используется связка:
+
+- **`@nuxtjs/storybook`** — официальный модуль Nuxt для Storybook (типы конфигурации, интеграция с экосистемой Nuxt).
+- **`@storybook-vue/nuxt`** — фреймворк Storybook для Vue + Nuxt: поднимает Nuxt-контекст (автоимпорты, модули из `nuxt.config`, алиасы) внутри превью историй.
+
+Таким образом, истории видят те же возможности Nuxt, что и основное приложение (в разумных пределах: без полного роутинга страниц, если вы его не мокаете).
+
+## Почему отдельный процесс от `yarn dev`
+
+Модуль **`@nuxtjs/storybook` не подключён в `nuxt.config.ts`** в массив `modules`. Это сделано намеренно:
+
+- **Nuxt dev** (`yarn dev`) — приложение на порту **3000** (см. `devServer` и `NUXT_HOST` в `.env`).
+- **Storybook** — отдельный dev-сервер на порту **6006**.
+
+Так исключаются конфликты портов, двойной запуск витрины внутри Nuxt и типичные ошибки прокси. Для работы со Storybook достаточно запустить его отдельной командой (см. ниже).
+
+## Версии и совместимость
+
+В `package.json` зафиксированы согласованные версии:
+
+- `storybook` — ветка **9.0.x** (совместима с peer-зависимостью `@nuxtjs/storybook`).
+- `@nuxtjs/storybook` — **9.0.1**.
+
+После `yarn install` выполняется **`patch-package`**: применяется патч к `@storybook-vue/nuxt` (корректные пути на Windows и целевой хост прокси). Без `postinstall` витрина на Windows может вести себя нестабильно.
+
+Требования к Node.js совпадают с проектом: см. поле `engines` в `package.json`.
+
+## Запуск и сборка
+
+| Команда | Назначение |
+|--------|------------|
+| `yarn storybook` | Dev-сервер Storybook, порт **6006**, без автооткрытия браузера |
+| `yarn stb` | То же, что `yarn storybook` (короткий алиас) |
+| `yarn build-storybook` | Статическая сборка в каталог **`storybook-static/`** |
+
+Локальный адрес после старта: **http://localhost:6006/**.
+
+Одновременно можно держать запущенными и Nuxt (`yarn dev`), и Storybook — порты разные.
+
+## Структура конфигурации
+
+| Файл | Роль |
+|------|------|
+| [`.storybook/main.ts`](../.storybook/main.ts) | Точка входа Storybook: glob историй, фреймворк `@storybook-vue/nuxt`, список аддонов |
+| [`.storybook/preview.ts`](../.storybook/preview.ts) | Глобальные параметры превью (controls и т.д.); при необходимости — явный импорт глобальных стилей |
+
+Конфигурация Nuxt для превью берётся из корневого **`nuxt.config.ts`** (модули, `css`, алиасы и т.д.). Дублировать подключение глобальных стилей в `preview.ts` обычно не нужно; если витрина расходится с приложением, можно раскомментировать импорт `main.scss` в комментарии внутри `preview.ts`.
+
+## Где лежат истории
+
+По умолчанию подхватываются файлы:
+
+```text
+app/components/**/*.stories.{js,jsx,ts,tsx}
+```
+
+Glob задаётся в `.storybook/main.ts` через `componentsGlobBase` (путь к `app/components` с нормализацией слэшей для Windows).
+
+## Добавление новой истории
+
+1. Рядом с компонентом (или в подпапке `app/components/...`) создайте файл, например `MyWidget.stories.ts`.
+2. Используйте формат **CSF** (Component Story Format) для Vue 3, как в [документации Storybook для Vue 3 + Vite](https://storybook.js.org/docs/get-started/frameworks/vue3-vite/?renderer=vue).
+3. Перезапуск Storybook обычно не нужен: изменения подхватываются через HMR.
+
+Минимальный ориентир по структуре:
+
+- экспорт `default` с `title`, `component` (и при необходимости `argTypes`);
+- именованные экспорты сцен (`export const Default = { ... }`).
+
+## Полезные ссылки
+
+- Модуль Nuxt: [storybook.nuxtjs.org](https://storybook.nuxtjs.org)
+- Storybook для Vue 3 + Vite: [storybook.js.org/docs/get-started/frameworks/vue3-vite](https://storybook.js.org/docs/get-started/frameworks/vue3-vite/?renderer=vue) (параметр `?renderer=vue` переключает примеры на Vue)
+- Для **Storybook 9.x** (как в этом репозитории): [Vue + Vite](https://storybook.js.org/docs/9/get-started/frameworks/vue3-vite?renderer=vue)

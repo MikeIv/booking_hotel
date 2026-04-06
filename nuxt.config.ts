@@ -7,7 +7,6 @@ const IS_DEV = process.env.NODE_ENV === "development";
 
 export default defineNuxtConfig({
   modules: [
-    // Локальные composables должны быть загружены первыми
     "@nuxt/ui",
     "@nuxt/image",
     "@nuxtjs/i18n",
@@ -34,6 +33,7 @@ export default defineNuxtConfig({
   ui: {
     // @ts-expect-error - Nuxt UI types may not include all icon options
     icons: ["mdi", "simple-icons"],
+    // Палитра Nuxt UI совпадает с CSS-переменными --ui-color-* в app/assets/styles/variables/_colors.scss
     theme: {
       colors: [
         "primary",
@@ -45,13 +45,6 @@ export default defineNuxtConfig({
         "bgAccent",
         "bgDark",
       ],
-    },
-    button: {
-      padding: {
-        xs: "px-3 py-1.5",
-        sm: "px-3 py-1.5",
-        md: "px-4 py-2",
-      },
     },
   },
 
@@ -112,7 +105,6 @@ export default defineNuxtConfig({
 
   postcss: {
     plugins: {
-      "@tailwindcss/postcss": {},
       autoprefixer: {},
     },
   },
@@ -183,12 +175,6 @@ export default defineNuxtConfig({
       target: "esnext",
       minify: "esbuild",
       cssMinify: true,
-      terserOptions: {
-        compress: {
-          drop_console: process.env.NODE_ENV === "production",
-          drop_debugger: true,
-        },
-      },
       chunkSizeWarningLimit: 1600,
       rollupOptions: {
         output: {
@@ -197,6 +183,9 @@ export default defineNuxtConfig({
           },
         },
       },
+    },
+    optimizeDeps: {
+      exclude: ["@nuxt/ui"],
     },
     define: {
       "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV),
@@ -335,9 +324,5 @@ export default defineNuxtConfig({
       xl: 1280,
       xxl: 1536,
     },
-  },
-
-  optimizeDeps: {
-    exclude: ["@nuxt/ui"],
   },
 });

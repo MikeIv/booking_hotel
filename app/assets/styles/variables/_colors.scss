@@ -1,101 +1,65 @@
+/* Палитра: петроль (primary) + медно-терракотовый акцент.
+   Шкалы --ui-color-* сокращены до ступеней, реально используемых в app/. */
 :root {
-  --primary: #bf9d7c;
-  --secondary: #686062;
-  --success: #7dbf8a;
-  --info: #a02525;
-  --ui-bgAccent: #a02525;
+  --primary: #456b7a;
+  --secondary: #5c6670;
+  --success: #5ea970;
+  --info: #b8573f;
+  --ui-bgAccent: #b8573f;
   --ui-bgDark: var(--a-black);
 
-  --ui-color-primary-50: #f9f6f3;
-  --ui-color-primary-100: #f2ece2;
-  --ui-color-primary-200: #e3d6c5;
-  --ui-color-primary-300: #d1bba0;
-  --ui-color-primary-400: #bf9d7c;
-  --ui-color-primary-500: #b0835f;
-  --ui-color-primary-600: #a37153;
-  --ui-color-primary-700: #885c46;
-  --ui-color-primary-800: #6e4c3e;
-  --ui-color-primary-900: #5a4034;
-  --ui-color-primary-950: #30201a;
-  --ui-color-secondary-50: #f3f3f3;
-  --ui-color-secondary-100: #e2dfdf;
-  --ui-color-secondary-200: #c6c2c2;
-  --ui-color-secondary-300: #a69e9e;
-  --ui-color-secondary-400: #8c8384;
-  --ui-color-secondary-500: #7e7476;
-  --ui-color-secondary-600: #686062;
-  --ui-color-secondary-700: #575153;
-  --ui-color-secondary-800: #4c4749;
-  --ui-color-secondary-900: #434042;
-  --ui-color-secondary-950: #252324;
-  --ui-color-success-50: #f0f9f1;
-  --ui-color-success-100: #dcefdd;
-  --ui-color-success-200: #bbdfbf;
-  --ui-color-success-300: #7dbf8a;
-  --ui-color-success-400: #5ea970;
-  --ui-color-success-500: #3c8d51;
-  --ui-color-success-600: #2b703f;
-  --ui-color-success-700: #225a33;
-  --ui-color-success-800: #1d482b;
-  --ui-color-success-900: #193b24;
-  --ui-color-success-950: #0d2114;
-  --ui-color-accent-a10: #f6e5e2;
-  --ui-color-accent-a15: #f4dbd7;
-  --ui-color-accent-a20: #e7b8b0;
-  --ui-color-accent-a30: #d8958a;
-  --ui-color-accent-a35: #c77266;
-  --ui-color-accent-a45: #b54e45;
-  --ui-color-accent-a50: #a02525;
-  --ui-color-accent-a60: #842220;
-  --ui-color-accent-a65: #691f1b;
-  --ui-placeholder: #0d2114;
-  --ui-icon: #a9a9a9;
+  --ui-color-primary-50: #f3f8f9;
+  --ui-color-primary-100: #e4eef0;
+  --ui-color-primary-300: #a7c4cd;
+  --ui-color-primary-600: #456b7a;
+  --ui-color-primary-700: #3a5865;
+  --ui-color-secondary-50: #f5f6f7;
+  --ui-color-secondary-200: #d2d6da;
+  --ui-color-secondary-300: #b0b6bc;
+  --ui-color-secondary-500: #737b84;
+  --ui-color-secondary-950: #202428;
+  --ui-color-accent-a30: #e0a896;
 
   /* Base */
   --a-white: #fff;
   --a-black: #000;
-  --a-base: #bf9d7c;
+  --a-base: #456b7a;
 
   /* Typography */
-  --ui-text: var(--a-white);
   --a-text-white: #fff;
-  --a-text-primary: #bf9d7c;
-  --a-text-light: #a9a9a9;
+  --a-text-primary: #456b7a;
+  --a-text-light: #8e959e;
   --a-text-dark: #000;
-  --a-text-accent: #a02525;
-  --a-text-error: #a02525;
+  --a-text-accent: #b8573f;
+  --a-text-error: #b8573f;
 
   /* Background */
   --a-whiteBg: #fff;
   --a-blackBg: #000;
-  --a-mainBg: #e5e5e5;
-  --a-primaryBg: #bf9d7c;
-  --a-lightBg: #a9a9a9;
-  --a-lightPrimaryBg: #f3ece6;
-  --a-accentBg: #c2a283;
-  --a-accentLightBg: #dfcebd;
-  --a-accentDarkBg: #996d42;
-  --a-btnAccentBg: #a02525;
+  --a-mainBg: #e8eaec;
+  --a-primaryBg: #456b7a;
+  --a-lightBg: #b0b6bc;
+  --a-lightPrimaryBg: #e4eef0;
+  --a-accentBg: #5a8494;
+  --a-accentLightBg: #ccdde2;
+  --a-accentDarkBg: #3a5865;
+  --a-btnAccentBg: #b8573f;
 
   /* Banner backgrounds */
-  --a-banner-alert-bg: #f3ece6;
+  --a-banner-alert-bg: #e4eef0;
   --a-banner-info-bg: #f0f9f1;
   --a-banner-warning-bg: #fff4e6;
 
   /* Border */
-  --a-border: #e5e5e5;
-  --a-border-white: #e5e5e5;
-  --a-border-primary: #bf9d7c;
-  --a-border-primary-accent: #996d42;
+  --a-border: #e8eaec;
+  --a-border-white: #e8eaec;
+  --a-border-primary: #456b7a;
+  --a-border-primary-accent: #3a5865;
   --a-border-dark: #000;
-  --a-border-light: #a9a9a9;
-  --a-border-accent: #a02525;
+  --a-border-light: #8e959e;
+  --a-border-accent: #b8573f;
 
-  /* input */
-  --ui-input-menu-background: #fff;
-  --ui-input-menu-border-color: #bf9d7c;
-
-  /* Тени (для переносимости темы) */
+  /* Тени */
   --a-shadow-color: rgba(0, 0, 0, 0.1);
   --a-shadow-color-strong: rgba(0, 0, 0, 0.2);
   --a-shadow-card: 0 0 10px var(--a-shadow-color);
@@ -103,23 +67,14 @@
   --a-shadow-summary-inner: 0 0 10px var(--a-shadow-color);
   --a-shadow-weekday: 4px 4px 102.5px -10px var(--a-shadow-color);
 
-  /* Алиасы для совместимости с компонентами (границы, нейтральный фон) */
-  --a-gray-50: #f9f6f3;
-  --a-gray-200: #e5e5e5;
-  --a-gray-300: #d1d1d1;
+  --a-gray-50: #f3f8f9;
+  --a-gray-200: #e8eaec;
+  --a-gray-300: #d2d6da;
   --a-primary: var(--primary);
 
-  /* Шрифты (для темизации при клонировании проекта) */
-  --a-font-heading: "Lora", serif;
+  --a-font-heading: "Playfair Display", serif;
   --a-font-body: "Inter", sans-serif;
 
-  /* Toast */
-  --p-toast-warn-background: #f6ebe9;
-  --p-toast-warn-border-color: #c77266;
-  --p-toast-warn-color: #a02525;
-  --p-toast-warn-shadow: #a02525;
-  --p-progressspinner-color-one: #bf9d7c;
-  --p-progressspinner-color-two: #bf9d7c;
-  --p-progressspinner-color-three: #bf9d7c;
-  --p-progressspinner-color-four: #bf9d7c;
+  /* PrimeVue Toast warn (base/_global.scss) */
+  --p-toast-warn-border-color: #cd876f;
 }

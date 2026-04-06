@@ -75,7 +75,7 @@ const forSelf = computed({
   &:hover {
     color: var(--a-primary);
   }
-  &:before {
+  &::before {
     content: "<";
     position: absolute;
     top: 50%;

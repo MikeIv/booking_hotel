@@ -476,7 +476,7 @@
     color: var(--a-text-dark);
     cursor: pointer;
 
-    &:before {
+    &::before {
       content: "<";
       position: absolute;
       top: 50%;
@@ -555,7 +555,7 @@
     padding: rem(20);
     text-align: center;
     color: var(--a-text-error);
-    background-color: var(--a-bg-light);
+    background-color: var(--a-lightPrimaryBg);
     border-radius: var(--a-borderR--card);
     margin-bottom: rem(40);
   }
@@ -582,7 +582,7 @@
     padding: rem(20);
     text-align: center;
     color: var(--a-text-error);
-    background-color: var(--a-bg-light);
+    background-color: var(--a-lightPrimaryBg);
     border-radius: var(--a-borderR--card);
     margin-bottom: rem(40);
   }

@@ -212,14 +212,14 @@
     overflow-y: auto;
 
     scrollbar-width: thin;
-    scrollbar-color: var(--a-primary) var(--a-gray-100);
+    scrollbar-color: var(--a-primary) var(--a-gray-200);
 
     &::-webkit-scrollbar {
       width: rem(6);
     }
 
     &::-webkit-scrollbar-track {
-      background: var(--a-gray-100);
+      background: var(--a-gray-200);
       border-radius: rem(3);
     }
 
@@ -229,7 +229,7 @@
       transition: background 0.2s ease;
 
       &:hover {
-        background: var(--a-primary-dark);
+        background: var(--a-accentDarkBg);
       }
     }
   }

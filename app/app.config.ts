@@ -1,6 +1,6 @@
 export default defineAppConfig({
   theme: {
-    primaryColor: "#bf9d7c",
+    primaryColor: "#456b7a",
   },
   icon: {
     size: "24px", // default <Icon> size applied

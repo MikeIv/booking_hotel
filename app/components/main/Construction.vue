@@ -52,25 +52,24 @@
         <p :class="$style.text">галлерея</p>
       </div>
       <div :class="$style.imageBlock">
-        <div class="max-w-[1200px] mx-auto">
+        <div :class="$style.carouselInner">
           <UCarousel
             v-slot="{ item }"
             loop
             wheel-gestures
             :items="items"
             :ui="{
-              item: 'basis-1/2 sm:basis-1/3 md:basis-1/4 pb-6',
-              container: 'gap-2',
+              item: $style.carouselItem,
+              container: $style.carouselContainer,
             }"
           >
-            <div class="relative h-[400px]">
+            <div :class="$style.slide">
               <img
                 :src="item.image"
-                class="rounded-lg object-cover w-full h-full"
+                :alt="item.caption"
+                :class="$style.slideImage"
               >
-              <div
-                class="absolute bottom-0 left-0 right-0 bg-white bg-opacity-50 text-black p-2 text-center"
-              >
+              <div :class="$style.slideCaption">
                 {{ item.caption }}
               </div>
             </div>
@@ -83,7 +82,7 @@
         <!--            :items="items"-->
         <!--            :ui="{ item: 'basis-1/3' }"-->
         <!--          >-->
-        <!--            <img :src="item" width="234" height="234" class="rounded-lg" />-->
+        <!--            <img :src="item" width="234" height="234" />-->
         <!--          </UCarousel>-->
         <!--        </template>-->
       </div>
@@ -146,6 +145,54 @@
     align-items: center;
     height: rem(400);
     margin: 0 auto;
+  }
+
+  .carouselInner {
+    width: 100%;
+    max-width: rem(1200);
+    margin: 0 auto;
+  }
+
+  .carouselContainer {
+    display: flex;
+    gap: rem(8);
+  }
+
+  .carouselItem {
+    flex: 0 0 50%;
+    padding-bottom: rem(24);
+
+    @media (min-width: #{size.$tablet}) {
+      flex-basis: 33.333%;
+    }
+
+    @media (min-width: #{size.$desktopMin}) {
+      flex-basis: 25%;
+    }
+  }
+
+  .slide {
+    position: relative;
+    height: rem(400);
+  }
+
+  .slideImage {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border-radius: var(--a-borderR--x8);
+    object-fit: cover;
+  }
+
+  .slideCaption {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    padding: rem(8);
+    color: var(--a-text-dark);
+    text-align: center;
+    background: rgb(255 255 255 / 50%);
   }
 
   .text {

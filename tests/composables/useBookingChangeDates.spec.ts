@@ -28,6 +28,8 @@ const mockSearchPackages = vi.fn();
 const mockGetBookingByUuid = vi.fn();
 const mockFormatDate = vi.fn((d: Date) => d.toISOString().split("T")[0]);
 const mockGetSelectedServicesForRoom = vi.fn().mockReturnValue([]);
+const mockSetDate = vi.fn();
+const mockSetSelectedTariff = vi.fn();
 
 vi.mock("~/stores/booking", () => ({
   useBookingStore: () => ({
@@ -40,6 +42,8 @@ vi.mock("~/stores/booking", () => ({
     getBookingByUuid: mockGetBookingByUuid,
     formatDate: mockFormatDate,
     getSelectedServicesForRoom: mockGetSelectedServicesForRoom,
+    setDate: mockSetDate,
+    setSelectedTariff: mockSetSelectedTariff,
   }),
 }));
 
@@ -81,6 +85,8 @@ describe("useBookingChangeDates", () => {
     mockGetBookingByUuid.mockResolvedValue(undefined);
     mockGetSelectedServicesForRoom.mockReturnValue([]);
     mockPut.mockResolvedValue({ success: true });
+    mockSetDate.mockClear();
+    mockSetSelectedTariff.mockClear();
   });
 
   const makeComposable = (uuid: string | null = "booking-uuid") => {
@@ -278,13 +284,16 @@ describe("useBookingChangeDates", () => {
       await confirmChangeDates();
 
       expect(mockPut).toHaveBeenCalledWith(
-        "/v1/users/profile",
+        "/v1/booking/booking-uuid",
         expect.objectContaining({
-          booking_change: expect.objectContaining({
-            uuid: "booking-uuid",
-            room_type_code: "STANDARD",
-            rate_plan_code: "BBREAKFAST",
-          }),
+          start_at: "2026-04-15",
+          end_at: "2026-04-17",
+          rooms: expect.arrayContaining([
+            expect.objectContaining({
+              room_type_code: "STANDARD",
+              rate_plan_code: "BBREAKFAST",
+            }),
+          ]),
         }),
         expect.any(Object),
       );
@@ -340,7 +349,7 @@ describe("useBookingChangeDates", () => {
       expect(isChangingDates.value).toBe(false);
     });
 
-    it("должен передавать форматированные даты в booking_change", async () => {
+    it("должен передавать форматированные даты в теле PUT /v1/booking/:uuid", async () => {
       mockFormatDate
         .mockReturnValueOnce("2026-04-15")
         .mockReturnValueOnce("2026-04-17");
@@ -350,12 +359,10 @@ describe("useBookingChangeDates", () => {
       await confirmChangeDates();
 
       expect(mockPut).toHaveBeenCalledWith(
-        "/v1/users/profile",
+        "/v1/booking/booking-uuid",
         expect.objectContaining({
-          booking_change: expect.objectContaining({
-            start_at: "2026-04-15",
-            end_at: "2026-04-17",
-          }),
+          start_at: "2026-04-15",
+          end_at: "2026-04-17",
         }),
         expect.any(Object),
       );

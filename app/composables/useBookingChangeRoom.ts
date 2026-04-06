@@ -1,6 +1,7 @@
 import { useBookingStore } from "~/stores/booking";
 import { storeToRefs } from "pinia";
 import type { ComputedRef } from "vue";
+import { pickNumber, pickString } from "~/utils/pick";
 
 type ChangeBookingRoomResponse = {
   success: boolean;

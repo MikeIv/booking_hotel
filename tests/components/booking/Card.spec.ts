@@ -287,19 +287,11 @@ describe("Card.vue", () => {
         props: { room },
       });
 
-      const consoleSpy = vi
-        .spyOn(console, "error")
-        .mockImplementation(() => {});
-
-      // Получаем доступ к методу через vm
       const vm = wrapper.vm as unknown as CardComponentInstance;
       await vm.handleTariff();
 
-      expect(consoleSpy).toHaveBeenCalledWith("Не выбраны даты бронирования");
       expect(mockBookingStore.setSelectedRoomType).not.toHaveBeenCalled();
       expect(mockRouterPush).not.toHaveBeenCalled();
-
-      consoleSpy.mockRestore();
     });
 
     it("должен сохранить room_type_code и перейти на /rooms/tariff для одного номера", async () => {

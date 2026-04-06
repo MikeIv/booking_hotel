@@ -2,6 +2,7 @@ import { useBookingStore } from "~/stores/booking";
 import { storeToRefs } from "pinia";
 import type { ComputedRef } from "vue";
 import type { PackageResource } from "~/types/room";
+import { pickNumber, pickString } from "~/utils/pick";
 
 type ChangeServicesResponse = {
   success: boolean;

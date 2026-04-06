@@ -3,6 +3,8 @@ import { useAuthStore } from "~/stores/auth";
 import { storeToRefs } from "pinia";
 import type { ComputedRef } from "vue";
 import type { ContactFormData } from "~/types/booking";
+import { buildBookingContactFallback } from "~/utils/bookingFallback";
+import { pickNumber, pickString } from "~/utils/pick";
 
 type ChangeBookingResponse = {
   success: boolean;
@@ -64,6 +66,10 @@ export const useBookingChangeContacts = (
     changeContactsSuccess.value = null;
     isChangeContactsPopupOpen.value = false;
   };
+
+  function buildContactFormFromBooking(): ContactFormData {
+    return buildBookingContactFallback(createdBooking.value, authStore.user);
+  }
 
   const confirmChangeContacts = async () => {
     const uuid = currentBookingUuid.value;
@@ -204,6 +210,7 @@ export const useBookingChangeContacts = (
     changeContactsSuccess,
     contactForm,
     canSubmitContactChange,
+    buildContactFormFromBooking,
     openChangeContactsPopup,
     closeChangeContactsPopup,
     confirmChangeContacts,

@@ -1,0 +1,22 @@
+diff --git a/node_modules/@storybook-vue/nuxt/dist/preset.mjs b/node_modules/@storybook-vue/nuxt/dist/preset.mjs
+index c63db7b..3b1e238 100644
+--- a/node_modules/@storybook-vue/nuxt/dist/preset.mjs
++++ b/node_modules/@storybook-vue/nuxt/dist/preset.mjs
+@@ -3245,7 +3245,7 @@ async function extendComposables(nuxt) {
+   nuxt.options.build.transpile.push(composablesDir);
+   addImportsSources({
+     imports: ["useRouter"],
+-    from: join(composablesDir, "router")
++    from: join(composablesDir, "router").replace(/\\/g, "/")
+   });
+ }
+ async function loadNuxtViteConfig(root) {
+@@ -3452,7 +3452,7 @@ function getNuxtProxyConfig(nuxt) {
+   const route = "^/(_nuxt|_ipx|api/_nuxt_icon|__nuxt_devtools__|__nuxt_island)";
+   const proxy = {
+     [route]: {
+-      target: `http://localhost:${port}`,
++      target: `http://127.0.0.1:${port}`,
+       changeOrigin: true,
+       secure: false,
+       ws: true
