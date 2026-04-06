@@ -56,8 +56,8 @@ deploy develop:
     name: dev
     url: $BASE_URL
   script:
-    - cp -rf .output /var/www/varvarka/${CI_COMMIT_BRANCH}
-    - cd /var/www/varvarka/${CI_COMMIT_BRANCH}
+    - cp -rf .output /var/www/ukraina/${CI_COMMIT_BRANCH}
+    - cd /var/www/ukraina/${CI_COMMIT_BRANCH}
     - git pull ${CI_REPOSITORY_URL} ${CI_COMMIT_BRANCH}
     - |
       # Telegram notification publish

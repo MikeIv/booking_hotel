@@ -2,7 +2,7 @@ import svgLoader from "vite-svg-loader";
 
 const API_BASE_URL =
   process.env.NUXT_PUBLIC_API_BASE ||
-  "https://varvarka-api.grandfs-develop.ru/api";
+  "https://ukraina-api.grandfs-develop.ru/api";
 const IS_DEV = process.env.NODE_ENV === "development";
 
 export default defineNuxtConfig({
@@ -130,7 +130,7 @@ export default defineNuxtConfig({
     public: {
       apiBase:
         process.env.NUXT_PUBLIC_API_BASE ||
-        "https://varvarka-api.grandfs-develop.ru/api",
+        "https://ukraina-api.grandfs-develop.ru/api",
       isDev: IS_DEV,
     },
   },
@@ -139,7 +139,7 @@ export default defineNuxtConfig({
     static: true,
     // devProxy: {
     //   "/api/v1": {
-    //     target: "https://varvarka-api.grandfs-develop.ru/api/v1",
+    //     target: "https://ukraina-api.grandfs-develop.ru/api/v1",
     //     changeOrigin: true,
     //     rewrite: (path) => path.replace(/^\/api\/v1/, ""),
     //     headers: {
@@ -296,7 +296,7 @@ export default defineNuxtConfig({
   },
 
   image: {
-    domains: ["https://varvarka-v2.grandfs-develop.ru/"],
+    domains: ["https://ukraina-v2.grandfs-develop.ru/"],
     presets: {
       cover: {
         modifiers: {

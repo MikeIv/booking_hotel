@@ -5,10 +5,71 @@
     | { title: string; kind: "colors"; items: ColorItem[] }
     | { title: string; kind: "shadows"; items: ShadowItem[] };
 
-  /** Синхронизируйте с `app/assets/styles/variables/_colors.scss`. */
+  /** Синхронизируйте с `app/assets/styles/variables/_colors.scss` и Figma Color Styles. */
   const sections: Section[] = [
     {
-      title: "Семантика и палитра",
+      title: "Design System: Primary",
+      kind: "colors",
+      items: [
+        { name: "ds-primary-50", token: "--ds-primary-50" },
+        { name: "ds-primary-100", token: "--ds-primary-100" },
+        { name: "ds-primary-300", token: "--ds-primary-300" },
+        { name: "ds-primary-500", token: "--ds-primary-500" },
+        { name: "ds-primary-700", token: "--ds-primary-700" },
+        { name: "ds-primary-900", token: "--ds-primary-900" },
+        { name: "ds-primary-hover", token: "--ds-primary-hover" },
+        { name: "ds-primary-active", token: "--ds-primary-active" },
+        { name: "ds-primary-disabled", token: "--ds-primary-disabled" },
+      ],
+    },
+    {
+      title: "Design System: Neutral",
+      kind: "colors",
+      items: [
+        { name: "ds-neutral-0", token: "--ds-neutral-0" },
+        { name: "ds-neutral-50", token: "--ds-neutral-50" },
+        { name: "ds-neutral-100", token: "--ds-neutral-100" },
+        { name: "ds-neutral-200", token: "--ds-neutral-200" },
+        { name: "ds-neutral-300", token: "--ds-neutral-300" },
+        { name: "ds-neutral-500", token: "--ds-neutral-500" },
+        { name: "ds-neutral-700", token: "--ds-neutral-700" },
+        { name: "ds-neutral-900", token: "--ds-neutral-900" },
+      ],
+    },
+    {
+      title: "Design System: Semantic",
+      kind: "colors",
+      items: [
+        { name: "ds-semantic-success", token: "--ds-semantic-success" },
+        { name: "ds-semantic-warning", token: "--ds-semantic-warning" },
+        { name: "ds-semantic-error", token: "--ds-semantic-error" },
+        { name: "ds-semantic-info", token: "--ds-semantic-info" },
+      ],
+    },
+    {
+      title: "Design System: Role",
+      kind: "colors",
+      items: [
+        { name: "ds-role-primary", token: "--ds-role-primary" },
+        { name: "ds-role-primary-hover", token: "--ds-role-primary-hover" },
+        { name: "ds-role-primary-active", token: "--ds-role-primary-active" },
+        { name: "ds-role-primary-disabled", token: "--ds-role-primary-disabled" },
+        { name: "ds-role-secondary", token: "--ds-role-secondary" },
+        { name: "ds-role-accent", token: "--ds-role-accent" },
+        { name: "ds-role-background", token: "--ds-role-background" },
+        { name: "ds-role-surface", token: "--ds-role-surface" },
+        { name: "ds-role-border", token: "--ds-role-border" },
+        { name: "ds-role-text-primary", token: "--ds-role-text-primary" },
+        { name: "ds-role-text-secondary", token: "--ds-role-text-secondary" },
+        { name: "ds-role-text-muted", token: "--ds-role-text-muted" },
+        { name: "ds-role-success", token: "--ds-role-success" },
+        { name: "ds-role-warning", token: "--ds-role-warning" },
+        { name: "ds-role-error", token: "--ds-role-error" },
+        { name: "ds-role-info", token: "--ds-role-info" },
+      ],
+    },
+    {
+      title: "Алиасы проекта (совместимость)",
       kind: "colors",
       items: [
         { name: "primary", token: "--primary" },
@@ -17,12 +78,6 @@
         { name: "info", token: "--info" },
         { name: "ui-bgAccent", token: "--ui-bgAccent" },
         { name: "ui-bgDark", token: "--ui-bgDark" },
-      ],
-    },
-    {
-      title: "Шкала primary / secondary / accent",
-      kind: "colors",
-      items: [
         { name: "ui-color-primary-50", token: "--ui-color-primary-50" },
         { name: "ui-color-primary-100", token: "--ui-color-primary-100" },
         { name: "ui-color-primary-300", token: "--ui-color-primary-300" },
@@ -34,16 +89,6 @@
         { name: "ui-color-secondary-500", token: "--ui-color-secondary-500" },
         { name: "ui-color-secondary-950", token: "--ui-color-secondary-950" },
         { name: "ui-color-accent-a30", token: "--ui-color-accent-a30" },
-      ],
-    },
-    {
-      title: "Базовые",
-      kind: "colors",
-      items: [
-        { name: "a-white", token: "--a-white" },
-        { name: "a-black", token: "--a-black" },
-        { name: "a-base", token: "--a-base" },
-        { name: "a-primary (alias)", token: "--a-primary" },
       ],
     },
     {
@@ -128,10 +173,10 @@
 <template>
   <div :class="$style.root">
     <header :class="$style.header">
-      <h1 :class="$style.title">Цвета</h1>
+      <h1 :class="$style.title">Цветовая система</h1>
       <p :class="$style.lead">
-        CSS-переменные из <code>_colors.scss</code> (и связанные токены теней). Образцы читают
-        значение через <code>var(--token)</code>.
+        Синхронизировано с Figma Color Styles. Сначала идут канонические токены
+        <code>--ds-*</code>, ниже - алиасы проекта для обратной совместимости.
       </p>
     </header>
 

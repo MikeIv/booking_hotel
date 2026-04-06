@@ -1,63 +1,106 @@
-/* Палитра: петроль (primary) + медно-терракотовый акцент.
-   Шкалы --ui-color-* сокращены до ступеней, реально используемых в app/. */
+/* Синхронизировано с Figma Color Styles:
+   https://www.figma.com/design/8VW5pfsag9wEyJSzPwRvhM/Booking-Ukr?node-id=6026-2&m=dev */
 :root {
-  --primary: #456b7a;
-  --secondary: #5c6670;
-  --success: #5ea970;
-  --info: #b8573f;
-  --ui-bgAccent: #b8573f;
-  --ui-bgDark: var(--a-black);
+  /* Design System tokens (Figma) */
+  --ds-primary-50: #f7f4ee;
+  --ds-primary-100: #eae3d8;
+  --ds-primary-300: #c8bba4;
+  --ds-primary-500: #928b7d;
+  --ds-primary-700: #746e63;
+  --ds-primary-900: #4f4a42;
+  --ds-primary-hover: #746e63;
+  --ds-primary-active: #4f4a42;
+  --ds-primary-disabled: #cfc8bc;
 
-  --ui-color-primary-50: #f3f8f9;
-  --ui-color-primary-100: #e4eef0;
-  --ui-color-primary-300: #a7c4cd;
-  --ui-color-primary-600: #456b7a;
-  --ui-color-primary-700: #3a5865;
-  --ui-color-secondary-50: #f5f6f7;
-  --ui-color-secondary-200: #d2d6da;
-  --ui-color-secondary-300: #b0b6bc;
-  --ui-color-secondary-500: #737b84;
-  --ui-color-secondary-950: #202428;
-  --ui-color-accent-a30: #e0a896;
+  --ds-neutral-0: #fff;
+  --ds-neutral-50: #f8f8f8;
+  --ds-neutral-100: #ebebeb;
+  --ds-neutral-200: #e4dccc;
+  --ds-neutral-300: #d0d0d0;
+  --ds-neutral-500: #9a9a9a;
+  --ds-neutral-700: #525252;
+  --ds-neutral-900: #000;
+
+  --ds-semantic-success: #1e9e4a;
+  --ds-semantic-warning: #d08a00;
+  --ds-semantic-error: #cc0001;
+  --ds-semantic-info: #1677ff;
+
+  --ds-role-primary: #928b7d;
+  --ds-role-primary-hover: #746e63;
+  --ds-role-primary-active: #4f4a42;
+  --ds-role-primary-disabled: #cfc8bc;
+  --ds-role-secondary: #525252;
+  --ds-role-accent: #cc0001;
+  --ds-role-background: #f8f8f8;
+  --ds-role-surface: #fff;
+  --ds-role-border: #d0d0d0;
+  --ds-role-text-primary: #000;
+  --ds-role-text-secondary: #525252;
+  --ds-role-text-muted: #9a9a9a;
+  --ds-role-success: #1e9e4a;
+  --ds-role-warning: #d08a00;
+  --ds-role-error: #cc0001;
+  --ds-role-info: #1677ff;
+
+  /* Backward-compatible aliases */
+  --primary: var(--ds-role-primary);
+  --secondary: var(--ds-role-secondary);
+  --success: var(--ds-semantic-success);
+  --info: var(--ds-semantic-info);
+  --ui-bgAccent: var(--ds-role-accent);
+  --ui-bgDark: var(--ds-neutral-900);
+
+  --ui-color-primary-50: var(--ds-primary-50);
+  --ui-color-primary-100: var(--ds-primary-100);
+  --ui-color-primary-300: var(--ds-primary-300);
+  --ui-color-primary-600: var(--ds-primary-500);
+  --ui-color-primary-700: var(--ds-primary-700);
+  --ui-color-secondary-50: var(--ds-neutral-50);
+  --ui-color-secondary-200: var(--ds-neutral-200);
+  --ui-color-secondary-300: var(--ds-neutral-300);
+  --ui-color-secondary-500: var(--ds-neutral-500);
+  --ui-color-secondary-950: var(--ds-neutral-900);
+  --ui-color-accent-a30: #cc00014d;
 
   /* Base */
-  --a-white: #fff;
-  --a-black: #000;
-  --a-base: #456b7a;
+  --a-white: var(--ds-neutral-0);
+  --a-black: var(--ds-neutral-900);
+  --a-base: var(--ds-role-primary);
 
   /* Typography */
-  --a-text-white: #fff;
-  --a-text-primary: #456b7a;
-  --a-text-light: #8e959e;
-  --a-text-dark: #000;
-  --a-text-accent: #b8573f;
-  --a-text-error: #b8573f;
+  --a-text-white: var(--ds-neutral-0);
+  --a-text-primary: var(--ds-role-text-primary);
+  --a-text-light: var(--ds-role-text-muted);
+  --a-text-dark: var(--ds-role-text-primary);
+  --a-text-accent: var(--ds-role-accent);
+  --a-text-error: var(--ds-role-error);
 
   /* Background */
-  --a-whiteBg: #fff;
-  --a-blackBg: #000;
-  --a-mainBg: #e8eaec;
-  --a-primaryBg: #456b7a;
-  --a-lightBg: #b0b6bc;
-  --a-lightPrimaryBg: #e4eef0;
-  --a-accentBg: #5a8494;
-  --a-accentLightBg: #ccdde2;
-  --a-accentDarkBg: #3a5865;
-  --a-btnAccentBg: #b8573f;
+  --a-whiteBg: var(--ds-role-surface);
+  --a-blackBg: var(--ds-neutral-900);
+  --a-mainBg: var(--ds-role-background);
+  --a-primaryBg: var(--ds-role-primary);
+  --a-lightBg: var(--ds-neutral-200);
+  --a-lightPrimaryBg: var(--ds-primary-100);
+  --a-accentBg: var(--ds-role-accent);
+  --a-accentLightBg: var(--ds-primary-50);
+  --a-accentDarkBg: var(--ds-primary-900);
+  --a-btnAccentBg: var(--ds-role-accent);
 
   /* Banner backgrounds */
-  --a-banner-alert-bg: #e4eef0;
-  --a-banner-info-bg: #f0f9f1;
-  --a-banner-warning-bg: #fff4e6;
+  --a-banner-alert-bg: #fdeeee;
+  --a-banner-info-bg: #edf4ff;
+  --a-banner-warning-bg: #fff5e8;
 
   /* Border */
-  --a-border: #e8eaec;
-  --a-border-white: #e8eaec;
-  --a-border-primary: #456b7a;
-  --a-border-primary-accent: #3a5865;
-  --a-border-dark: #000;
-  --a-border-light: #8e959e;
-  --a-border-accent: #b8573f;
+  --a-border: var(--ds-role-border);
+  --a-border-white: var(--ds-role-border);
+  --a-border-primary: var(--ds-role-primary);
+  --a-border-primary-accent: var(--ds-primary-700);
+  --a-border-dark: var(--ds-neutral-900);
+  --a-border-light: var(--ds-role-text-muted);
+  --a-border-accent: var(--ds-role-accent);
 
   /* Тени */
   --a-shadow-color: rgba(0, 0, 0, 0.1);
@@ -67,14 +110,14 @@
   --a-shadow-summary-inner: 0 0 10px var(--a-shadow-color);
   --a-shadow-weekday: 4px 4px 102.5px -10px var(--a-shadow-color);
 
-  --a-gray-50: #f3f8f9;
-  --a-gray-200: #e8eaec;
-  --a-gray-300: #d2d6da;
+  --a-gray-50: var(--ds-neutral-50);
+  --a-gray-200: var(--ds-neutral-200);
+  --a-gray-300: var(--ds-neutral-300);
   --a-primary: var(--primary);
 
   --a-font-heading: "Playfair Display", serif;
   --a-font-body: "Inter", sans-serif;
 
   /* PrimeVue Toast warn (base/_global.scss) */
-  --p-toast-warn-border-color: #cd876f;
+  --p-toast-warn-border-color: var(--ds-semantic-warning);
 }
