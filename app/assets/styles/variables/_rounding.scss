@@ -1,38 +1,31 @@
-/* Скругления: карточки и кнопки (в пределах сетки rem); править под макет отеля. */
+/* Синхронизировано с Figma Rounding:
+   https://www.figma.com/design/8VW5pfsag9wEyJSzPwRvhM/Booking-Ukr?node-id=6001-2&m=dev
+   Variable collection: Booking / Rounding */
 :root {
-  /* Радиус скругления для блока */
-  --a-borderR--x6: 6px;
+  /* Canonical Design System tokens */
+  --ds-radius-sm: 4px;
+  --ds-radius-md: 8px;
+  --ds-radius-lg: 12px;
+  --ds-radius-xl: 16px;
 
-  /* Радиус скругления для блока */
-  --a-borderR--x10: 10px;
+  /* Допустимый усиленный вариант xl для крупных модалок (по гайду 16/20) */
+  --ds-radius-xl-strong: 20px;
 
-  /* Радиус скругления для блока */
-  --a-borderR--card: 24px;
-
-  /* Радиус скругления для кнопок */
-  --a-borderR--btn: 12px;
-
-  /* Радиус скругления для инпута */
-  --a-borderR--input: 16px;
-
-  /* Радиус скругления для форм авторизации и услуг */
-  --a-borderR--dialog: 40px;
-
-  /* Радиус скругления для баннера */
-  --p-banner-border-radius: 30px;
-
-  /* Радиус скругления для блока */
+  /* Backward-compatible aliases for incremental migration */
+  --a-borderR--x6: var(--ds-radius-sm);
+  --a-borderR--x8: var(--ds-radius-md);
+  --a-borderR--x10: var(--ds-radius-lg);
+  --a-borderR--x20: var(--ds-radius-xl-strong);
   --a-borderR--x30: 30px;
 
-  /* Радиус для табов и pill-кнопок */
-  --a-borderR--pill: 39px;
+  /* Закрепленные соответствия из дизайн-системы */
+  --a-borderR--btn: var(--ds-radius-md); /* кнопки -> md */
+  --a-borderR--card: var(--ds-radius-lg); /* карточки -> lg */
+  --a-borderR--dialog: var(--ds-radius-xl); /* модалки -> xl */
 
-  /* Радиус для селектов (тип кровати и т.п.) */
+  /* Специализированные legacy-токены */
+  --a-borderR--input: var(--ds-radius-xl);
   --a-borderR--select: 15px;
-
-  /* Радиус для кнопок и блоков (20px) */
-  --a-borderR--x20: 20px;
-
-  /* Радиус для мелких элементов (чипы, теги) */
-  --a-borderR--x8: 8px;
+  --a-borderR--pill: 39px;
+  --p-banner-border-radius: 30px;
 }

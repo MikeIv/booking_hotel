@@ -78,18 +78,23 @@
   ];
 
   const radiusTokens = [
-    { name: "--a-borderR--x6", note: "блок" },
-    { name: "--a-borderR--x8", note: "чипы, теги" },
-    { name: "--a-borderR--x10", note: "блок" },
-    { name: "--a-borderR--btn", note: "кнопки" },
-    { name: "--a-borderR--input", note: "инпуты" },
-    { name: "--a-borderR--x20", note: "20px" },
-    { name: "--a-borderR--card", note: "карточки" },
-    { name: "--a-borderR--select", note: "селекты" },
-    { name: "--a-borderR--x30", note: "блок / баннер (частично)" },
-    { name: "--p-banner-border-radius", note: "баннер PrimeVue" },
-    { name: "--a-borderR--pill", note: "табы, pill" },
-    { name: "--a-borderR--dialog", note: "формы, диалоги" },
+    { name: "--ds-radius-sm", note: "4px, базовый малый радиус" },
+    { name: "--ds-radius-md", note: "8px, кнопки (md)" },
+    { name: "--ds-radius-lg", note: "12px, карточки (lg)" },
+    { name: "--ds-radius-xl", note: "16px, модалки (xl)" },
+    { name: "--ds-radius-xl-strong", note: "20px, крупные модалки (исключение)" },
+    { name: "--a-borderR--btn", note: "alias -> --ds-radius-md" },
+    { name: "--a-borderR--card", note: "alias -> --ds-radius-lg" },
+    { name: "--a-borderR--dialog", note: "alias -> --ds-radius-xl" },
+    { name: "--a-borderR--input", note: "alias -> --ds-radius-xl" },
+    { name: "--a-borderR--x6", note: "legacy alias -> --ds-radius-sm" },
+    { name: "--a-borderR--x8", note: "legacy alias -> --ds-radius-md" },
+    { name: "--a-borderR--x10", note: "legacy alias -> --ds-radius-lg" },
+    { name: "--a-borderR--x20", note: "legacy alias -> --ds-radius-xl-strong" },
+    { name: "--a-borderR--select", note: "legacy, селекты" },
+    { name: "--a-borderR--pill", note: "legacy, tab/pill" },
+    { name: "--a-borderR--x30", note: "legacy, крупные блоки/баннер" },
+    { name: "--p-banner-border-radius", note: "legacy, баннер PrimeVue" },
   ];
 </script>
 
