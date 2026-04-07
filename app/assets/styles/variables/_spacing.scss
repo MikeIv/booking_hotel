@@ -1,0 +1,29 @@
+/* Синхронизировано с Figma Grid & Spacing:
+   https://www.figma.com/design/8VW5pfsag9wEyJSzPwRvhM/Booking-Ukr?node-id=6055-2&m=dev
+   Variable collection: Booking / Spacing */
+:root {
+  /* Design System spacing tokens */
+  --ds-space-0: 0px;
+  --ds-space-025: 4px; /* редкое микро-исключение */
+  --ds-space-100: 8px;
+  --ds-space-200: 16px;
+  --ds-space-300: 24px;
+  --ds-space-400: 32px;
+  --ds-space-500: 40px;
+  --ds-space-600: 48px;
+  --ds-space-700: 56px;
+  --ds-space-800: 64px;
+  --ds-space-900: 80px;
+  --ds-space-1000: 96px;
+
+  /* Aliases for incremental migration in components */
+  --a-space-0: var(--ds-space-0);
+  --a-space-1: var(--ds-space-100); /* 8 */
+  --a-space-2: var(--ds-space-200); /* 16 */
+  --a-space-3: var(--ds-space-300); /* 24 */
+  --a-space-4: var(--ds-space-400); /* 32 */
+  --a-space-5: var(--ds-space-500); /* 40 */
+  --a-space-6: var(--ds-space-600); /* 48 */
+  --a-space-7: var(--ds-space-700); /* 56 */
+  --a-space-8: var(--ds-space-800); /* 64 */
+}
