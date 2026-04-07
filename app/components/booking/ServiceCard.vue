@@ -79,7 +79,7 @@
           <h2 :class="$style.title">{{ title }}</h2>
 
           <BookingInfoButton
-            icon-name="i-heroicons-chevron-down-20-solid"
+            icon-name="i-chevron-down"
             aria-label="Подробнее об услуге"
             :data-popup-button="true"
             @click="openPopup"

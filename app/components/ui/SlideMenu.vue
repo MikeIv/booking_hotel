@@ -1,7 +1,5 @@
 <script setup lang="ts">
   import { gsap } from "gsap";
-  import Telegram from "~/assets/icons/telegram.svg";
-  import Vk from "~/assets/icons/vk.svg";
 
   const props = defineProps({
     isOpen: {
@@ -64,12 +62,12 @@
   const socialLinks = [
     {
       url: "https://t.me/ithumor",
-      icon: Telegram,
+      iconName: "i-telegram",
       // text: "Telegram",
     },
     {
       url: "https://vk.com/feed",
-      icon: Vk,
+      iconName: "i-vk",
       // text: "ВКонтакте",
     },
   ];

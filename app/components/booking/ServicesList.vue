@@ -34,7 +34,7 @@
           @click="openServicePopup($event, service)"
         >
           <UIcon
-            name="i-heroicons-chevron-down-20-solid"
+            name="i-chevron-down"
             :class="$style.chevronIcon"
           />
         </button>

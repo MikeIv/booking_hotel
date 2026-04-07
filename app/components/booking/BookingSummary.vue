@@ -175,8 +175,8 @@
           <BookingInfoButton
             :icon-name="
               isDatesDetailsOpen
-                ? 'i-heroicons-chevron-up-20-solid'
-                : 'i-heroicons-chevron-down-20-solid'
+                ? 'i-chevron-up'
+                : 'i-chevron-down'
             "
             aria-label="Подробнее о датах проживания"
             :aria-expanded="isDatesDetailsOpen"

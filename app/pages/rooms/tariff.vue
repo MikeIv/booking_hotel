@@ -1,7 +1,6 @@
 <script setup lang="ts">
   import { useBookingStore } from "~/stores/booking";
   import type { PackageResource, RoomTariff } from "~/types/room";
-  import ArrowBack from "~/assets/icons/arrow-back.svg";
   import { useNotificationToast } from "~/composables/useToast";
 
   definePageMeta({
@@ -225,7 +224,7 @@
 
     <section :class="$style.tariffBlock">
       <Button :class="$style.return" unstyled @click="goBackToRooms">
-        <ArrowBack :class="$style.arrowIcon" />
+        <UIcon name="i-arrow-back" :class="$style.arrowIcon" />
         <span>Назад к выбору номеров</span>
       </Button>
 

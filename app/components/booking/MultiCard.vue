@@ -203,7 +203,7 @@
                   @click="openPopup($event)"
                 >
                   <UIcon
-                    name="i-heroicons-chevron-down-20-solid"
+                    name="i-chevron-down"
                     :class="$style.chevronIcon"
                     aria-hidden="true"
                   />
@@ -451,7 +451,7 @@
             {{ showAllTariffs ? "Скрыть тарифы" : "Все тарифы" }}
             <span :class="$style.allTariffsIconWrap">
               <UIcon
-                name="i-heroicons-chevron-down-20-solid"
+                name="i-chevron-down"
                 :class="[
                   $style.allTariffsChevron,
                   showAllTariffs && $style.allTariffsChevronRotated,

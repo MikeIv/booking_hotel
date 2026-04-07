@@ -49,7 +49,7 @@
       @click="togglePopover"
     >
       <UIcon
-        name="i-heroicons-chevron-down-20-solid"
+        name="i-chevron-down"
         :class="[$style.chevronIcon, $style[`chevronIcon_${size}`]]"
       />
     </Button>

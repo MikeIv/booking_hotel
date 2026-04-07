@@ -1,9 +1,10 @@
 <script setup lang="ts">
-  import { computed } from "vue";
+  import { computed, type Component } from "vue";
 
   interface SocialLink {
     url: string;
-    icon: string;
+    icon?: string | Component;
+    iconName?: string;
     text?: string;
   }
 
@@ -12,7 +13,7 @@
       type: Array as () => SocialLink[],
       required: true,
       validator: (links: SocialLink[]) =>
-        links.every((link) => link.url && link.icon),
+        links.every((link) => link.url && (link.icon || link.iconName)),
     },
     direction: {
       type: String as () => "horizontal" | "vertical",
@@ -55,7 +56,12 @@
       rel="noopener noreferrer"
       :class="$style.socialLink"
     >
-      <component :is="link.icon" :class="$style.logo" />
+      <component v-if="link.icon" :is="link.icon" :class="$style.logo" />
+      <UIcon
+        v-else-if="link.iconName"
+        :name="link.iconName"
+        :class="$style.logo"
+      />
       <span v-if="link.text" :class="$style.text">
         {{ link.text }}
       </span>

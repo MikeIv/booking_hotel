@@ -171,7 +171,7 @@
                 @click="toggleTariffInfo(tariff.rate_plan_code)"
               >
                 <UIcon
-                  name="i-heroicons-chevron-down-20-solid"
+                  name="i-chevron-down"
                   :class="[
                     $style.chevronIcon,
                     $style.chevronIcon_medium,

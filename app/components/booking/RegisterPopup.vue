@@ -232,8 +232,8 @@
               :class="$style.togglePassword"
               @click="showPassword = !showPassword"
             >
-              <Icon
-                :name="showPassword ? 'mdi:eye-off' : 'mdi:eye'"
+              <UIcon
+                :name="showPassword ? 'i-eye-off' : 'i-eye'"
                 :class="$style.eyeIcon"
               />
             </button>

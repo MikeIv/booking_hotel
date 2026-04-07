@@ -1,6 +1,5 @@
 <script setup lang="ts">
   import type { Room } from "~/types/room";
-  import ChevronDownSelect from "~/assets/icons/chevron-down-select.svg?component";
 
   interface Props {
     room: Room;
@@ -86,7 +85,7 @@
       <div :class="$style.roomHeader">
         <span :class="$style.title">{{ room.title || "Без названия" }}</span>
         <BookingInfoButton
-          icon-name="i-heroicons-chevron-down-20-solid"
+          icon-name="i-chevron-down"
           :data-popup-button="true"
           @click="_openPopup"
         />
@@ -140,9 +139,7 @@
               {{ r.bed!.title }}
             </option>
           </select>
-          <span :class="$style.bedTypeChevron" aria-hidden="true">
-            <ChevronDownSelect />
-          </span>
+          <UIcon name="i-chevron-down-select" :class="$style.bedTypeChevron" aria-hidden="true" />
         </div>
       </div>
     </div>
@@ -402,20 +399,11 @@
     position: absolute;
     right: rem(14);
     top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
     width: rem(17);
     height: rem(7);
+    transform: translateY(-50%);
     pointer-events: none;
     z-index: 0;
     color: var(--a-text-dark);
-
-    :global(svg) {
-      display: block;
-      width: rem(17);
-      height: rem(7);
-    }
   }
 </style>
