@@ -43,6 +43,12 @@
   --ds-role-error: #cc0001;
   --ds-role-info: #1677ff;
 
+  /* Design System shadows (Figma 1.5 Shadows) */
+  --ds-shadow-sm: 0 0 10px rgba(0, 0, 0, 0.1);
+  --ds-shadow-inner: 0 0 10px rgba(0, 0, 0, 0.1);
+  --ds-shadow-md: 4px 4px 30px -10px rgba(0, 0, 0, 0.1);
+  --ds-shadow-lg: 4px 4px 102px -10px rgba(0, 0, 0, 0.1);
+
   /* Backward-compatible aliases */
   --primary: var(--ds-role-primary);
   --secondary: var(--ds-role-secondary);
@@ -105,10 +111,10 @@
   /* Тени */
   --a-shadow-color: rgba(0, 0, 0, 0.1);
   --a-shadow-color-strong: rgba(0, 0, 0, 0.2);
-  --a-shadow-card: 0 0 10px var(--a-shadow-color);
-  --a-shadow-summary: 4px 4px 30px -10px var(--a-shadow-color);
-  --a-shadow-summary-inner: 0 0 10px var(--a-shadow-color);
-  --a-shadow-weekday: 4px 4px 102.5px -10px var(--a-shadow-color);
+  --a-shadow-card: var(--ds-shadow-sm);
+  --a-shadow-summary: var(--ds-shadow-md);
+  --a-shadow-summary-inner: var(--ds-shadow-inner);
+  --a-shadow-weekday: var(--ds-shadow-lg);
 
   --a-gray-50: var(--ds-neutral-50);
   --a-gray-200: var(--ds-neutral-200);

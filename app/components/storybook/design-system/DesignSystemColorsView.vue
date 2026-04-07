@@ -159,6 +159,10 @@
       title: "Тени (цвет и готовые пресеты)",
       kind: "shadows",
       items: [
+        { name: "ds-shadow-sm", token: "--ds-shadow-sm" },
+        { name: "ds-shadow-inner", token: "--ds-shadow-inner" },
+        { name: "ds-shadow-md", token: "--ds-shadow-md" },
+        { name: "ds-shadow-lg", token: "--ds-shadow-lg" },
         { name: "a-shadow-color", token: "--a-shadow-color" },
         { name: "a-shadow-color-strong", token: "--a-shadow-color-strong" },
         { name: "a-shadow-card", token: "--a-shadow-card" },
