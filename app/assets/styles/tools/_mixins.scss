@@ -1,4 +1,5 @@
 @use "../variables/resolutions" as size;
+@use "functions" as *;
 
 // Брейк поинты mobile-first
 @mixin mobile {
@@ -21,4 +22,61 @@
   @media (min-width: #{size.$desktopMin}) {
     @content;
   }
+}
+
+// Typography roles from Figma tokens (node 6037:3)
+@mixin typo-h1 {
+  font-family: var(--a-font-heading);
+  font-size: var(--ds-typo-size-h1);
+  line-height: var(--ds-typo-line-h1);
+  font-weight: var(--ds-typo-weight-h);
+}
+
+@mixin typo-h2 {
+  font-family: var(--a-font-heading);
+  font-size: var(--ds-typo-size-h2);
+  line-height: var(--ds-typo-line-h2);
+  font-weight: var(--ds-typo-weight-h);
+}
+
+@mixin typo-h3 {
+  font-family: var(--a-font-heading);
+  font-size: var(--ds-typo-size-h3);
+  line-height: var(--ds-typo-line-h3);
+  font-weight: var(--ds-typo-weight-h);
+}
+
+@mixin typo-body-lg {
+  font-family: var(--a-font-body);
+  font-size: var(--ds-typo-size-body-lg);
+  line-height: var(--ds-typo-line-body-lg);
+  font-weight: var(--ds-typo-weight-body);
+}
+
+@mixin typo-body-md {
+  font-family: var(--a-font-body);
+  font-size: var(--ds-typo-size-body-md);
+  line-height: var(--ds-typo-line-body-md);
+  font-weight: var(--ds-typo-weight-body);
+}
+
+@mixin typo-body-sm {
+  font-family: var(--a-font-body);
+  font-size: var(--ds-typo-size-body-sm);
+  line-height: var(--ds-typo-line-body-sm);
+  font-weight: var(--ds-typo-weight-body);
+}
+
+@mixin typo-caption {
+  font-family: var(--a-font-body);
+  font-size: var(--ds-typo-size-caption);
+  line-height: var(--ds-typo-line-caption);
+  font-weight: var(--ds-typo-weight-caption);
+}
+
+@mixin typo-price-h {
+  font-family: var(--a-font-heading);
+  font-size: var(--ds-typo-size-h2);
+  line-height: var(--ds-typo-line-h2);
+  font-weight: var(--ds-typo-weight-h);
 }

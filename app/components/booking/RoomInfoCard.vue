@@ -151,6 +151,7 @@
 
 <style module lang="scss">
   @use "~/assets/styles/variables/resolutions" as size;
+  @use "~/assets/styles/tools/mixins" as typo;
 
   .roomInfoSection {
     display: flex;
@@ -293,18 +294,14 @@
   .title {
     display: inline-flex;
     flex-shrink: 1;
-    font-family: var(--a-font-heading);
-    font-size: rem(24);
-    font-weight: bold;
+    @include typo.typo-h3;
     color: var(--a-text-dark);
   }
 
 
   .roomDescription {
     margin-bottom: rem(24);
-    font-family: var(--a-font-body);
-    font-size: rem(16);
-    line-height: 1.6;
+    @include typo.typo-body-md;
     color: var(--a-text-dark);
 
     :global(p) {
@@ -326,8 +323,7 @@
   }
 
   .amenitiesListShow {
-    font-family: var(--a-font-body);
-    font-size: rem(16);
+    @include typo.typo-body-md;
     font-weight: 500;
     color: var(--a-text-light);
     cursor: pointer;
@@ -341,8 +337,7 @@
     display: flex;
     align-items: center;
     padding: rem(2) rem(14);
-    font-family: var(--a-font-body);
-    font-size: rem(16);
+    @include typo.typo-body-md;
     color: var(--a-text-dark);
     border: rem(1) solid var(--a-border-primary);
     border-radius: var(--a-borderR--dialog);
@@ -360,9 +355,7 @@
   }
 
   .bedTypeLabel {
-    font-family: var(--a-font-body);
-    font-size: rem(19);
-    font-weight: 400;
+    @include typo.typo-body-lg;
     color: var(--a-text-dark);
     word-wrap: break-word;
     cursor: pointer;
@@ -390,9 +383,7 @@
     height: 100%;
     padding: 0;
     padding-right: rem(17 + 8);
-    font-family: var(--a-font-body);
-    font-size: rem(19);
-    font-weight: 400;
+    @include typo.typo-body-lg;
     color: var(--a-text-dark);
     background: transparent;
     border: none;

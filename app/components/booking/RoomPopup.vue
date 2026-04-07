@@ -96,6 +96,7 @@
 
 <style module lang="scss">
   @use "~/assets/styles/variables/resolutions" as size;
+  @use "~/assets/styles/tools/mixins" as typo;
 
   .roomContent {
     display: flex;
@@ -123,7 +124,7 @@
     border-radius: var(--a-borderR--x20);
     background: var(--a-whiteBg);
     color: var(--a-text-dark);
-    font-size: rem(14);
+    @include typo.typo-body-sm;
     white-space: nowrap;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -151,16 +152,13 @@
 
   .roomTitle {
     margin: 0 0 rem(20) 0;
-    font-family: var(--a-font-heading);
-    font-size: rem(28);
-    font-weight: 700;
-    line-height: 1.2;
+    @include typo.typo-h2;
     color: var(--a-text-dark);
 
     @media (min-width: #{size.$desktopMin}) {
       width: 50%;
       margin: 0 rem(20) 0 0;
-      font-size: rem(34);
+      @include typo.typo-h1;
     }
   }
 
@@ -177,7 +175,7 @@
     display: flex;
     align-items: center;
     gap: rem(8);
-    font-size: rem(18);
+    @include typo.typo-body-lg;
     font-weight: 500;
     color: var(--a-text-dark);
   }
@@ -209,8 +207,7 @@
     display: flex;
     align-items: center;
     padding: rem(2) rem(14);
-    font-family: var(--a-font-body);
-    font-size: rem(16);
+    @include typo.typo-body-md;
     color: var(--a-text-dark);
     border: rem(1) solid var(--a-border-primary);
     border-radius: var(--a-borderR--x8);
@@ -242,14 +239,12 @@
   .description {
     margin: 0 0 rem(16) 0;
     padding: 0 rem(24);
-    font-family: var(--a-font-heading);
-    font-size: rem(16);
-    line-height: 1.6;
+    @include typo.typo-body-md;
     color: var(--a-text-dark);
 
     @media (min-width: #{size.$desktopMin}) {
       padding: 0 rem(34);
-      font-size: rem(24);
+      @include typo.typo-h3;
     }
   }
 

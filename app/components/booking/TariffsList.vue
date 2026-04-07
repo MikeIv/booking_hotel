@@ -316,6 +316,7 @@
 <style module lang="scss">
   @use "~/assets/styles/variables/resolutions" as size;
   @use "~/assets/styles/variables/z-index" as z;
+  @use "~/assets/styles/tools/mixins" as typo;
 
   .tariffsSection {
     padding-top: rem(24);
@@ -324,9 +325,7 @@
   .tariffsTitle {
     margin-bottom: rem(40);
     text-align: center;
-    font-family: var(--a-font-heading);
-    font-size: rem(24);
-    font-weight: 500;
+    @include typo.typo-h3;
     color: var(--a-text-dark);
   }
 
@@ -352,8 +351,7 @@
     width: 100%;
     height: rem(50);
     padding: rem(2) rem(14);
-    font-family: var(--a-font-body);
-    font-size: rem(20);
+    @include typo.typo-body-lg;
     color: var(--a-text-dark);
     border: rem(1) solid var(--a-border-primary);
     border-radius: var(--a-borderR--dialog);
@@ -408,8 +406,7 @@
   .emptyState {
     padding: rem(40) rem(20);
     text-align: center;
-    font-family: var(--a-font-body);
-    font-size: rem(18);
+    @include typo.typo-body-lg;
     color: var(--a-text-light);
   }
 
@@ -442,9 +439,7 @@
   }
 
   .tariffName {
-    font-family: var(--a-font-heading);
-    font-size: rem(28);
-    font-weight: 600;
+    @include typo.typo-h2;
     color: var(--a-text-dark);
     margin: 0;
   }
@@ -496,10 +491,8 @@
   }
 
   .tariffDescription {
-    font-family: var(--a-font-body);
-    font-size: rem(20);
+    @include typo.typo-body-lg;
     color: var(--a-text-dark);
-    line-height: 1.5;
     margin: 0;
   }
 
@@ -549,8 +542,7 @@
   }
 
   .dataText {
-    font-family: var(--a-font-heading);
-    font-size: rem(20);
+    @include typo.typo-body-lg;
     color: var(--a-text-dark);
   }
 
@@ -567,18 +559,14 @@
   }
 
   .tariffPrice {
-    font-family: var(--a-font-heading);
-    font-size: rem(34);
-    font-weight: 700;
+    @include typo.typo-h1;
     color: var(--a-text-dark);
     white-space: nowrap;
     margin-left: auto;
   }
 
   .tariffPriceLabel {
-    font-family: var(--a-font-body);
-    font-size: rem(12);
-    font-weight: 500;
+    @include typo.typo-caption;
     color: var(--a-text-light);
     margin-left: auto;
     margin-bottom: rem(20);
@@ -612,7 +600,7 @@
     align-items: center;
     width: rem(290);
     height: rem(44);
-    font-size: rem(18);
+    @include typo.typo-body-lg;
     color: var(--a-text-white);
     background-color: var(--a-blackBg);
     border-radius: var(--a-borderR--btn);
@@ -658,8 +646,7 @@
   }
 
   .packagesTitle {
-    font-family: var(--a-font-body);
-    font-size: rem(14);
+    @include typo.typo-body-sm;
     font-weight: 600;
     color: var(--a-text-dark);
     margin-bottom: rem(8);
@@ -679,8 +666,7 @@
     background: var(--a-whiteBg);
     border: rem(1) solid var(--a-border-light);
     border-radius: var(--a-borderR--x6);
-    font-family: var(--a-font-body);
-    font-size: rem(12);
+    @include typo.typo-caption;
     color: var(--a-text-dark);
   }
 

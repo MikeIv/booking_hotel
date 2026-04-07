@@ -163,6 +163,7 @@
 
 <style module lang="scss">
   @use "~/assets/styles/variables/resolutions" as size;
+  @use "~/assets/styles/tools/mixins" as typo;
 
   .serviceContent {
     display: flex;
@@ -178,14 +179,11 @@
 
   .serviceTitle {
     margin: 0 0 rem(20) 0;
-    font-family: var(--a-font-heading);
-    font-size: rem(28);
-    font-weight: 700;
-    line-height: 1.2;
+    @include typo.typo-h2;
     color: var(--a-text-dark);
 
     @media (min-width: #{size.$desktopMin}) {
-      font-size: rem(34);
+      @include typo.typo-h1;
     }
   }
 
@@ -219,14 +217,11 @@
   .description {
     margin: 0;
     padding: 0;
-    font-family: var(--a-font-heading);
-    font-size: rem(16);
-    line-height: 1.6;
+    @include typo.typo-body-md;
     color: var(--a-text-dark);
 
     @media (min-width: #{size.$desktopMin}) {
-      font-size: rem(18);
-      line-height: 1.8;
+      @include typo.typo-body-lg;
     }
   }
 
@@ -271,14 +266,14 @@
   }
 
   .itemTitle {
-    font-family: var(--a-font-body);
-    font-size: rem(14);
+    @include typo.typo-body-sm;
     font-weight: 500;
     color: var(--a-text-light);
     margin: 0;
 
     @media (min-width: #{size.$desktopMin}) {
-      font-size: rem(15);
+      @include typo.typo-body-md;
+      font-weight: 500;
     }
   }
 
@@ -288,13 +283,11 @@
   }
 
   .price {
-    font-family: var(--a-font-heading);
-    font-size: rem(24);
-    font-weight: 700;
+    @include typo.typo-h3;
     color: var(--a-text-dark);
 
     @media (min-width: #{size.$desktopMin}) {
-      font-size: rem(28);
+      @include typo.typo-h2;
     }
   }
 
@@ -320,15 +313,15 @@
     border-radius: var(--a-borderR--btn);
     background-color: var(--a-blackBg);
     color: var(--a-text-white);
-    font-family: var(--a-font-body);
-    font-size: rem(16);
+    @include typo.typo-body-md;
     font-weight: 500;
     cursor: pointer;
     transition: background-color 0.2s ease;
 
     @media (min-width: #{size.$desktopMin}) {
-      font-size: rem(18);
       padding: rem(14) rem(24);
+      @include typo.typo-body-lg;
+      font-weight: 500;
     }
 
     &:hover:not(:disabled) {

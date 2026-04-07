@@ -1,4 +1,82 @@
 <script setup lang="ts">
+  type FontToken = { token: string; value: string; note: string };
+  type ScaleToken = { token: string; value: string; sample: string; line: string; weight: string };
+
+  const fontTokens: FontToken[] = [
+    { token: "--ds-typo-family-heading", value: "Gotham Pro", note: "Заголовки и акценты" },
+    { token: "--ds-typo-family-body", value: "Inter", note: "Основной UI-текст" },
+    { token: "--a-font-heading", value: "alias -> --ds-typo-family-heading", note: "Обратная совместимость" },
+    { token: "--a-font-body", value: "alias -> --ds-typo-family-body", note: "Обратная совместимость" },
+  ];
+
+  const weightTokens: FontToken[] = [
+    { token: "--ds-typo-weight-light", value: "300", note: "Light" },
+    { token: "--ds-typo-weight-regular", value: "400", note: "Regular" },
+    { token: "--ds-typo-weight-medium", value: "500", note: "Medium" },
+    { token: "--ds-typo-weight-semibold", value: "600", note: "SemiBold" },
+    { token: "--ds-typo-weight-bold", value: "700", note: "Bold" },
+    { token: "--ds-typo-weight-black", value: "900", note: "Black" },
+  ];
+
+  const scaleTokens: ScaleToken[] = [
+    {
+      token: "--ds-typo-size-h1",
+      value: "2.125rem / 34px",
+      sample: "h1 — Заголовок страницы (Gotham Pro)",
+      line: "var(--ds-typo-line-h1) / 42px",
+      weight: "var(--ds-typo-weight-h) / 700",
+    },
+    {
+      token: "--ds-typo-size-h2",
+      value: "1.75rem / 28px",
+      sample: "h2 — Заголовок секции (Gotham Pro)",
+      line: "var(--ds-typo-line-h2) / 34px",
+      weight: "var(--ds-typo-weight-h) / 700",
+    },
+    {
+      token: "--ds-typo-size-h3",
+      value: "1.375rem / 22px",
+      sample: "h3 — Подзаголовок (Gotham Pro)",
+      line: "var(--ds-typo-line-h3) / 28px",
+      weight: "var(--ds-typo-weight-h) / 700",
+    },
+    {
+      token: "--ds-typo-size-body-lg",
+      value: "1.125rem / 18px",
+      sample: "body-lg — основной текст (Inter)",
+      line: "var(--ds-typo-line-body-lg) / 27px",
+      weight: "var(--ds-typo-weight-body) / 400",
+    },
+    {
+      token: "--ds-typo-size-body-md",
+      value: "1rem / 16px",
+      sample: "body-md — базовый UI-текст (Inter)",
+      line: "var(--ds-typo-line-body-md) / 24px",
+      weight: "var(--ds-typo-weight-body) / 400",
+    },
+    {
+      token: "--ds-typo-size-body-sm",
+      value: "0.875rem / 14px",
+      sample: "body-sm — вторичный текст (Inter)",
+      line: "var(--ds-typo-line-body-sm) / 20px",
+      weight: "var(--ds-typo-weight-body) / 400",
+    },
+    {
+      token: "--ds-typo-size-caption",
+      value: "0.75rem / 12px",
+      sample: "caption — подписи (Inter)",
+      line: "var(--ds-typo-line-caption) / 16px",
+      weight: "var(--ds-typo-weight-caption) / 500",
+    },
+  ];
+
+  const rhythmTokens: FontToken[] = [
+    { token: "--ds-typo-line-tight", value: "1", note: "Плотные UI-лейблы" },
+    { token: "--ds-typo-line-default", value: "1.3", note: "Заголовки" },
+    { token: "--ds-typo-line-comfort", value: "1.5", note: "Параграфы" },
+    { token: "--ds-typo-tracking-caps", value: "0.04em", note: "Uppercase labels" },
+  ];
+
   const radiusTokens = [
     { name: "--a-borderR--x6", note: "блок" },
     { name: "--a-borderR--x8", note: "чипы, теги" },
@@ -20,8 +98,8 @@
     <header :class="$style.header">
       <h1 :class="$style.title">Типографика</h1>
       <p :class="$style.lead">
-        Базовые токены: корень <code>html, body</code> (размер шрифта), семейства <code>--a-font-*</code>,
-        стек <code>--system-font</code> из <code>main.scss</code>, функция <code>rem()</code> (база 16px).
+        Секция синхронизирована с типографическими токенами дизайн-системы из Figma (node 6037:3):
+        канонические переменные <code>--ds-typo-*</code> и проектные алиасы <code>--a-font-*</code>.
       </p>
     </header>
 
@@ -44,44 +122,76 @@
     <section :class="$style.section">
       <h2 :class="$style.h2">Семейства шрифтов</h2>
       <ul :class="$style.samples">
+        <li
+          v-for="f in fontTokens"
+          :key="f.token"
+          :class="$style.sampleCard"
+        >
+          <span :class="$style.sampleLabel">{{ f.token }}</span>
+          <p
+            :class="$style.inter"
+            :style="{ fontFamily: `var(${f.token})` }"
+          >
+            Aa Бронирование номера
+          </p>
+          <code :class="$style.token">{{ f.value }}</code>
+        </li>
         <li :class="$style.sampleCard">
-          <span :class="$style.sampleLabel">--a-font-heading</span>
+          <span :class="$style.sampleLabel">Пример heading</span>
           <p
             :class="$style.playfair"
             :style="{ fontFamily: 'var(--a-font-heading)' }"
           >
-            Playfair Display — заголовки
+            Gotham Pro — заголовки
           </p>
-          <code :class="$style.token">var(--a-font-heading)</code>
+          <code :class="$style.token">var(--a-font-heading), weight 600</code>
         </li>
         <li :class="$style.sampleCard">
-          <span :class="$style.sampleLabel">--a-font-body</span>
+          <span :class="$style.sampleLabel">Пример body</span>
           <p
             :class="$style.inter"
             :style="{ fontFamily: 'var(--a-font-body)' }"
           >
             Inter — основной текст интерфейса
           </p>
-          <code :class="$style.token">var(--a-font-body)</code>
-        </li>
-        <li :class="$style.sampleCard">
-          <span :class="$style.sampleLabel">body (main.scss)</span>
-          <p :class="$style.system">Системный стек для body</p>
-          <code :class="$style.token">var(--system-font)</code>
+          <code :class="$style.token">var(--a-font-body), weight 400</code>
         </li>
       </ul>
     </section>
 
     <section :class="$style.section">
-      <h2 :class="$style.h2">Масштаб (примеры из UI)</h2>
+      <h2 :class="$style.h2">Веса и ритм</h2>
       <ul :class="$style.scale">
-        <li>
-          <span :class="$style.scaleLabel">Кнопка (.btn__bs в global)</span>
-          <span :class="$style.scaleSpec">18px (rem(18)), weight 400, line-height 1, Inter</span>
+        <li
+          v-for="w in weightTokens"
+          :key="w.token"
+        >
+          <span :class="$style.scaleLabel">{{ w.token }}</span>
+          <span :class="$style.scaleSpec">{{ w.value }} — {{ w.note }}</span>
         </li>
-        <li>
-          <span :class="$style.scaleLabel">Селект / список (PrimeVue)</span>
-          <span :class="$style.scaleSpec">16px (rem(16)), Inter</span>
+      </ul>
+      <ul :class="$style.scale">
+        <li
+          v-for="r in rhythmTokens"
+          :key="r.token"
+        >
+          <span :class="$style.scaleLabel">{{ r.token }}</span>
+          <span :class="$style.scaleSpec">{{ r.value }} — {{ r.note }}</span>
+        </li>
+      </ul>
+    </section>
+
+    <section :class="$style.section">
+      <h2 :class="$style.h2">Масштаб</h2>
+      <ul :class="$style.scale">
+        <li
+          v-for="s in scaleTokens"
+          :key="s.token"
+        >
+          <span :class="$style.scaleLabel">{{ s.token }}</span>
+          <span :class="$style.scaleSpec">{{ s.value }} — {{ s.sample }}</span>
+          <span :class="$style.scaleSpec">line-height: {{ s.line }}</span>
+          <span :class="$style.scaleSpec">font-weight: {{ s.weight }}</span>
         </li>
       </ul>
     </section>
@@ -208,10 +318,6 @@
     font-size: rem(22);
     line-height: 1.3;
     color: var(--a-text-dark);
-  }
-
-  .system {
-    font-family: var(--system-font);
   }
 
   .token {

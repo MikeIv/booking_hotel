@@ -46,7 +46,7 @@
 
   .title {
     margin-bottom: rem(40);
-    font-family: "Playfair Display", serif;
+    font-family: var(--a-font-heading);
     font-size: clamp(30px, 4vw, 60px);
     color: var(--a-white);
     text-align: center;

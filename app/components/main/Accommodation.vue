@@ -91,14 +91,14 @@
 
   .infoTitle {
     padding-top: clamp(10px, 4.5vw, 90px);
-    font-family: "Playfair Display", serif;
+    font-family: var(--a-font-heading);
     font-size: clamp(30px, 4vw, 60px);
     color: var(--secondary);
   }
 
   .subTitle {
     margin-bottom: rem(20);
-    font-family: "Playfair Display", serif;
+    font-family: var(--a-font-heading);
     font-size: clamp(24px, 4vw, 50px);
     color: var(--secondary);
   }

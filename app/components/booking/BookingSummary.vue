@@ -362,6 +362,7 @@
 <style module lang="scss">
   @use "~/assets/styles/variables/resolutions" as size;
   @use "~/assets/styles/variables/z-index" as z;
+  @use "~/assets/styles/tools/mixins" as typo;
 
   .pageSummary {
     display: block;
@@ -428,26 +429,14 @@
   }
 
   .pageSummaryTitle {
-    font-family: var(--a-font-heading);
-    font-size: rem(24);
-    font-weight: 700;
+    @include typo.typo-h3;
     color: var(--a-text-dark);
-
-    @media (min-width: #{size.$tablet}) {
-      font-size: rem(24);
-    }
-
-    @media (min-width: #{size.$desktopMin}) {
-      font-size: rem(24);
-    }
   }
 
   .pageSummaryDates {
     display: none;
     margin-bottom: rem(12);
-    font-family: var(--a-font-heading);
-    font-size: rem(20);
-    font-weight: 600;
+    @include typo.typo-h3;
     color: var(--a-text-dark);
     text-align: center;
   }
@@ -455,9 +444,7 @@
   .pageSummaryDatesMobile {
     display: block;
     margin-bottom: rem(12);
-    font-family: var(--a-font-heading);
-    font-size: rem(20);
-    font-weight: 600;
+    @include typo.typo-h3;
     color: var(--a-text-dark);
     text-align: center;
 
@@ -508,9 +495,7 @@
   }
 
   .bookingDetailLabel {
-    font-family: var(--a-font-heading);
-    font-size: rem(20);
-    font-weight: 700;
+    @include typo.typo-h3;
     color: var(--a-text-dark);
     white-space: nowrap;
   }
@@ -524,9 +509,7 @@
   .detailDay {
     flex-shrink: 0;
     width: rem(52);
-    font-family: var(--a-font-heading);
-    font-size: rem(16);
-    font-weight: 400;
+    @include typo.typo-body-md;
     color: var(--a-text-dark);
     text-align: center;
   }
@@ -544,9 +527,7 @@
     min-width: rem(161);
     height: rem(24);
     padding: rem(4) rem(28);
-    font-family: var(--a-font-heading);
-    font-size: rem(15);
-    font-weight: 400;
+    @include typo.typo-body-sm;
     color: var(--a-text-dark);
     text-align: center;
     white-space: nowrap;
@@ -590,8 +571,7 @@
   .roomButtonText {
     flex: 1;
     text-align: left;
-    font-family: var(--a-font-body);
-    font-size: rem(20);
+    @include typo.typo-body-lg;
     font-weight: 700;
     color: var(--a-white);
   }
@@ -637,25 +617,19 @@
 
   .roomType {
     flex: 1;
-    font-family: var(--a-font-heading);
-    font-size: rem(24);
-    font-weight: 700;
+    @include typo.typo-h3;
     color: var(--a-text-dark);
-    line-height: 1.2;
   }
 
   .roomPrice {
-    font-family: var(--a-font-heading);
-    font-size: rem(24);
-    font-weight: 700;
+    @include typo.typo-h3;
     color: var(--a-text-dark);
     white-space: nowrap;
     flex-shrink: 0;
   }
 
   .roomTariff {
-    font-family: var(--a-font-heading);
-    font-size: rem(18);
+    @include typo.typo-body-lg;
     font-weight: 600;
     color: var(--a-text-dark);
   }
@@ -667,8 +641,7 @@
   }
 
   .roomGuestLine {
-    font-family: var(--a-font-body);
-    font-size: rem(16);
+    @include typo.typo-body-md;
     font-weight: 500;
     color: var(--a-text-dark);
   }
@@ -678,15 +651,13 @@
     align-items: center;
     justify-content: space-between;
     gap: rem(12);
-    font-family: var(--a-font-heading);
-    font-size: rem(18);
+    @include typo.typo-body-lg;
     font-weight: 600;
     color: var(--a-text-dark);
   }
 
   .roomTotal strong {
-    font-family: var(--a-font-heading);
-    font-size: rem(18);
+    @include typo.typo-body-lg;
     font-weight: 600;
   }
 
@@ -697,8 +668,7 @@
   }
 
   .servicesHeader {
-    font-family: var(--a-font-heading);
-    font-size: rem(18);
+    @include typo.typo-body-lg;
     font-weight: 700;
     color: var(--a-text-dark);
   }
@@ -719,8 +689,7 @@
 
   .serviceTitle {
     flex: 1;
-    font-family: var(--a-font-body);
-    font-size: rem(16);
+    @include typo.typo-body-md;
     font-weight: 500;
     color: var(--a-text-dark);
   }
@@ -732,8 +701,7 @@
   }
 
   .servicePrice {
-    font-family: var(--a-font-heading);
-    font-size: rem(16);
+    @include typo.typo-body-md;
     font-weight: 700;
     color: var(--a-text-dark);
     white-space: nowrap;
@@ -775,32 +743,12 @@
     justify-content: space-between;
     gap: rem(12);
     margin-bottom: rem(12);
-    font-family: var(--a-font-heading);
-    font-size: rem(24);
-    font-weight: 700;
+    @include typo.typo-h3;
     color: var(--a-text-dark);
-
-    @media (min-width: #{size.$tablet}) {
-      font-size: rem(24);
-    }
-
-    @media (min-width: #{size.$desktopMin}) {
-      font-size: rem(24);
-    }
   }
 
   .pageSummaryGrandTotal strong {
-    font-family: var(--a-font-heading);
-    font-size: rem(32);
-    font-weight: 700;
-
-    @media (min-width: #{size.$tablet}) {
-      font-size: rem(32);
-    }
-
-    @media (min-width: #{size.$desktopMin}) {
-      font-size: rem(32);
-    }
+    @include typo.typo-h1;
   }
 
   .pageSummaryFooter {
@@ -822,9 +770,7 @@
     color: var(--a-white);
     border: none;
     cursor: pointer;
-    font-family: var(--a-font-body);
-    font-size: rem(24);
-    font-weight: 400;
+    @include typo.typo-body-lg;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -838,7 +784,6 @@
       max-width: rem(275) !important;
       padding: 0 !important;
       border-radius: var(--a-borderR--x20);
-      font-size: rem(24);
     }
   }
 </style>

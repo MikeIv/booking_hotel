@@ -123,7 +123,7 @@
   }
 
   .menuLink {
-    font-family: "Playfair Display", serif;
+    font-family: var(--a-font-heading);
     font-size: clamp(24px, 3vw, 30px);
     color: var(--secondary);
     text-decoration: none;
