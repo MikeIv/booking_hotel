@@ -269,9 +269,7 @@ const extractData = (homeMarkupRaw, homeCssRaw) => {
   const homeMarkupBeforeService = hasServiceBlock
     ? homeMarkupAfterRestaurantsRest.slice(0, serviceStartIndex)
     : homeMarkupAfterRestaurantsRest;
-  const homeMarkupAfterService = hasServiceBlock
-    ? homeMarkupAfterRestaurantsRest.slice(serviceEndIndex)
-    : "";
+  const homeMarkupAfterService = "";
 
   const temporarySlides = [...temporaryBlockHtml.matchAll(
     /(?:<a[^>]*href="([^"]+)"[^>]*>)?\s*<div class="slick-item">[\s\S]*?<img src="([^"]+)"[^>]*>[\s\S]*?<\/div>\s*(?:<\/a>)?/g,

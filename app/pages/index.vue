@@ -87,10 +87,6 @@
       :title="UKRAINA_HOME_DATA.serviceTitle"
       :items="UKRAINA_HOME_DATA.serviceItems"
     />
-    <MainUkrainaHtmlFragment
-      :html="UKRAINA_HOME_DATA.homeMarkupAfterService"
-      :css-text="UKRAINA_HOME_DATA.homeCss"
-    />
   </div>
 </template>
 

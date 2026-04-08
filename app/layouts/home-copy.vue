@@ -1,6 +1,7 @@
 <template>
   <div :class="$style.layout">
     <slot />
+    <LayoutFooter />
   </div>
 </template>
 

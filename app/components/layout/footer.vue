@@ -1,218 +1,264 @@
 <script setup lang="ts">
-  interface FooterProps {
-    anchorId?: string;
+  interface FooterLink {
+    label: string;
+    href: string;
   }
 
-  withDefaults(defineProps<FooterProps>(), {
-    anchorId: "",
-  });
+  interface FooterColumn {
+    title: string;
+    href: string;
+    links: FooterLink[];
+  }
+
+  const footerColumns: FooterColumn[] = [
+    {
+      title: "Услуги отеля",
+      href: "https://www.ukraina-hotel.ru/services",
+      links: [
+        { label: "Фитнес и Спа", href: "https://www.ukraina-hotel.ru/services/radisson-collection-fitness-spa" },
+        { label: "Подземная парковка", href: "http://parkingmoscow.ru/" },
+        { label: "Конференц-центр", href: "https://www.ukraina-hotel.ru/services/konferenc-centr" },
+        { label: "Галерея бутиков", href: "https://www.ukraina-hotel.ru/boutiques" },
+      ],
+    },
+    {
+      title: "Мероприятия",
+      href: "https://www.ukraina-hotel.ru/events",
+      links: [
+        { label: "Radisson Collection Lounge", href: "https://www.ukraina-hotel.ru/events/radisson-collection-lounge" },
+        { label: "Онлайн-студия", href: "https://www.ukraina-hotel.ru/events/online-entertainment-event-studio" },
+        { label: "Банкетный зал", href: "https://www.ukraina-hotel.ru/events/banquet-hall" },
+        { label: "Конференц-зал", href: "https://www.ukraina-hotel.ru/events/conference-hall" },
+      ],
+    },
+    {
+      title: "Рестораны",
+      href: "https://www.ukraina-hotel.ru/rest",
+      links: [
+        { label: "Лобби-бар", href: "https://www.ukraina-hotel.ru/rest/lobby-bar" },
+        { label: "Веранда", href: "https://www.ukraina-hotel.ru/rest/veranda" },
+        { label: "Клубный ресторан", href: "https://www.ukraina-hotel.ru/rest/club-restaurant" },
+        { label: "Флотилия «Рэдиссон Ройал»", href: "https://www.ukraina-hotel.ru/rest/flotilla-radisson-royal" },
+      ],
+    },
+    {
+      title: "О гостинице",
+      href: "https://www.ukraina-hotel.ru/about",
+      links: [
+        { label: "Спецпредложения", href: "https://www.ukraina-hotel.ru/special-offers" },
+        { label: "Юридическая информация", href: "https://www.ukraina-hotel.ru/rules" },
+        { label: "Контакты", href: "https://www.ukraina-hotel.ru/contacts" },
+        { label: "Новости", href: "https://www.ukraina-hotel.ru/news" },
+      ],
+    },
+  ];
 </script>
 
 <template>
-  <LayoutContentBlock
-    :has-two-columns="true"
-    :no-bottom-margin="true"
-    :layout-class="$style.layout"
-    :content-class="$style.content"
-    :column-left="$style.columnLeft"
-    :column-right="$style.introRight"
-    :title-class="$style.title"
-  >
-    <template #left-column>
-      <section :class="$style.footerInfo">
-        <LayoutFooterNav :class="$style.menu" />
-        <LayoutFooterSubscribe :class="$style.cellForm" />
-        <LayoutFooterContacts :class="$style.adress" />
-        <LayoutFooterSocial :class="$style.socialMedia" />
-        <LayoutFooterQR :class="$style.qr" />
-        <LayoutFooterCopyright :class="$style.copyright" />
+  <footer :class="$style.footer">
+    <div :class="$style.container">
+      <section :class="$style.top">
+        <div
+          v-for="column in footerColumns"
+          :key="column.title"
+          :class="$style.col"
+        >
+          <h5 :class="$style.colTitle">
+            <a :href="column.href" target="_blank" rel="noopener noreferrer">
+              {{ column.title }}
+            </a>
+          </h5>
+          <ul :class="$style.colList">
+            <li v-for="link in column.links" :key="link.href">
+              <a :href="link.href" target="_blank" rel="noopener noreferrer">
+                {{ link.label }}
+              </a>
+            </li>
+          </ul>
+        </div>
       </section>
-    </template>
-    <template #right-column>
-      <img
-        src="/images/footer/map.svg"
-        srcset="/images/footer/map.svg 1x, /images/footer/map.svg 2x"
-        alt="карта"
-        :class="$style.imagePic"
-      >
-    </template>
-  </LayoutContentBlock>
+
+      <section :class="$style.bottom">
+        <div :class="$style.bottomItem">
+          <Icon name="mdi:phone" :class="$style.icon" aria-hidden="true" />
+          <a href="tel:+74952215555">+7 (495) 221-55-55</a>
+        </div>
+        <div :class="$style.bottomItem">
+          <Icon name="mdi:map-marker" :class="$style.icon" aria-hidden="true" />
+          <a href="//yandex.ru/maps/-/CCUi76wo8A" target="_blank" rel="noopener noreferrer">
+            Москва, Кутузовский проспект, 2/1, стр. 1
+          </a>
+        </div>
+        <div :class="$style.copyright">
+          Copyright © 1957-2026 Radisson Collection Hotel, Moscow
+        </div>
+      </section>
+    </div>
+  </footer>
 </template>
 
 <style module lang="scss">
-  @use "~/assets/styles/variables/resolutions" as size;
-
-  .layout {
-    padding: 0;
-    margin-top: rem(90);
-    background-color: var(--ui-color-primary-50);
-
-    @media (max-width: #{size.$desktopMin}) {
-      margin-top: rem(80);
-    }
-
-    @media (max-width: #{size.$tabletMin}) {
-      margin-top: rem(60);
-    }
+  .footer {
+    background: #525252;
+    color: #fff;
+    font-family: GothaProReg, Arial, Helvetica, sans-serif;
+    padding-top: 70px;
+    padding-bottom: 70px;
   }
 
-  .content {
-    max-width: rem(1540);
-    margin-left: auto;
-    margin-right: auto;
-    padding: 0 rem(15);
-    display: grid;
-    grid-template-columns: 1fr;
-    row-gap: rem(30);
-
-    @media (max-width: #{size.$desktop}) {
-      padding: 0 rem(30);
-    }
-
-    @media (max-width: #{size.$tabletMax}) {
-      padding: 0 rem(15);
-    }
-
-    @media (min-width: #{size.$tabletMax}) {
-      grid-template-columns: 42% auto;
-      column-gap: 9%;
-      row-gap: 0;
-      align-items: start;
-    }
-
-    @media (min-width: #{size.$tabletMax}) and (max-width: #{size.$desktopMedium}) {
-      grid-template-columns: 40% auto;
-      column-gap: 2%;
-    }
+  .container {
+    max-width: 1220px;
+    margin: 0 auto;
+    padding: 0 var(--ds-space-300);
   }
 
-  .columnLeft {
-    align-items: stretch;
-    padding: rem(110) 0 rem(50);
-
-    @media (max-width: #{size.$desktop}) {
-      padding: rem(90) 0 rem(50);
-    }
-
-    @media (max-width: #{size.$desktopMin}) {
-      padding: rem(60) 0 rem(50);
-    }
-
-    @media (max-width: #{size.$tablet}) {
-      padding: rem(30) 0;
-    }
-  }
-
-  .introRight {
-    align-items: stretch;
-    height: 100%;
-  }
-
-  .imagePic {
+  .top {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    height: auto;
-    object-fit: contain;
-    border: rem(1) solid #c4c4c4;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 30px;
+  }
 
-    @media (min-width: #{size.$tabletMax}) {
-      width: 100%;
+  .colTitle {
+    margin: 0 0 20px;
+    font-family: GothaProReg, Arial, Helvetica, sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 1.2;
+    text-transform: uppercase;
+
+    a {
+      color: #fff;
+      text-decoration: none;
     }
   }
 
-  .footerInfo {
-    width: 100%;
+  .colList {
+    margin: 0;
+    padding: 0;
+    list-style: none;
     display: grid;
-    padding: rem(30) 0;
-    color: var(--secondary);
-    font: 600 14px/2.1 "Futura PT", sans-serif;
-    letter-spacing: 1px;
-    grid-template-columns: 1fr 1fr;
-    grid-template-areas:
-      "footer-menu footer-subscribe"
-      "footer-address footer-social"
-      "footer-copyright footer-qr";
-    column-gap: rem(50);
-    row-gap: rem(30);
+    gap: 6px;
+
+    a {
+      color: #fff;
+      text-decoration: none;
+      font-family: GothaProReg, Arial, Helvetica, sans-serif;
+      font-size: 16px;
+      font-weight: 300;
+      line-height: 1.5;
+    }
+
+    a:hover {
+      color: #9f927f;
+    }
   }
 
-  .menu {
-    grid-area: footer-menu;
+  .bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--ds-space-300);
   }
 
-  .cellForm {
-    grid-area: footer-subscribe;
+  .bottomItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    line-height: 1.5;
+
+    a {
+      color: #9f927f;
+      text-decoration: none;
+    }
   }
 
-  .adress {
-    grid-area: footer-address;
-  }
-
-  .socialMedia {
-    grid-area: footer-social;
-  }
-
-  .qr {
-    grid-area: footer-qr;
+  .icon {
+    width: 20px;
+    height: 20px;
+    color: #9f927f;
+    flex: 0 0 20px;
   }
 
   .copyright {
-    grid-area: footer-copyright;
+    color: #fff;
+    font-size: 12px;
+    line-height: 1.4;
+    text-align: right;
   }
 
-  @media (max-width: #{size.$tablet}) {
-    .footerInfo {
-      grid-template-areas:
-        "footer-menu footer-subscribe footer-social"
-        "footer-menu footer-subscribe footer-qr"
-        "footer-address footer-address footer-copyright";
-      grid-template-columns: auto 38% auto;
-      column-gap: rem(50);
-      row-gap: rem(30);
+  @media (max-width: 1220px) {
+    .container {
+      padding: 0 var(--ds-space-400);
+    }
+  }
+
+  @media (max-width: 1060px) {
+    .colList a {
+      font-size: 14px;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    .bottomItem {
+      a {
+        font-size: 14px;
+      }
+    }
+  }
+
+  @media (max-width: 992px) {
+    .footer {
+      padding-top: 56px;
+      padding-bottom: 56px;
     }
 
-    .adress {
-      grid-template-columns: auto 1fr;
-      grid-template-rows: 1fr;
-      align-content: start;
-      align-self: end;
+    .top {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--ds-space-400) var(--ds-space-500);
+    }
 
-      p {
-        grid-column: 1 / 3;
-      }
+    .bottom {
+      flex-wrap: wrap;
+      align-items: flex-end;
     }
 
     .copyright {
-      align-self: end;
+      flex-basis: 100%;
+      text-align: center;
     }
   }
 
-  @media (max-width: #{size.$tabletMin}) {
-    .footerInfo {
-      grid-template-areas:
-        "footer-menu footer-menu"
-        "footer-subscribe footer-subscribe"
-        "footer-address footer-address"
-        "footer-social footer-qr"
-        "footer-copyright footer-copyright";
-      grid-template-columns: 1fr 1fr;
-      column-gap: rem(30);
-      row-gap: rem(25);
+  @media (max-width: 667px) {
+    .container {
+      padding: 0 var(--ds-space-200);
     }
 
-    .cellForm {
-      max-width: none;
-      width: 100%;
-    }
-
-    .adress {
+    .top {
       grid-template-columns: 1fr;
+      gap: var(--ds-space-300);
+    }
 
-      p {
-        grid-column: 1 / 2;
-      }
+    .bottom {
+      align-items: center;
+      flex-direction: column;
+    }
+
+    .bottomItem:nth-child(2) {
+      margin: 35px 0;
+    }
+  }
+
+  @media (max-width: 420px) {
+    .footer {
+      padding-top: 48px;
+      padding-bottom: 48px;
+    }
+
+    .copyright {
+      font-size: 10px;
     }
   }
 </style>
