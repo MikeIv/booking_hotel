@@ -6,6 +6,7 @@
     "build": "nuxt build",
     "dev": "nuxt dev --no-fork",
     "dev:open": "nuxt dev --no-fork --open",
+    "generate:ukraina-home": "node scripts/generate-ukraina-home-data.mjs",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "patch-package && nuxt prepare",

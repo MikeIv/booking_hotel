@@ -1,8 +1,9 @@
 <script setup lang="ts">
+  import UKRAINA_HOME_DATA from "~/assets/data/ukraina-home.generated.json";
   import { useBookingStore } from "~/stores/booking";
 
   definePageMeta({
-    layout: "main",
+    layout: "home-copy",
   });
 
   const bookingStore = useBookingStore();
@@ -15,67 +16,81 @@
     description:
       "Grand — бронирование номеров и услуг. Официальное приложение бронирования.",
   });
+
+  useHead({
+    link: [
+      { rel: "preconnect", href: "https://www.ukraina-hotel.ru" },
+      { rel: "dns-prefetch", href: "https://www.ukraina-hotel.ru" },
+    ],
+  });
 </script>
 
 <template>
   <div :class="$style.main">
-    <MainIntro />
-    <Booking />
-
-    <!-- Блоки с якорями с fallback-скелетонами на время загрузки -->
-    <Suspense>
-      <template #default>
-        <LazyMainAccommodation anchor-id="accommodation" />
-      </template>
-      <template #fallback>
-        <MainSectionSkeleton title="Номера и размещение" />
-      </template>
-    </Suspense>
-
-    <Suspense>
-      <template #default>
-        <LazyMainRestaurants anchor-id="restaurants" />
-      </template>
-      <template #fallback>
-        <MainSectionSkeleton title="Рестораны и бары" />
-      </template>
-    </Suspense>
-
-    <Suspense>
-      <template #default>
-        <LazyMainEvents anchor-id="events" />
-      </template>
-      <template #fallback>
-        <MainSectionSkeleton title="Мероприятия" />
-      </template>
-    </Suspense>
-
-    <Suspense>
-      <template #default>
-        <LazyMainSpa anchor-id="spa" />
-      </template>
-      <template #fallback>
-        <MainSectionSkeleton title="SPA и отдых" />
-      </template>
-    </Suspense>
-
-    <Suspense>
-      <template #default>
-        <LazyMainEntertainment anchor-id="entertainment" />
-      </template>
-      <template #fallback>
-        <MainSectionSkeleton title="Развлечения" />
-      </template>
-    </Suspense>
-
-    <Suspense>
-      <template #default>
-        <LazyMainConstruction anchor-id="construction" />
-      </template>
-      <template #fallback>
-        <MainSectionSkeleton title="Информация" />
-      </template>
-    </Suspense>
+    <MainUkrainaHtmlFragment
+      :html="UKRAINA_HOME_DATA.homeMarkupBeforeBooking"
+      :css-text="UKRAINA_HOME_DATA.homeCss"
+    />
+    <div :class="$style.bookingOffset">
+      <Booking />
+    </div>
+    <MainUkrainaHtmlFragment
+      :html="UKRAINA_HOME_DATA.homeMarkupAfterBookingBeforeTemporary"
+      :css-text="UKRAINA_HOME_DATA.homeCss"
+    />
+    <MainTemporarySlider :items="UKRAINA_HOME_DATA.temporarySlides" />
+    <MainUkrainaHtmlFragment
+      :html="UKRAINA_HOME_DATA.homeMarkupBeforeAdvantage"
+      :css-text="UKRAINA_HOME_DATA.homeCss"
+    />
+    <MainAdvantageSection
+      :title="UKRAINA_HOME_DATA.advantageTitle"
+      :items="UKRAINA_HOME_DATA.advantageItems"
+    />
+    <MainUkrainaHtmlFragment
+      :html="UKRAINA_HOME_DATA.homeMarkupBeforeRest"
+      :css-text="UKRAINA_HOME_DATA.homeCss"
+    />
+    <MainRestSection
+      :title="UKRAINA_HOME_DATA.restTitle"
+      :items="UKRAINA_HOME_DATA.restOffers"
+    />
+    <MainUkrainaHtmlFragment
+      :html="UKRAINA_HOME_DATA.homeMarkupBeforePlacement"
+      :css-text="UKRAINA_HOME_DATA.homeCss"
+    />
+    <MainPlacementSection
+      :title="UKRAINA_HOME_DATA.placementTitle"
+      :items="UKRAINA_HOME_DATA.placementItems"
+    />
+    <MainUkrainaHtmlFragment
+      :html="UKRAINA_HOME_DATA.homeMarkupBeforeEvents"
+      :css-text="UKRAINA_HOME_DATA.homeCss"
+    />
+    <MainEventsSection
+      :title="UKRAINA_HOME_DATA.eventsTitle"
+      :items="UKRAINA_HOME_DATA.eventsItems"
+    />
+    <MainUkrainaHtmlFragment
+      :html="UKRAINA_HOME_DATA.homeMarkupBeforeRestaurantsRest"
+      :css-text="UKRAINA_HOME_DATA.homeCss"
+    />
+    <MainRestSection
+      :title="UKRAINA_HOME_DATA.restaurantsRestTitle"
+      :items="UKRAINA_HOME_DATA.restaurantsRestOffers"
+    />
+    <MainUkrainaHtmlFragment
+      :html="UKRAINA_HOME_DATA.homeMarkupBeforeService"
+      :css-text="UKRAINA_HOME_DATA.homeCss"
+    />
+    <MainEventsSection
+      :title="UKRAINA_HOME_DATA.serviceTitle"
+      :items="UKRAINA_HOME_DATA.serviceItems"
+    />
+    <MainUkrainaHtmlFragment
+      :html="UKRAINA_HOME_DATA.homeMarkupAfterService"
+      :css-text="UKRAINA_HOME_DATA.homeCss"
+    />
   </div>
 </template>
 
@@ -85,5 +100,9 @@
     flex-direction: column;
     justify-content: flex-start;
     width: 100%;
+  }
+
+  .bookingOffset {
+    margin-top: 58px;
   }
 </style>
