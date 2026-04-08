@@ -47,46 +47,56 @@
       :title="UKRAINA_HOME_DATA.advantageTitle"
       :items="UKRAINA_HOME_DATA.advantageItems"
     />
-    <MainUkrainaHtmlFragment
-      :html="UKRAINA_HOME_DATA.homeMarkupBeforeRest"
-      :css-text="UKRAINA_HOME_DATA.homeCss"
-    />
-    <MainRestSection
-      :title="UKRAINA_HOME_DATA.restTitle"
-      :items="UKRAINA_HOME_DATA.restOffers"
-    />
-    <MainUkrainaHtmlFragment
-      :html="UKRAINA_HOME_DATA.homeMarkupBeforePlacement"
-      :css-text="UKRAINA_HOME_DATA.homeCss"
-    />
-    <MainPlacementSection
-      :title="UKRAINA_HOME_DATA.placementTitle"
-      :items="UKRAINA_HOME_DATA.placementItems"
-    />
-    <MainUkrainaHtmlFragment
-      :html="UKRAINA_HOME_DATA.homeMarkupBeforeEvents"
-      :css-text="UKRAINA_HOME_DATA.homeCss"
-    />
-    <MainEventsSection
-      :title="UKRAINA_HOME_DATA.eventsTitle"
-      :items="UKRAINA_HOME_DATA.eventsItems"
-    />
-    <MainUkrainaHtmlFragment
-      :html="UKRAINA_HOME_DATA.homeMarkupBeforeRestaurantsRest"
-      :css-text="UKRAINA_HOME_DATA.homeCss"
-    />
-    <MainRestSection
-      :title="UKRAINA_HOME_DATA.restaurantsRestTitle"
-      :items="UKRAINA_HOME_DATA.restaurantsRestOffers"
-    />
-    <MainUkrainaHtmlFragment
-      :html="UKRAINA_HOME_DATA.homeMarkupBeforeService"
-      :css-text="UKRAINA_HOME_DATA.homeCss"
-    />
-    <MainEventsSection
-      :title="UKRAINA_HOME_DATA.serviceTitle"
-      :items="UKRAINA_HOME_DATA.serviceItems"
-    />
+    <MainLazyBlock min-height="460px">
+      <MainUkrainaHtmlFragment
+        :html="UKRAINA_HOME_DATA.homeMarkupBeforeRest"
+        :css-text="UKRAINA_HOME_DATA.homeCss"
+      />
+      <MainRestSection
+        :title="UKRAINA_HOME_DATA.restTitle"
+        :items="UKRAINA_HOME_DATA.restOffers"
+      />
+    </MainLazyBlock>
+    <MainLazyBlock min-height="540px">
+      <MainUkrainaHtmlFragment
+        :html="UKRAINA_HOME_DATA.homeMarkupBeforePlacement"
+        :css-text="UKRAINA_HOME_DATA.homeCss"
+      />
+      <MainPlacementSection
+        :title="UKRAINA_HOME_DATA.placementTitle"
+        :items="UKRAINA_HOME_DATA.placementItems"
+      />
+    </MainLazyBlock>
+    <MainLazyBlock min-height="500px">
+      <MainUkrainaHtmlFragment
+        :html="UKRAINA_HOME_DATA.homeMarkupBeforeEvents"
+        :css-text="UKRAINA_HOME_DATA.homeCss"
+      />
+      <MainEventsSection
+        :title="UKRAINA_HOME_DATA.eventsTitle"
+        :items="UKRAINA_HOME_DATA.eventsItems"
+      />
+    </MainLazyBlock>
+    <MainLazyBlock min-height="460px">
+      <MainUkrainaHtmlFragment
+        :html="UKRAINA_HOME_DATA.homeMarkupBeforeRestaurantsRest"
+        :css-text="UKRAINA_HOME_DATA.homeCss"
+      />
+      <MainRestSection
+        :title="UKRAINA_HOME_DATA.restaurantsRestTitle"
+        :items="UKRAINA_HOME_DATA.restaurantsRestOffers"
+      />
+    </MainLazyBlock>
+    <MainLazyBlock min-height="500px">
+      <MainUkrainaHtmlFragment
+        :html="UKRAINA_HOME_DATA.homeMarkupBeforeService"
+        :css-text="UKRAINA_HOME_DATA.homeCss"
+      />
+      <MainEventsSection
+        :title="UKRAINA_HOME_DATA.serviceTitle"
+        :items="UKRAINA_HOME_DATA.serviceItems"
+      />
+    </MainLazyBlock>
   </div>
 </template>
 
