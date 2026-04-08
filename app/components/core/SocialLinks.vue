@@ -56,7 +56,7 @@
       rel="noopener noreferrer"
       :class="$style.socialLink"
     >
-      <component v-if="link.icon" :is="link.icon" :class="$style.logo" />
+      <component :is="link.icon" v-if="link.icon" :class="$style.logo" />
       <UIcon
         v-else-if="link.iconName"
         :name="link.iconName"

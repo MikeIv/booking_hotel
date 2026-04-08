@@ -24,10 +24,11 @@
 
 В `package.json` зафиксированы согласованные версии:
 
-- `storybook` — ветка **9.0.x** (совместима с peer-зависимостью `@nuxtjs/storybook`).
+- `storybook` — **9.1.2** (выровнен с внутренними зависимостями `@storybook/*`, которые использует `@storybook-vue/nuxt`).
 - `@nuxtjs/storybook` — **9.0.1**.
 
 После `yarn install` выполняется **`patch-package`**: применяется патч к `@storybook-vue/nuxt` (корректные пути на Windows и целевой хост прокси). Без `postinstall` витрина на Windows может вести себя нестабильно.
+Для CI/Docker используется та же стратегия установки: `yarn install --frozen-lockfile`, чтобы дерево зависимостей совпадало с локальной разработкой.
 
 Требования к Node.js совпадают с проектом: см. поле `engines` в `package.json`.
 
