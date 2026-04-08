@@ -1,7 +1,7 @@
 <script setup lang="ts">
   interface AdvantageItem {
-    image: string;
-    title: string;
+    image?: string;
+    title?: string;
     descriptionHtml: string;
   }
 
@@ -11,32 +11,15 @@
   }
 
   defineProps<Props>();
-  const loadedImages = ref<Set<string>>(new Set());
-  const failedImages = ref<Set<string>>(new Set());
-  const FALLBACK_IMAGE =
-    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='74' height='74' viewBox='0 0 74 74'%3E%3Ccircle cx='37' cy='37' r='37' fill='%23ececec'/%3E%3Cpath d='M22 47l10-10 7 7 13-13' stroke='%23909090' stroke-width='3' fill='none'/%3E%3Ccircle cx='27' cy='27' r='4' fill='%23909090'/%3E%3C/svg%3E";
 
-  const markLoaded = (image: string) => {
-    const next = new Set(loadedImages.value);
-    next.add(image);
-    loadedImages.value = next;
-  };
-
-  const isLoaded = (image: string) => loadedImages.value.has(image);
-  const isFailed = (image: string) => failedImages.value.has(image);
-
-  const markFailed = (image: string, event: Event) => {
-    if (isFailed(image)) return;
-    const next = new Set(failedImages.value);
-    next.add(image);
-    failedImages.value = next;
-
-    const target = event.target as HTMLImageElement | null;
-    if (target) {
-      target.src = FALLBACK_IMAGE;
-    }
-    markLoaded(image);
-  };
+  const LOCAL_ICONS = [
+    "/images/ukraina/advantage/1.png",
+    "/images/ukraina/advantage/2.png",
+    "/images/ukraina/advantage/3.png",
+    "/images/ukraina/advantage/4.png",
+    "/images/ukraina/advantage/5.png",
+    "/images/ukraina/advantage/6.png",
+  ] as const;
 </script>
 
 <template>
@@ -46,21 +29,19 @@
       <div :class="$style.grid">
         <article
           v-for="(item, index) in items"
-          :key="`${item.title}-${index}`"
+          :key="`${index}-${item.descriptionHtml.slice(0, 24)}`"
           :class="$style.card"
         >
           <div :class="$style.iconWrap">
-            <div v-if="!isLoaded(item.image)" :class="$style.placeholder" />
             <img
-              :src="item.image"
+              :src="LOCAL_ICONS[index] ?? item.image ?? ''"
               alt=""
-              :loading="index < 3 ? 'eager' : 'lazy'"
-              :fetchpriority="index < 3 ? 'high' : 'auto'"
+              loading="lazy"
               decoding="async"
-              @load="markLoaded(item.image)"
-              @error="markFailed(item.image, $event)"
+              :class="$style.icon"
             >
           </div>
+          <h4 v-if="item.title" :class="$style.cardTitle">{{ item.title }}</h4>
           <div :class="$style.cardText" v-html="item.descriptionHtml" />
         </article>
       </div>
@@ -93,8 +74,8 @@
   .grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    column-gap: 42px;
-    row-gap: 34px;
+    column-gap: 0;
+    row-gap: 0;
   }
 
   .card {
@@ -102,6 +83,8 @@
     flex-direction: column;
     align-items: flex-start;
     text-align: left;
+    padding: 0 30px;
+    margin: 0 0 60px;
   }
 
   .iconWrap {
@@ -110,47 +93,49 @@
     align-items: center;
     min-height: 74px;
     margin-bottom: 18px;
-
-    img {
-      width: 74px;
-      height: 74px;
-      object-fit: contain;
-    }
   }
 
-  .placeholder {
-    width: 74px;
-    height: 74px;
-    border-radius: 50%;
-    background: linear-gradient(90deg, #ececec 25%, #f7f7f7 37%, #ececec 63%);
-    background-size: 400% 100%;
-    animation: shimmer 1.2s ease infinite;
+  .icon {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 74px;
+    max-height: 74px;
+    object-fit: contain;
   }
 
   .cardTitle {
-    margin: 0 0 12px;
-    text-align: center;
-    text-transform: uppercase;
+    margin: 0 0 25px;
+    padding: 0;
+    color: #0b0f1b;
     font-family: GothaProBol, Arial, Helvetica, sans-serif;
     font-size: 18px;
+    font-weight: 600;
     line-height: 1.2;
-    color: #0b0f1b;
+    text-transform: uppercase;
   }
 
   .cardText {
     font-family: GothaProReg, Arial, Helvetica, sans-serif;
     font-size: 16px;
-    line-height: 1.35;
+    line-height: 1.4;
     color: #121212;
     text-align: left;
 
     :global(p) {
-      margin: 0 0 10px;
+      margin: 0;
     }
 
     :global(a) {
       color: inherit;
       text-decoration: underline;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    .card {
+      padding: 0 20px;
+      margin-bottom: 40px;
     }
   }
 
@@ -174,7 +159,7 @@
     }
   }
 
-  @media (max-width: 700px) {
+  @media (max-width: 768px) {
     .advantage {
       padding: 48px 0;
     }
@@ -204,24 +189,12 @@
 
     .cardText {
       font-size: 15px;
+      text-align: center;
+    }
+
+    .cardTitle {
+      text-align: center;
     }
   }
 
-  @keyframes shimmer {
-    0% {
-      background-position: 100% 0;
-    }
-    100% {
-      background-position: 0 0;
-    }
-  }
-
-  @keyframes shimmer {
-    0% {
-      background-position: 100% 0;
-    }
-    100% {
-      background-position: 0 0;
-    }
-  }
 </style>
