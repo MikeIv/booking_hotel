@@ -89,6 +89,10 @@ const absolutizeHtmlAssetUrls = (html) => {
 
 const removeLegacyBookingArtifacts = (html) =>
   html
+    .replace(
+      /<div class="header__searchBarForm"[^>]*>[\s\S]*?<\/form>\s*<\/div>/g,
+      "",
+    )
     .replace(/<a[^>]*class="searchBarForm cruise"[^>]*>[\s\S]*?<\/a>/g, "")
     .replace(
       /<div id="modal-fullscreen-mobil"[\s\S]*?<\/div>\s*<\/div>\s*<\/div>/g,
