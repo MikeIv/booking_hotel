@@ -9,7 +9,6 @@ const outPath = resolve(projectRoot, "app/assets/data/ukraina-home.generated.jso
 const UKRAINA_SITE_ORIGIN = "https://www.ukraina-hotel.ru";
 const UKRAINA_ASSET_ORIGIN = "https://www.ukraina-hotel.ru";
 const UKRAINA_CSS_BASE = `${UKRAINA_ASSET_ORIGIN}/css/`;
-const LOCAL_ASSET_PROXY_PREFIX = "/ukraina-assets";
 
 const toAbsoluteUrl = (rawUrl, base) => {
   const trimmedUrl = rawUrl.trim();
@@ -29,9 +28,6 @@ const toLocalAssetProxyUrl = (rawUrl) => {
   if (!trimmedUrl || /^data:/i.test(trimmedUrl) || trimmedUrl.startsWith("#")) {
     return trimmedUrl;
   }
-  if (trimmedUrl.startsWith("/ukraina-assets/")) {
-    return trimmedUrl;
-  }
 
   let absoluteUrl;
   if (/^https?:\/\//i.test(trimmedUrl)) {
@@ -42,16 +38,14 @@ const toLocalAssetProxyUrl = (rawUrl) => {
     absoluteUrl = new URL(trimmedUrl, `${UKRAINA_ASSET_ORIGIN}/`);
   }
 
-  const pathWithSearch = `${absoluteUrl.pathname}${absoluteUrl.search}`;
-  return `${LOCAL_ASSET_PROXY_PREFIX}${pathWithSearch}`;
+  return absoluteUrl.toString();
 };
 
 const absolutizeCssUrls = (cssText) =>
   cssText.replace(/url\((['"]?)([^'")]+)\1\)/g, (match, quote, rawUrl) => {
     const absoluteUrl = toAbsoluteUrl(rawUrl, UKRAINA_CSS_BASE);
-    const localProxyUrl = toLocalAssetProxyUrl(absoluteUrl);
-    if (localProxyUrl === rawUrl.trim()) return match;
-    return `url(${quote}${localProxyUrl}${quote})`;
+    if (absoluteUrl === rawUrl.trim()) return match;
+    return `url(${quote}${absoluteUrl}${quote})`;
   });
 
 const disableLocalGothaSources = (cssText) =>
@@ -69,8 +63,7 @@ const absolutizeHtmlAssetUrls = (html) => {
           ? `${UKRAINA_SITE_ORIGIN}/`
           : `${UKRAINA_ASSET_ORIGIN}/`;
       const absoluteUrl = toAbsoluteUrl(rawUrl, base);
-      const finalUrl =
-        attributeName === "href" ? absoluteUrl : toLocalAssetProxyUrl(absoluteUrl);
+      const finalUrl = absoluteUrl;
       if (finalUrl === rawUrl.trim()) return fullMatch;
       return `${attributeName}=${quote}${finalUrl}${quote}`;
     },
@@ -80,9 +73,8 @@ const absolutizeHtmlAssetUrls = (html) => {
     /url\((['"]?)([^'")]+)\1\)/g,
     (match, quote, rawUrl) => {
       const absoluteUrl = toAbsoluteUrl(rawUrl, `${UKRAINA_ASSET_ORIGIN}/`);
-      const localProxyUrl = toLocalAssetProxyUrl(absoluteUrl);
-      if (localProxyUrl === rawUrl.trim()) return match;
-      return `url(${quote}${localProxyUrl}${quote})`;
+      if (absoluteUrl === rawUrl.trim()) return match;
+      return `url(${quote}${absoluteUrl}${quote})`;
     },
   );
 };
