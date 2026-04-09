@@ -67,6 +67,44 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+export const All: Story = {
+  render: () => ({
+    components: { Button },
+    setup() {
+      const variants: Array<ButtonStoryArgs["variant"]> = [
+        "primary",
+        "dark",
+        "ghost",
+        "danger",
+      ];
+      const sizes: Array<ButtonStoryArgs["size"]> = ["m", "l", "xl"];
+
+      return { variants, sizes };
+    },
+    template: `
+      <div style="display:flex; flex-direction:column; gap:24px; min-width:1000px;">
+        <div v-for="variant in variants" :key="variant" style="display:flex; flex-direction:column; gap:12px;">
+          <h3 style="margin:0; text-transform:capitalize;">{{ variant }}</h3>
+          <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:center;">
+            <Button
+              v-for="size in sizes"
+              :key="\`\${variant}-default-\${size}\`"
+              :variant="variant"
+              :size="size"
+            >
+              {{ size === 'xl' ? 'Search' : 'Continue' }}
+            </Button>
+
+            <Button :variant="variant" size="l" radius="round">Rounded</Button>
+            <Button :variant="variant" size="l" disabled>Disabled</Button>
+            <Button :variant="variant" size="l" type="submit">Submit</Button>
+          </div>
+        </div>
+      </div>
+    `,
+  }),
+};
+
 export const Primary: Story = {
   args: { variant: "primary", size: "m", label: "Continue" },
 };
