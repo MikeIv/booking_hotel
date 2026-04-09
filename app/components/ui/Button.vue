@@ -1,52 +1,83 @@
 <script setup lang="ts">
   import { computed } from "vue";
 
+  type ButtonVariant = "primary" | "dark" | "ghost" | "danger";
+  type ButtonSize = "m" | "l" | "xl";
+  type ButtonRadius = "default" | "round";
+  type ButtonSeverity = "primary" | "secondary" | "contrast" | "danger";
+
   const props = withDefaults(
     defineProps<{
-      variant?: "primary" | "dark" | "ghost" | "danger";
-      size?: "m" | "l" | "xl";
-      radius?: "default" | "round";
+      variant?: ButtonVariant;
+      severity?: ButtonSeverity;
+      size?: ButtonSize;
+      radius?: ButtonRadius;
       round?: boolean;
       disabled?: boolean;
+      loading?: boolean;
+      label?: string;
       unstyled?: boolean;
       type?: "button" | "submit" | "reset";
     }>(),
     {
       variant: "primary",
+      severity: "primary",
       size: "m",
       radius: "default",
       round: false,
       disabled: false,
+      loading: false,
+      label: "",
       unstyled: false,
       type: "button",
     },
   );
 
-  const radiusClass = computed(() => {
+  const resolvedVariant = computed<ButtonVariant>(() => {
+    if (props.variant) {
+      return props.variant;
+    }
+
+    if (props.severity === "danger") {
+      return "danger";
+    }
+
+    if (props.severity === "secondary" || props.severity === "contrast") {
+      return "dark";
+    }
+
+    return "primary";
+  });
+
+  const resolvedRadiusClass = computed(() => {
     if (props.round || props.radius === "round") {
       return "round";
     }
 
     return "radiusDefault";
   });
+
+  const isDisabled = computed(() => props.disabled || props.loading);
 </script>
 
 <template>
   <button
     :type="props.type"
-    :disabled="props.disabled"
+    :disabled="isDisabled"
+    :aria-busy="props.loading || undefined"
     :class="[
       props.unstyled
         ? undefined
         : [
             $style.btn,
-            $style[props.variant],
+            $style[resolvedVariant],
             $style[props.size],
-            $style[radiusClass],
+            $style[resolvedRadiusClass],
+            { [$style.loading]: props.loading },
           ],
     ]"
   >
-    <slot />
+    <slot>{{ props.label }}</slot>
   </button>
 </template>
 
@@ -72,6 +103,11 @@
       cursor: not-allowed;
       opacity: 0.45;
       pointer-events: none;
+    }
+
+    &:focus-visible {
+      outline: rem(2) solid var(--a-border-primary);
+      outline-offset: rem(2);
     }
   }
 
@@ -99,6 +135,10 @@
 
   .round {
     border-radius: var(--a-borderR--dialog);
+  }
+
+  .loading {
+    opacity: 0.8;
   }
 
   .primary {
