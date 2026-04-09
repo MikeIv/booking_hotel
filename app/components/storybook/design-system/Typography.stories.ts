@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@nuxtjs/storybook";
 import DesignSystemTypographyView from "./DesignSystemTypographyView.vue";
 
 const meta = {
-  title: "Дизайн система/Типографика",
+  title: "Design System/Typography",
   component: DesignSystemTypographyView,
   parameters: {
     layout: "fullscreen",
@@ -13,7 +13,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Обзор: Story = {
+export const Overview: Story = {
   render: () => ({
     components: { DesignSystemTypographyView },
     template: "<DesignSystemTypographyView />",

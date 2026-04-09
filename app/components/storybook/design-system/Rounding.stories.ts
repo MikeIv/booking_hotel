@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@nuxtjs/storybook";
 import DesignSystemRoundingView from "./DesignSystemRoundingView.vue";
 
 const meta = {
-  title: "Дизайн система/Rounding",
+  title: "Design System/Rounding",
   component: DesignSystemRoundingView,
   parameters: {
     layout: "fullscreen",
@@ -13,7 +13,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Обзор: Story = {
+export const Overview: Story = {
   render: () => ({
     components: { DesignSystemRoundingView },
     template: "<DesignSystemRoundingView />",

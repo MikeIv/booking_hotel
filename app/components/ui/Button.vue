@@ -1,18 +1,34 @@
 <script setup lang="ts">
+  import { computed } from "vue";
+
   const props = withDefaults(
     defineProps<{
       variant?: "primary" | "dark" | "ghost" | "danger";
+      size?: "m" | "l" | "xl";
+      radius?: "default" | "round";
       round?: boolean;
       disabled?: boolean;
+      unstyled?: boolean;
       type?: "button" | "submit" | "reset";
     }>(),
     {
       variant: "primary",
+      size: "m",
+      radius: "default",
       round: false,
       disabled: false,
+      unstyled: false,
       type: "button",
     },
   );
+
+  const radiusClass = computed(() => {
+    if (props.round || props.radius === "round") {
+      return "round";
+    }
+
+    return "radiusDefault";
+  });
 </script>
 
 <template>
@@ -20,9 +36,14 @@
     :type="props.type"
     :disabled="props.disabled"
     :class="[
-      $style.btn,
-      $style[props.variant],
-      { [$style.round]: props.round },
+      props.unstyled
+        ? undefined
+        : [
+            $style.btn,
+            $style[props.variant],
+            $style[props.size],
+            $style[radiusClass],
+          ],
     ]"
   >
     <slot />
@@ -36,14 +57,10 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: rem(44);
-    padding: rem(12) rem(44);
     font-family: var(--a-font-body);
-    font-size: rem(18);
     font-weight: 400;
     line-height: 1;
     border: none;
-    border-radius: var(--a-borderR--btn);
     box-sizing: border-box;
     cursor: pointer;
     transition:
@@ -56,6 +73,28 @@
       opacity: 0.45;
       pointer-events: none;
     }
+  }
+
+  .m {
+    min-height: rem(44);
+    padding: rem(12) rem(44);
+    font-size: rem(18);
+  }
+
+  .l {
+    min-height: rem(54);
+    padding: rem(16) rem(48);
+    font-size: rem(20);
+  }
+
+  .xl {
+    min-height: rem(64);
+    padding: rem(20) rem(56);
+    font-size: rem(24);
+  }
+
+  .radiusDefault {
+    border-radius: var(--a-borderR--btn);
   }
 
   .round {

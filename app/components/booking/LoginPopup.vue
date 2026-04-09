@@ -241,8 +241,7 @@
       <div :class="$style.btnGroup">
         <Button
           label="Войти"
-          unstyled
-          class="btn__bs dark"
+          variant="dark"
           :class="$style.button"
           :loading="loading"
           :disabled="loading"
@@ -251,8 +250,7 @@
         <Button
           label="Зарегистрироваться"
           severity="secondary"
-          unstyled
-          class="btn__bs dark"
+          variant="dark"
           :class="$style.button"
           @click="$emit('switch-to-register')"
         />

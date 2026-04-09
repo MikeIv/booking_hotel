@@ -57,9 +57,8 @@
       </div>
 
       <Button
-        unstyled
         label="Подробнее"
-        class="btn__bs dark"
+        variant="dark"
         :class="$style.detailsBtn"
         :disabled="!booking.id"
         @click="handleViewDetails"

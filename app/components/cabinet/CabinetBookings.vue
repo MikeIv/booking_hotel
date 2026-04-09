@@ -27,9 +27,8 @@
     <div v-if="bookingsLoaded && bookings.length === 0" :class="$style.emptyState">
       <p>У вас пока нет бронирований</p>
       <Button
-        unstyled
         label="Забронировать номер"
-        class="btn__bs dark"
+        variant="dark"
         :class="$style.bookNowBtn"
         @click="emit('new-booking')"
       />
@@ -47,9 +46,8 @@
       <!-- Кнопка "Загрузить ещё" / "Свернуть" -->
       <Button
         v-if="showLoadMoreButton"
-        unstyled
         :label="loadMoreButtonLabel"
-        class="btn__bs dark"
+        variant="dark"
         :class="$style.loadMoreBtn"
         :disabled="isLoading"
         @click="emit('load-more')"

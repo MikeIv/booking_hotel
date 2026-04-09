@@ -15,15 +15,13 @@ const handleBackToCabinet = () => emit("back-to-cabinet");
     <section :class="$style.section">
       <div :class="$style.finalButtons" role="group" aria-label="Основные действия">
         <Button
-          class="btn__bs danger"
-          unstyled
+          variant="danger"
           @click="handleCancel"
         >
           Отменить бронирование
         </Button>
         <Button
-          class="btn__bs danger"
-          unstyled
+          variant="danger"
           @click="handleNewBooking"
         >
           Новое бронирование
@@ -33,9 +31,8 @@ const handleBackToCabinet = () => emit("back-to-cabinet");
 
     <section :class="$style.section">
       <Button
-        class="btn__bs dark"
+        variant="dark"
         :class="$style.backButton"
-        unstyled
         @click="handleBackToCabinet"
       >
         Вернуться в кабинет

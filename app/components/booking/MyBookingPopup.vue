@@ -145,8 +145,7 @@
       <div :class="$style.btnGroup">
         <Button
           label="Войти"
-          unstyled
-          class="btn__bs dark"
+          variant="dark"
           :class="$style.button"
           :loading="loading"
           :disabled="loading"

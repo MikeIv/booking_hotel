@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@nuxtjs/storybook";
 import DesignSystemShadowsView from "./DesignSystemShadowsView.vue";
 
 const meta = {
-  title: "Дизайн система/Shadows",
+  title: "Design System/Shadows",
   component: DesignSystemShadowsView,
   parameters: {
     layout: "fullscreen",
@@ -13,7 +13,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Обзор: Story = {
+export const Overview: Story = {
   render: () => ({
     components: { DesignSystemShadowsView },
     template: "<DesignSystemShadowsView />",

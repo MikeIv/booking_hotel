@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@nuxtjs/storybook";
 import DesignSystemColorsView from "./DesignSystemColorsView.vue";
 
 const meta = {
-  title: "Дизайн система/Цветовая система",
+  title: "Design System/Colors",
   component: DesignSystemColorsView,
   parameters: {
     layout: "fullscreen",
@@ -13,7 +13,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Обзор: Story = {
+export const Overview: Story = {
   render: () => ({
     components: { DesignSystemColorsView },
     template: "<DesignSystemColorsView />",

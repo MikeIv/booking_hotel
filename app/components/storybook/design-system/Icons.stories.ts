@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@nuxtjs/storybook";
 import DesignSystemIconsView from "./DesignSystemIconsView.vue";
 
 const meta = {
-  title: "Дизайн система/Иконки",
+  title: "Design System/Icons",
   component: DesignSystemIconsView,
   parameters: {
     layout: "fullscreen",
@@ -13,7 +13,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Обзор: Story = {
+export const Overview: Story = {
   render: () => ({
     components: { DesignSystemIconsView },
     template: "<DesignSystemIconsView />",

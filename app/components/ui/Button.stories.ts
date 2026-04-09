@@ -4,14 +4,17 @@ import Button from "./Button.vue";
 
 type ButtonStoryArgs = {
   variant?: "primary" | "dark" | "ghost" | "danger";
+  size?: "m" | "l" | "xl";
+  radius?: "default" | "round";
   round?: boolean;
   disabled?: boolean;
+  unstyled?: boolean;
   type?: "button" | "submit" | "reset";
   label?: string;
 };
 
 const meta = {
-  title: "Компоненты/Кнопка",
+  title: "Components/Button",
   component: Button,
   parameters: {
     layout: "centered",
@@ -21,28 +24,40 @@ const meta = {
       control: "select",
       options: ["primary", "dark", "ghost", "danger"],
     },
+    size: {
+      control: "select",
+      options: ["m", "l", "xl"],
+    },
+    radius: {
+      control: "select",
+      options: ["default", "round"],
+    },
     round: { control: "boolean" },
     disabled: { control: "boolean" },
+    unstyled: { control: "boolean" },
     type: {
       control: "select",
       options: ["button", "submit", "reset"],
     },
     label: {
       control: "text",
-      description: "Текст внутри кнопки (витрина)",
+      description: "Button text content",
     },
   },
   args: {
     variant: "primary",
+    size: "m",
+    radius: "default",
     round: false,
     disabled: false,
+    unstyled: false,
     type: "button",
-    label: "Кнопка",
+    label: "Button",
   },
   render: (args: ButtonStoryArgs) => ({
     components: { Button },
     setup() {
-      const { label = "Кнопка", ...rest } = args;
+      const { label = "Button", ...rest } = args;
       return { rest, label };
     },
     template: '<Button v-bind="rest">{{ label }}</Button>',
@@ -52,36 +67,47 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Основная: Story = {
-  args: { variant: "primary", label: "Продолжить" },
+export const Primary: Story = {
+  args: { variant: "primary", size: "m", label: "Continue" },
 };
 
-export const Тёмная: Story = {
-  args: { variant: "dark", label: "Тёмная" },
+export const Dark: Story = {
+  args: { variant: "dark", size: "m", label: "Continue" },
 };
 
-export const Контур: Story = {
-  args: { variant: "ghost", label: "Контур" },
+export const Ghost: Story = {
+  args: { variant: "ghost", size: "m", label: "Continue" },
 };
 
-export const Акцент: Story = {
-  args: { variant: "danger", label: "Отмена" },
+export const Danger: Story = {
+  args: { variant: "danger", size: "m", label: "Continue" },
 };
 
-export const Скруглённая: Story = {
-  args: { variant: "primary", round: true, label: "Скругление dialog" },
+export const Rounded: Story = {
+  args: { variant: "primary", radius: "round", label: "Rounded" },
 };
 
-export const Отключена: Story = {
-  args: { variant: "primary", disabled: true, label: "Недоступна" },
+export const Disabled: Story = {
+  args: { variant: "primary", disabled: true, label: "Disabled" },
 };
 
-export const Песочница: Story = {
+export const Large: Story = {
+  args: { variant: "primary", size: "l", label: "Continue" },
+};
+
+export const ExtraLarge: Story = {
+  args: { variant: "primary", size: "xl", label: "Search" },
+};
+
+export const Playground: Story = {
   args: {
     variant: "primary",
+    size: "m",
+    radius: "default",
     round: false,
     disabled: false,
+    unstyled: false,
     type: "button",
-    label: "Измените в Controls",
+    label: "Edit in Controls",
   },
 };

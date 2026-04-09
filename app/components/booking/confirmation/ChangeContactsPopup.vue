@@ -74,15 +74,13 @@
         <div :class="$style.changeContactsPopupActions">
           <Button
             label="Изменить"
-            class="btn__bs dark"
-            unstyled
+            variant="dark"
             :disabled="!canSubmitContactChange"
             @click="emit('confirm')"
           />
           <Button
             label="Отмена"
-            class="btn__bs danger"
-            unstyled
+            variant="danger"
             :disabled="isChangingContacts"
             @click="emit('close')"
           />
