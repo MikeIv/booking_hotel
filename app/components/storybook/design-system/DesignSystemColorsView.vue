@@ -98,6 +98,7 @@
       items: [
         { name: "a-text-white", token: "--a-text-white" },
         { name: "a-text-primary", token: "--a-text-primary" },
+        { name: "a-text-secondary", token: "--a-text-secondary" },
         { name: "a-text-light", token: "--a-text-light" },
         { name: "a-text-dark", token: "--a-text-dark" },
         { name: "a-text-accent", token: "--a-text-accent" },

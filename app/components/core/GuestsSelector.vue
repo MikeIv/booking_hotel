@@ -163,8 +163,17 @@ const MAX_ROOMS = 5;
     const roomList = guests.value.roomList;
     const totalAdults = roomList.reduce((sum, r) => sum + r.adults, 0);
     const totalChildren = roomList.reduce((sum, r) => sum + r.children, 0);
-    const roomsWord = declension(guests.value.rooms, "room");
-    return `${guests.value.rooms} ${roomsWord}, ${totalAdults} взр., ${totalChildren} дет.`;
+    const adultsWord = declension(totalAdults, {
+      one: "взрослый",
+      few: "взрослых",
+      many: "взрослых",
+    });
+    const childrenWord = declension(totalChildren, {
+      one: "ребенок",
+      few: "ребенка",
+      many: "детей",
+    });
+    return `${totalAdults} ${adultsWord}, ${totalChildren} ${childrenWord}`;
   });
 
   function applyChanges(event: Event) {
@@ -175,16 +184,15 @@ const MAX_ROOMS = 5;
 
 <template>
   <div :class="$style.guestSection">
-    <div :class="$style.inputWrapper" @click="openOverlay">
-      <input
-        readonly
-        :class="$style.customInput"
-        :aria-label="`Гости: ${summaryString}`"
-        :value="summaryString"
-      >
-      <span :class="$style.label">Гости</span>
-      <UIcon name="i-chevron-down" :class="$style.chevronIcon" />
-    </div>
+    <UiSelect
+      :class="$style.uiSelect"
+      variant="booking"
+      label="Гости"
+      :value-text="summaryString"
+      icon-name="i-chevron-down-select"
+      :aria-label="`Гости: ${summaryString}`"
+      @click="openOverlay"
+    />
 
     <Popover
       ref="overlayRef"
@@ -239,7 +247,6 @@ const MAX_ROOMS = 5;
 
 <style module lang="scss">
   @use "~/assets/styles/variables/resolutions" as size;
-  @use "~/assets/styles/variables/z-index" as z;
 
   .guestSection {
     width: 100%;
@@ -264,55 +271,8 @@ const MAX_ROOMS = 5;
     }
   }
 
-  .inputWrapper {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  .uiSelect {
     width: 100%;
-    gap: rem(4);
-    cursor: pointer;
-  }
-
-  .customInput {
-    width: 100%;
-    height: rem(67);
-    padding: rem(22) rem(36) rem(2) rem(12);
-    font-family: "Inter", sans-serif;
-    font-size: rem(16);
-    color: var(--a-black);
-    background-color: var(--a-white);
-    border-radius: rem(16);
-    border: 1px solid var(--a-border-primary);
-    cursor: pointer;
-
-    &:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
-  }
-
-  .label {
-    position: absolute;
-    top: rem(8);
-    left: rem(8);
-    font-size: rem(12);
-    font-weight: 400;
-    font-family: Inter, sans-serif;
-    color: var(--a-text-light);
-    margin-left: rem(12);
-    z-index: z.z("booking-label");
-    pointer-events: none;
-  }
-
-  .chevronIcon {
-    position: absolute;
-    top: 34%;
-    right: rem(12);
-    width: rem(30);
-    height: rem(30);
-    color: var(--primary);
-    pointer-events: none;
   }
 
   .guestsDropdownContent {
