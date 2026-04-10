@@ -171,9 +171,9 @@
 <template>
   <section :class="[$style.wrapper, resolvedMode === 'inner' ? $style.inner : $style.home]">
     <div :class="$style.form">
-      <CoreDatePickerWithPrices v-model="date" />
-      <CoreGuestsSelector v-model="guests" />
-      <CorePromoCodeInput v-model="promoCode" />
+      <CoreDatePickerWithPrices v-model="date" :class="$style.dateField" />
+      <CoreGuestsSelector v-model="guests" :class="$style.guestsField" />
+      <CorePromoCodeInput v-model="promoCode" :class="$style.promoField" />
 
       <UiButton
         :class="$style.button"
@@ -239,11 +239,9 @@
 
   .form {
     position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: rem(20);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: rem(12);
     max-width: size.$desktop;
     min-width: rem(300);
     min-height: rem(50);
@@ -253,15 +251,16 @@
     border-radius: var(--a-borderR--booking-module);
     box-shadow: var(--a-shadow-booking-module);
 
-    @media (min-width: #{size.$desktopMin}) {
-      padding: rem(32) rem(24);
+    @media (min-width: #{size.$tabletMin}) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      padding: rem(20) rem(16);
     }
 
     @media (min-width: #{size.$desktopMedium}) {
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.9fr) minmax(0, 0.9fr) rem(272);
       width: 100%;
       margin: 0 rem(24);
       padding: rem(32) rem(24);
-      justify-content: flex-start;
     }
 
     @media (min-width: #{size.$desktopMax}) {
@@ -270,27 +269,35 @@
   }
 
   .button {
-    display: flex;
-    justify-content: center;
-    align-items: center;
     width: 100%;
-    max-width: rem(272);
-    margin: 0 auto;
+    max-width: none;
+    grid-column: 1 / -1;
 
-    @media (min-width: #{size.$desktopMin}) {
-      width: calc(50% - rem(12));
-      margin: 0;
+    @media (min-width: #{size.$tabletMin}) {
+      grid-column: span 1;
     }
 
     @media (min-width: #{size.$desktopMedium}) {
-      flex-grow: 1;
-      width: auto;
-      max-width: rem(272);
+      grid-column: auto;
+    }
+  }
+
+  .dateField,
+  .guestsField,
+  .promoField {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
+
+  .dateField,
+  .guestsField,
+  .promoField {
+    @media (min-width: #{size.$tabletMin}) {
+      grid-column: span 1;
     }
 
-    @media (min-width: #{size.$desktop}) {
-      flex-grow: 1;
-      max-width: rem(272);
+    @media (min-width: #{size.$desktopMedium}) {
+      grid-column: auto;
     }
   }
 

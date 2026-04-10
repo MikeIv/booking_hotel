@@ -1,10 +1,10 @@
 # Booking fields: Figma sync
 
-Updated in Figma file `8VW5pfsag9wEyJSzPwRvhM` on page `Components`.
+Updated in Figma file `8VW5pfsag9wEyJSzPwRvhM` on page `Simple Components`.
 
 ## Section
 
-- Name: `02 Components / Booking Fields`
+- Name: `Simple Components / Booking Fields`
 - Node: `6119:18`
 - Layout: standards frame + cards + preview matrix
 

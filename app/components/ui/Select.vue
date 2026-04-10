@@ -11,6 +11,7 @@
       open?: boolean;
       ariaLabel?: string;
       variant?: "default" | "booking";
+      rotateIconOnOpen?: boolean;
     }>(),
     {
       label: "",
@@ -21,6 +22,7 @@
       open: false,
       ariaLabel: "",
       variant: "default",
+      rotateIconOnOpen: true,
     },
   );
 
@@ -50,7 +52,18 @@
       <span v-if="props.label" :class="$style.label">{{ props.label }}</span>
       <span :class="$style.value">{{ props.valueText }}</span>
     </span>
-    <UIcon :name="props.iconName" :class="$style.icon" aria-hidden="true" />
+    <UIcon
+      :name="props.iconName"
+      :class="[
+        $style.icon,
+        {
+          [$style.iconChevronSelect]: props.iconName === 'i-chevron-down-select',
+          [$style.iconCalendar]: props.iconName === 'i-calendar',
+          [$style.iconOpen]: props.open && props.rotateIconOnOpen,
+        },
+      ]"
+      aria-hidden="true"
+    />
   </button>
 </template>
 
@@ -68,6 +81,7 @@
     border: rem(1) solid var(--a-border-primary);
     border-radius: var(--a-borderR--input);
     background: var(--a-whiteBg);
+    cursor: pointer;
     transition: border-color 0.2s ease, background-color 0.2s ease;
 
     &:hover:not(.disabled) {
@@ -111,7 +125,7 @@
     height: rem(22);
     color: var(--a-primaryBg);
     flex-shrink: 0;
-    transition: transform 0.2s ease;
+    transition: transform 0.2s ease, color 0.2s ease;
   }
 
   .invalid {
@@ -130,10 +144,8 @@
     }
   }
 
-  .root[aria-expanded="true"] {
-    .icon {
-      transform: rotate(180deg);
-    }
+  .iconOpen {
+    transform: rotate(180deg);
   }
 
   .booking {
@@ -152,10 +164,30 @@
     }
 
     .icon {
+      color: var(--a-text-secondary);
+    }
+
+    .iconChevronSelect {
       width: rem(22);
       height: rem(9);
-      color: var(--a-text-secondary);
       transform: translateY(rem(2));
+    }
+
+    .iconCalendar {
+      width: rem(31);
+      height: rem(33);
+    }
+  }
+
+  .root.booking:hover:not(.disabled) {
+    .icon {
+      color: var(--a-text-primary);
+    }
+  }
+
+  .root:hover:not(.disabled) {
+    .icon {
+      color: var(--a-text-primary);
     }
   }
 </style>

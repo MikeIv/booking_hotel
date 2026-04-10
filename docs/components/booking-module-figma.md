@@ -1,10 +1,10 @@
 # Booking module: Figma sync
 
-Updated in Figma file `8VW5pfsag9wEyJSzPwRvhM` on page `Components`.
+Updated in Figma file `8VW5pfsag9wEyJSzPwRvhM` on page `Composed Components`.
 
 ## Section
 
-- Name: `02 Components / Booking Module`
+- Name: `Composed Components / Booking Module`
 - Node: `6121:33`
 - Standards frame: `6121:34`
 - Source component set: `Booking Module` (`6121:169`, hidden)
