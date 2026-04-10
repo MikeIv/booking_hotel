@@ -4,6 +4,17 @@
   import { getRequestErrorContent } from "~/components/common/RequestErrorMessage.vue";
   import { useNotificationToast } from "~/composables/useToast";
 
+  type BookingButtonContext = "home" | "inner";
+
+  const props = withDefaults(
+    defineProps<{
+      buttonContext?: BookingButtonContext;
+    }>(),
+    {
+      buttonContext: "home",
+    },
+  );
+
   const toast = useNotificationToast();
   const bookingStore = useBookingStore();
   const { date, guests, promoCode, loading } = storeToRefs(bookingStore);
@@ -145,6 +156,10 @@
       });
     }
   };
+
+  const searchButtonVariant = computed(() =>
+    props.buttonContext === "inner" ? "danger" : "primary",
+  );
 </script>
 
 <template>
@@ -154,16 +169,16 @@
       <CoreGuestsSelector v-model="guests" />
       <CorePromoCodeInput v-model="promoCode" />
 
-      <UButton
+      <Button
         :class="$style.button"
-        color="bgAccent"
+        :variant="searchButtonVariant"
         size="xl"
         :loading="loading"
         :disabled="loading"
         @click="handleSearch"
       >
         {{ loading ? "Поиск..." : "Поиск" }}
-      </UButton>
+      </Button>
     </div>
     <div
       v-if="bannersLoading || bookingBanners.length > 0"

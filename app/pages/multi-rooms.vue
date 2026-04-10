@@ -247,7 +247,7 @@
   <div :class="$style.container">
     <h1 :class="$style.header">Выбор номеров и тарифов</h1>
 
-    <Booking />
+    <Booking button-context="inner" />
 
     <div :class="$style.filtersWrapper">
       <Select
