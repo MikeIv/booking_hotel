@@ -8,10 +8,11 @@ const preview: Preview = {
     options: {
       storySort: {
         order: [
-          "Дизайн система",
-          ["Цвета", "Типографика"],
-          "Компоненты",
-          ["Кнопка"],
+          "Design System",
+          "Simple Components",
+          "Composed Components",
+          "Pages",
+          "*",
         ],
       },
     },

@@ -218,9 +218,9 @@ const MAX_ROOMS = 5;
           @delete="deleteRoom(idx)"
         />
 
-        <Button :class="$style.applyButton" variant="dark" size="m" @click="applyChanges">
+        <UiButton :class="$style.applyButton" variant="dark" size="m" @click="applyChanges">
           Готово
-        </Button>
+        </UiButton>
       </div>
     </Popover>
   </div>

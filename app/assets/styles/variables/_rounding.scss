@@ -24,6 +24,8 @@
   --a-borderR--dialog: var(--ds-radius-xl); /* модалки -> xl */
 
   /* Специализированные legacy-токены */
+  --ds-radius-booking-module: 10px;
+  --a-borderR--booking-module: var(--ds-radius-booking-module);
   --a-borderR--input: var(--ds-radius-xl);
   --a-borderR--select: 15px;
   --a-borderR--pill: 39px;

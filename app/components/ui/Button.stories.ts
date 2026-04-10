@@ -14,7 +14,7 @@ type ButtonStoryArgs = {
 };
 
 const meta = {
-  title: "Components/Button",
+  title: "Simple Components/Button",
   component: Button,
   parameters: {
     layout: "centered",

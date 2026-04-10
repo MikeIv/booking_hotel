@@ -42,12 +42,14 @@
   --ds-role-warning: #d08a00;
   --ds-role-error: #cc0001;
   --ds-role-info: #1677ff;
+  --ds-role-booking-surface: #625e57;
 
   /* Design System shadows (Figma 1.5 Shadows) */
   --ds-shadow-sm: 0 0 10px rgba(0, 0, 0, 0.1);
   --ds-shadow-inner: 0 0 10px rgba(0, 0, 0, 0.1);
   --ds-shadow-md: 4px 4px 30px -10px rgba(0, 0, 0, 0.1);
   --ds-shadow-lg: 4px 4px 102px -10px rgba(0, 0, 0, 0.1);
+  --ds-shadow-booking-module: 0 4px 4px rgba(0, 0, 0, 0.25);
 
   /* Backward-compatible aliases */
   --primary: var(--ds-role-primary);
@@ -89,6 +91,7 @@
   --a-primaryBg: var(--ds-role-primary);
   --a-lightBg: var(--ds-neutral-200);
   --a-lightPrimaryBg: var(--ds-primary-100);
+  --a-bookingModuleBg: var(--ds-role-booking-surface);
   --a-accentBg: var(--ds-role-accent);
   --a-accentLightBg: var(--ds-primary-50);
   --a-accentDarkBg: var(--ds-primary-900);
@@ -115,6 +118,7 @@
   --a-shadow-summary: var(--ds-shadow-md);
   --a-shadow-summary-inner: var(--ds-shadow-inner);
   --a-shadow-weekday: var(--ds-shadow-lg);
+  --a-shadow-booking-module: var(--ds-shadow-booking-module);
 
   --a-gray-50: var(--ds-neutral-50);
   --a-gray-200: var(--ds-neutral-200);

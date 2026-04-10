@@ -175,7 +175,7 @@
       <CoreGuestsSelector v-model="guests" />
       <CorePromoCodeInput v-model="promoCode" />
 
-      <Button
+      <UiButton
         :class="$style.button"
         :variant="searchButtonVariant"
         size="xl"
@@ -184,7 +184,7 @@
         @click="handleSearch"
       >
         {{ loading ? "Поиск..." : "Поиск" }}
-      </Button>
+      </UiButton>
     </div>
     <div
       v-if="bannersLoading || bookingBanners.length > 0"
@@ -230,11 +230,11 @@
   }
 
   .home {
-    --booking-form-bg: var(--primary);
+    --booking-form-bg: var(--a-bookingModuleBg);
   }
 
   .inner {
-    --booking-form-bg: var(--a-primaryBg);
+    --booking-form-bg: var(--a-bookingModuleBg);
   }
 
   .form {
@@ -250,8 +250,8 @@
     padding: rem(14) rem(12);
     font-family: var(--a-font-body);
     background-color: var(--booking-form-bg);
-    border-radius: var(--a-borderR--x30);
-    box-shadow: 0 rem(4) rem(4) var(--a-shadow-color-strong);
+    border-radius: var(--a-borderR--booking-module);
+    box-shadow: var(--a-shadow-booking-module);
 
     @media (min-width: #{size.$desktopMin}) {
       padding: rem(32) rem(24);
@@ -274,28 +274,23 @@
     justify-content: center;
     align-items: center;
     width: 100%;
-    height: rem(67);
-    padding: rem(8) rem(16);
-    font-family: var(--a-font-body);
-    font-size: rem(24);
-    font-weight: 400;
-    color: var(--a-text-white);
-    border-radius: var(--a-borderR--input);
-    cursor: pointer;
+    max-width: rem(272);
+    margin: 0 auto;
 
     @media (min-width: #{size.$desktopMin}) {
       width: calc(50% - rem(12));
+      margin: 0;
     }
 
     @media (min-width: #{size.$desktopMedium}) {
       flex-grow: 1;
       width: auto;
-      max-width: rem(280);
+      max-width: rem(272);
     }
 
     @media (min-width: #{size.$desktop}) {
       flex-grow: 1;
-      max-width: rem(280);
+      max-width: rem(272);
     }
   }
 
