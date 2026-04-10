@@ -4,13 +4,15 @@
   import { getRequestErrorContent } from "~/components/common/RequestErrorMessage.vue";
   import { useNotificationToast } from "~/composables/useToast";
 
-  type BookingButtonContext = "home" | "inner";
+  type BookingMode = "home" | "inner";
 
   const props = withDefaults(
     defineProps<{
-      buttonContext?: BookingButtonContext;
+      mode?: BookingMode;
+      buttonContext?: BookingMode;
     }>(),
     {
+      mode: undefined,
       buttonContext: "home",
     },
   );
@@ -157,13 +159,17 @@
     }
   };
 
+  const resolvedMode = computed<BookingMode>(
+    () => props.mode ?? props.buttonContext ?? "home",
+  );
+
   const searchButtonVariant = computed(() =>
-    props.buttonContext === "inner" ? "danger" : "primary",
+    resolvedMode.value === "inner" ? "danger" : "primary",
   );
 </script>
 
 <template>
-  <section :class="$style.wrapper">
+  <section :class="[$style.wrapper, resolvedMode === 'inner' ? $style.inner : $style.home]">
     <div :class="$style.form">
       <CoreDatePickerWithPrices v-model="date" />
       <CoreGuestsSelector v-model="guests" />
@@ -223,6 +229,14 @@
     }
   }
 
+  .home {
+    --booking-form-bg: var(--primary);
+  }
+
+  .inner {
+    --booking-form-bg: var(--a-primaryBg);
+  }
+
   .form {
     position: relative;
     display: flex;
@@ -235,7 +249,7 @@
     min-height: rem(50);
     padding: rem(14) rem(12);
     font-family: var(--a-font-body);
-    background-color: var(--primary);
+    background-color: var(--booking-form-bg);
     border-radius: var(--a-borderR--x30);
     box-shadow: 0 rem(4) rem(4) var(--a-shadow-color-strong);
 

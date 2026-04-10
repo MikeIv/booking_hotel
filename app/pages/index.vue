@@ -32,7 +32,7 @@
       :css-text="UKRAINA_HOME_DATA.homeCss"
     />
     <div :class="$style.bookingOffset">
-      <Booking button-context="home" />
+      <Booking mode="home" />
     </div>
     <MainUkrainaHtmlFragment
       :html="UKRAINA_HOME_DATA.homeMarkupAfterBookingBeforeTemporary"

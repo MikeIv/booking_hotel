@@ -220,7 +220,7 @@
 <template>
   <div :class="$style.container">
     <h1 :class="$style.header">Выбор номера</h1>
-    <Booking button-context="inner" />
+    <Booking mode="inner" />
 
     <div :class="$style.filtersWrapper" data-testid="filters-wrapper">
       <Select

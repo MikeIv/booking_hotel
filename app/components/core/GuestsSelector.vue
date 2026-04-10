@@ -218,13 +218,9 @@ const MAX_ROOMS = 5;
           @delete="deleteRoom(idx)"
         />
 
-        <Button
-          class="btn__bs"
-          :class="$style.applyButton"
-          unstyled
-          @click="applyChanges"
-          >Готово</Button
-        >
+        <Button :class="$style.applyButton" variant="dark" size="m" @click="applyChanges">
+          Готово
+        </Button>
       </div>
     </Popover>
   </div>
@@ -347,19 +343,8 @@ const MAX_ROOMS = 5;
 
   .applyButton {
     width: 100%;
-    height: rem(56);
+    min-height: rem(56);
     margin-top: rem(16);
-    color: var(--a-white);
-    border-radius: rem(10);
-    background-color: var(--a-black);
-    border: none;
-    cursor: pointer;
-    font-family: "Inter", sans-serif;
-    font-size: rem(16);
-    font-weight: 500;
-
-    &:hover {
-      background-color: var(--a-text-dark);
-    }
+    border-radius: var(--a-borderR--btn);
   }
 </style>

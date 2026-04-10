@@ -219,7 +219,7 @@
   <div :class="$style.container">
     <h1 :class="$style.header">Выбор тарифа для номера</h1>
 
-    <Booking button-context="inner" />
+    <Booking mode="inner" />
     <!-- <BookingAdvantages /> -->
 
     <section :class="$style.tariffBlock">
