@@ -218,14 +218,15 @@
     width: 100%;
     margin: 0 auto;
     margin-bottom: rem(20);
-    padding: 0;
+    padding-inline: var(--a-space-2);
 
     @media (min-width: #{size.$tablet}) {
       margin-bottom: rem(40);
+      padding-inline: var(--a-space-3);
     }
 
     @media (min-width: #{size.$desktopMin}) {
-      padding: 0;
+      padding-inline: var(--a-space-4);
     }
   }
 
@@ -242,6 +243,7 @@
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: rem(12);
+    width: 100%;
     max-width: size.$desktop;
     min-width: rem(300);
     min-height: rem(50);
@@ -258,13 +260,7 @@
 
     @media (min-width: #{size.$desktopMedium}) {
       grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.9fr) minmax(0, 0.9fr) rem(272);
-      width: 100%;
-      margin: 0 rem(24);
       padding: rem(32) rem(24);
-    }
-
-    @media (min-width: #{size.$desktopMax}) {
-      margin: 0;
     }
   }
 
