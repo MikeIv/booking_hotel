@@ -2,15 +2,24 @@
 @use "../tools/functions" as *;
 @use "../variables/resolutions" as with;
 
+html {
+  min-height: 100dvh;
+}
+
 html,
 body {
+  margin: 0;
   font-size: size.$base-font-size;
   background-color: var(--a-white) !important;
 }
 
+body {
+  min-height: 100dvh;
+}
+
 /* Класс для body через useHead (перебивает фон ниже с !important). */
 body.app-body {
-  min-height: 100vh;
+  min-height: 100dvh;
   background-color: var(--a-mainBg) !important;
 }
 
