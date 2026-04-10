@@ -226,6 +226,8 @@
 @font-face {
   font-family: "Gotham Pro";
   src:
+    url("~/assets/fonts/gothampro_light.woff2") format("woff2"),
+    url("~/assets/fonts/gothampro_light.woff") format("woff"),
     url("/fonts/GothamPro/gothampro_light.woff2") format("woff2"),
     url("/fonts/GothamPro/gothampro_light.woff") format("woff");
   font-weight: 300;
@@ -244,6 +246,8 @@
 @font-face {
   font-family: "Gotham Pro";
   src:
+    url("~/assets/fonts/gothampro.woff2") format("woff2"),
+    url("~/assets/fonts/gothampro.woff") format("woff"),
     url("/fonts/GothamPro/gothampro.woff2") format("woff2"),
     url("/fonts/GothamPro/gothampro.woff") format("woff");
   font-weight: 400;
@@ -254,6 +258,8 @@
 @font-face {
   font-family: "Gotham Pro";
   src:
+    url("~/assets/fonts/gothampro_italic.woff2") format("woff2"),
+    url("~/assets/fonts/gothampro_italic.woff") format("woff"),
     url("/fonts/GothamPro/gothampro_italic.woff2") format("woff2"),
     url("/fonts/GothamPro/gothampro_italic.woff") format("woff");
   font-weight: 400;
@@ -264,6 +270,8 @@
 @font-face {
   font-family: "Gotham Pro";
   src:
+    url("~/assets/fonts/gothampro_medium.woff2") format("woff2"),
+    url("~/assets/fonts/gothampro_medium.woff") format("woff"),
     url("/fonts/GothamPro/gothampro_medium.woff2") format("woff2"),
     url("/fonts/GothamPro/gothampro_medium.woff") format("woff");
   font-weight: 500;
@@ -282,6 +290,8 @@
 @font-face {
   font-family: "Gotham Pro";
   src:
+    url("~/assets/fonts/gothampro_bold.woff2") format("woff2"),
+    url("~/assets/fonts/gothampro_bold.woff") format("woff"),
     url("/fonts/GothamPro/gothampro_bold.woff2") format("woff2"),
     url("/fonts/GothamPro/gothampro_bold.woff") format("woff");
   font-weight: 700;

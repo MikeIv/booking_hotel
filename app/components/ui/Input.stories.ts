@@ -13,6 +13,7 @@ const meta = {
     label: { control: "text" },
     placeholder: { control: "text" },
     modelValue: { control: "text" },
+    variant: { control: "radio", options: ["default", "booking"] },
     disabled: { control: "boolean" },
     invalid: { control: "boolean" },
     readonly: { control: "boolean" },
@@ -21,6 +22,7 @@ const meta = {
     label: "Специальный код",
     placeholder: "Введите код",
     modelValue: "",
+    variant: "default",
     disabled: false,
     invalid: false,
     readonly: false,
@@ -43,6 +45,7 @@ export const Playground: Story = {
           v-model="value"
           :label="args.label"
           :placeholder="args.placeholder"
+          :variant="args.variant"
           :disabled="args.disabled"
           :invalid="args.invalid"
           :readonly="args.readonly"
@@ -99,4 +102,22 @@ export const Error: Story = {
     modelValue: "INVALID",
     invalid: true,
   },
+};
+
+export const BookingSpecialCase: Story = {
+  args: {
+    label: "Специальный код",
+    modelValue: "RUSSIA",
+    placeholder: "",
+    variant: "booking",
+  },
+  render: (args) => ({
+    components: { Input },
+    setup() {
+      const value = ref(args.modelValue || "");
+      return { args, value };
+    },
+    template:
+      '<div style="width:368px;"><Input v-model="value" :label="args.label" :placeholder="args.placeholder" :variant="args.variant" /></div>',
+  }),
 };

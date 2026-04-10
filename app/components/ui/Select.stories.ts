@@ -12,6 +12,7 @@ const meta = {
     label: { control: "text" },
     valueText: { control: "text" },
     iconName: { control: "text" },
+    variant: { control: "radio", options: ["default", "booking"] },
     disabled: { control: "boolean" },
     invalid: { control: "boolean" },
     open: { control: "boolean" },
@@ -20,6 +21,7 @@ const meta = {
     label: "Гости",
     valueText: "1 номер, 1 взр., 0 дет.",
     iconName: "i-chevron-down",
+    variant: "default",
     disabled: false,
     invalid: false,
     open: false,
@@ -40,6 +42,7 @@ const renderWithBox = (args: Story["args"]) => ({
         :label="args.label"
         :value-text="args.valueText"
         :icon-name="args.iconName"
+        :variant="args.variant"
         :disabled="args.disabled"
         :invalid="args.invalid"
         :open="args.open"
@@ -79,5 +82,15 @@ export const Error: Story = {
 };
 
 export const Playground: Story = {
+  render: renderWithBox,
+};
+
+export const BookingSpecialCase: Story = {
+  args: {
+    label: "Гости",
+    valueText: "2 взрослых, 0 детей",
+    iconName: "i-chevron-down-select",
+    variant: "booking",
+  },
   render: renderWithBox,
 };

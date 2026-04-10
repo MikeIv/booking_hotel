@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { computed } from "vue";
+  import { computed, useAttrs } from "vue";
 
   type ButtonVariant = "primary" | "dark" | "ghost" | "danger";
   type ButtonSize = "m" | "l" | "xl";
@@ -58,10 +58,12 @@
   });
 
   const isDisabled = computed(() => props.disabled || props.loading);
+  const attrs = useAttrs();
 </script>
 
 <template>
   <button
+    v-bind="attrs"
     :type="props.type"
     :disabled="isDisabled"
     :aria-busy="props.loading || undefined"
