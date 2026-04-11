@@ -367,8 +367,10 @@
       width: 100%;
       min-height: rem(54);
       padding: rem(6) rem(24);
-      font-family: var(--a-font-body);
-      font-size: rem(26);
+      font-family: var(--a-font-select);
+      font-size: var(--ds-typo-size-select);
+      line-height: var(--ds-typo-line-select);
+      font-weight: var(--ds-typo-weight-select);
       background: var(--a-text-white);
       border: rem(1) solid var(--a-border-primary);
       border-radius: var(--a-borderR--input);
@@ -381,7 +383,9 @@
 
     :global {
       .p-select-label {
-        font-size: rem(26);
+        font-size: var(--ds-typo-size-select);
+        line-height: var(--ds-typo-line-select);
+        font-family: var(--a-font-select);
       }
       .p-select-clear-icon {
         top: 48%;

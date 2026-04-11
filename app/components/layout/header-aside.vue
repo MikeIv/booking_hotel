@@ -3,7 +3,6 @@
   import LogoRadisson from "~/assets/images/logo_radisson.svg";
 
   const { locale, setLocale } = useI18n();
-  const router = useRouter();
   const authStore = useAuthStore();
 
   // --- Auth state ---
@@ -21,9 +20,7 @@
 
   const route = useRoute();
 
-  onMounted(() => {
-    checkUnauthenticatedBooking();
-  });
+  let asideResizeObserver: ResizeObserver | null = null;
 
   watch(
     () => route.path,
@@ -72,10 +69,6 @@
   };
 
   // --- Navigation ---
-  const goToHome = () => {
-    router.push("/");
-  };
-
   const navLinks = [
     { url: "https://www.ukraina-hotel.ru/accommodation", text: "Размещение" },
     { url: "https://www.ukraina-hotel.ru/events", text: "Мероприятия" },
@@ -89,7 +82,7 @@
   // --- Burger / SlideMenu ---
   const isMenuOpen = ref(false);
   const asideRef = ref<HTMLElement | null>(null);
-  const asideHeight = ref(95);
+  const asideHeight = ref(94);
 
   const toggleMenu = () => {
     isMenuOpen.value = !isMenuOpen.value;
@@ -148,18 +141,27 @@
   };
 
   onMounted(() => {
-    updateHeight();
-    const observer = new ResizeObserver(updateHeight);
-    if (asideRef.value) observer.observe(asideRef.value);
+    checkUnauthenticatedBooking();
+
+    nextTick(() => {
+      updateHeight();
+      asideResizeObserver = new ResizeObserver(updateHeight);
+      if (asideRef.value) {
+        asideResizeObserver.observe(asideRef.value);
+      }
+    });
+
     if (typeof document !== "undefined") {
       document.addEventListener("click", closeDropdownsOnClickOutside);
     }
-    onUnmounted(() => {
-      observer.disconnect();
-      if (typeof document !== "undefined") {
-        document.removeEventListener("click", closeDropdownsOnClickOutside);
-      }
-    });
+  });
+
+  onUnmounted(() => {
+    asideResizeObserver?.disconnect();
+    asideResizeObserver = null;
+    if (typeof document !== "undefined") {
+      document.removeEventListener("click", closeDropdownsOnClickOutside);
+    }
   });
 </script>
 
@@ -176,10 +178,10 @@
         <UIcon name="iconamoon:menu-burger-horizontal-bold" :class="$style.burgerIcon" />
       </button>
 
-      <!-- Логотип: центрируется абсолютно на <$desktop, статичен слева на ≥$desktop -->
-      <button :class="$style.logoBtn" aria-label="На главную" @click="goToHome">
+      <!-- Логотип: ссылка на главную; центрируется абсолютно на <$desktop, статичен слева на ≥$desktop -->
+      <NuxtLink :class="$style.logoBtn" to="/" aria-label="На главную">
         <LogoRadisson :class="$style.logo" />
-      </button>
+      </NuxtLink>
 
       <!-- Десктопная навигация (только ≥$desktop) -->
       <nav :class="$style.desktopNav" aria-label="Основная навигация">
@@ -426,11 +428,13 @@
     transform: translate(-50%, -50%);
     display: flex;
     align-items: center;
-    background: transparent;
-    border: none;
-    cursor: pointer;
     padding: 0;
     z-index: 1;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    background: transparent;
+    border: none;
 
     @media (min-width: #{size.$desktopMin}) {
       top: 50%;
@@ -446,6 +450,12 @@
 
     &:hover .logo {
       opacity: 0.85;
+    }
+
+    &:focus-visible {
+      outline: rem(2) solid var(--ds-neutral-900);
+      outline-offset: rem(4);
+      border-radius: var(--ds-radius-sm);
     }
   }
 
@@ -481,9 +491,9 @@
   }
 
   .navLink {
-    font-family: "Gotham Pro", sans-serif;
-    font-size: rem(14);
-    font-weight: 400;
+    font-family: var(--a-font-body);
+    font-size: var(--ds-typo-size-body-sm);
+    font-weight: var(--ds-typo-weight-body);
     text-transform: uppercase;
     text-decoration: none;
     letter-spacing: rem(1);
@@ -536,8 +546,8 @@
     height: rem(44);
     padding: rem(12) var(--ds-space-300);
     font-family: var(--a-font-body);
-    font-size: rem(18);
-    font-weight: 400;
+    font-size: var(--ds-typo-size-body-lg);
+    font-weight: var(--ds-typo-weight-body);
     line-height: 1;
     background-color: var(--a-whiteBg);
     color: var(--a-text-dark);
@@ -620,9 +630,9 @@
     border: rem(1) solid var(--ds-neutral-700);
     border-radius: rem(16);
     color: var(--ds-neutral-700);
-    font-size: rem(14);
+    font-size: var(--ds-typo-size-body-sm);
     font-family: var(--a-font-body);
-    font-weight: 400;
+    font-weight: var(--ds-typo-weight-body);
     line-height: 1;
     cursor: pointer;
     white-space: nowrap;
@@ -667,9 +677,9 @@
     background: transparent;
     border: none;
     color: var(--secondary);
-    font-size: rem(14);
+    font-size: var(--ds-typo-size-body-sm);
     font-family: var(--a-font-body);
-    font-weight: 400;
+    font-weight: var(--ds-typo-weight-body);
     cursor: pointer;
     transition: color 0.2s ease, background-color 0.2s ease;
 
@@ -681,7 +691,7 @@
 
   .langOptionActive {
     color: var(--a-text-dark);
-    font-weight: 500;
+    font-weight: var(--ds-typo-weight-medium);
   }
 
   /* =====================
@@ -710,8 +720,9 @@
     flex: 1;
     height: rem(48);
     padding: 0 var(--ds-space-300);
-    font-family: "Gotham Pro", sans-serif;
-    font-size: rem(18);
+    font-family: var(--a-font-body);
+    font-size: var(--ds-typo-size-body-lg);
+    line-height: var(--ds-typo-line-body-lg);
     color: var(--a-text-dark);
     background: var(--a-whiteBg);
     border: rem(1) solid var(--a-border-dark);

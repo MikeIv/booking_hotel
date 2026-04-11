@@ -1,15 +1,16 @@
 <template>
   <div class="app">
-    <div class="app__layout">
-      <NuxtLayout>
-        <NuxtLoadingIndicator :color="'#00dc82'" :height="3" />
+    <NuxtLayout>
+      <!-- Индикатор загрузки между страницами -->
+      <NuxtLoadingIndicator :color="'#00dc82'" :height="3" />
 
-        <NuxtPage />
+      <NuxtPage />
 
-        <NuxtRouteAnnouncer />
-      </NuxtLayout>
-    </div>
+      <!-- Глобальное уведомление для изменения маршрута -->
+      <NuxtRouteAnnouncer />
+    </NuxtLayout>
 
+    <!-- Компоненты вне layout, но внутри UApp для правильного контекста provide/inject -->
     <NotificationToast :notifications="notifications" :on-remove="remove" />
     <LayoutInitialLoadOverlay />
     <BookingLoadingOverlay />
@@ -48,25 +49,13 @@
   });
 </script>
 
-<style scoped lang="scss">
-  /* Явный контейнер для layout безопаснее, чем зависимость от :first-child. */
-  .app {
-    display: flex;
-    flex-direction: column;
-    min-height: 100dvh;
-    width: 100%;
-    min-width: 0;
-  }
-
-  .app__layout {
-    flex: 1 1 auto;
-    min-width: 0;
-    width: 100%;
-  }
-</style>
-
 <style>
   html {
     scroll-behavior: smooth;
+  }
+  .app {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    min-height: 100dvh;
   }
 </style>

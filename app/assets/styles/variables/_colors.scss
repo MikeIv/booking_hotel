@@ -130,6 +130,9 @@
   --ds-typo-family-heading: "Gotham Pro", "Playfair Display", serif;
   --ds-typo-family-body: "Gotham Pro", sans-serif;
 
+  /* Селекты и поля выбора в потоке бронирования — по макету: Inter, 26px */
+  --ds-typo-family-select: "Inter", sans-serif;
+
   --ds-typo-weight-light: 300;
   --ds-typo-weight-regular: 400;
   --ds-typo-weight-medium: 500;
@@ -144,6 +147,7 @@
   --ds-typo-size-body-md: 1rem; /* 16px */
   --ds-typo-size-body-sm: 0.875rem; /* 14px */
   --ds-typo-size-caption: 0.75rem; /* 12px */
+  --ds-typo-size-select: 1.625rem; /* 26px */
 
   --ds-typo-line-h1: 2.625rem; /* 42px */
   --ds-typo-line-h2: 2.125rem; /* 34px */
@@ -152,10 +156,12 @@
   --ds-typo-line-body-md: 1.5rem; /* 24px */
   --ds-typo-line-body-sm: 1.25rem; /* 20px */
   --ds-typo-line-caption: 1rem; /* 16px */
+  --ds-typo-line-select: 1; /* компактная строка для значения в селекте */
 
   --ds-typo-weight-h: 700;
   --ds-typo-weight-body: 400;
   --ds-typo-weight-caption: 500;
+  --ds-typo-weight-select: var(--ds-typo-weight-regular);
 
   /* Legacy aliases kept for compatibility */
   --ds-typo-size-display: var(--ds-typo-size-h1);
@@ -169,6 +175,7 @@
 
   --a-font-heading: var(--ds-typo-family-heading);
   --a-font-body: var(--ds-typo-family-body);
+  --a-font-select: var(--ds-typo-family-select);
 
   /* PrimeVue Toast warn (base/_global.scss) */
   --p-toast-warn-border-color: var(--ds-semantic-warning);

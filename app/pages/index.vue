@@ -106,6 +106,9 @@
     flex-direction: column;
     justify-content: flex-start;
     width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: clip;
   }
 
   .bookingOffset {

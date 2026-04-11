@@ -197,8 +197,11 @@
 <style module lang="scss">
   .restSection {
     width: 100%;
+    max-width: 100%;
     padding: 100px 0;
     background: #fff;
+    /* Слайдер шире вьюпорта (трек в %) — не даём странице уехать вбок после подгрузки фонов */
+    overflow-x: clip;
   }
 
   .container {
@@ -217,32 +220,43 @@
   }
 
   .hero {
+    box-sizing: border-box;
+    flex: 0 0 auto;
+    min-width: 0;
     min-height: 420px;
     background-size: cover;
     background-position: center;
     display: flex;
     align-items: flex-end;
     padding: 34px 0;
+    overflow: hidden;
   }
 
   .heroSlider {
     position: relative;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
   }
 
   .heroViewport {
-    overflow: hidden;
     width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
+    overflow-y: hidden;
   }
 
   .heroTrack {
     display: flex;
+    min-width: 0;
     transition: transform 0.6s ease;
     will-change: transform;
   }
 
   .heroContent {
-    max-width: 680px;
+    max-width: min(680px, 100%);
     color: #fff;
+    overflow-wrap: break-word;
   }
 
   .heroTitle {
@@ -285,6 +299,10 @@
     align-items: center;
     gap: 12px;
     margin-top: 20px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
   }
 
   .thumbRow {
@@ -292,6 +310,7 @@
     align-items: stretch;
     gap: 14px;
     flex: 1;
+    min-width: 0;
     overflow: hidden;
   }
 

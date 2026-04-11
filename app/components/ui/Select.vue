@@ -157,9 +157,10 @@
 
     .value {
       margin-top: rem(2);
-      font-family: var(--a-font-heading);
-      font-size: rem(26);
-      line-height: 1;
+      font-family: var(--a-font-select);
+      font-size: var(--ds-typo-size-select);
+      line-height: var(--ds-typo-line-select);
+      font-weight: var(--ds-typo-weight-select);
       color: var(--a-text-primary);
     }
 

@@ -4,9 +4,11 @@
 
   const fontTokens: FontToken[] = [
     { token: "--ds-typo-family-heading", value: "Gotham Pro", note: "Заголовки и акценты" },
-    { token: "--ds-typo-family-body", value: "Inter", note: "Основной UI-текст" },
+    { token: "--ds-typo-family-body", value: "Gotham Pro", note: "Основной текст интерфейса бронирования" },
+    { token: "--ds-typo-family-select", value: "Inter", note: "Селекты и поля выбора (макет дизайнера)" },
     { token: "--a-font-heading", value: "alias -> --ds-typo-family-heading", note: "Обратная совместимость" },
     { token: "--a-font-body", value: "alias -> --ds-typo-family-body", note: "Обратная совместимость" },
+    { token: "--a-font-select", value: "alias -> --ds-typo-family-select", note: "Обратная совместимость" },
   ];
 
   const weightTokens: FontToken[] = [
@@ -16,6 +18,7 @@
     { token: "--ds-typo-weight-semibold", value: "600", note: "SemiBold" },
     { token: "--ds-typo-weight-bold", value: "700", note: "Bold" },
     { token: "--ds-typo-weight-black", value: "900", note: "Black" },
+    { token: "--ds-typo-weight-select", value: "alias -> regular", note: "Текст селекта (400)" },
   ];
 
   const scaleTokens: ScaleToken[] = [
@@ -43,34 +46,42 @@
     {
       token: "--ds-typo-size-body-lg",
       value: "1.125rem / 18px",
-      sample: "body-lg — основной текст (Inter)",
+      sample: "body-lg — основной текст (Gotham Pro)",
       line: "var(--ds-typo-line-body-lg) / 27px",
       weight: "var(--ds-typo-weight-body) / 400",
     },
     {
+      token: "--ds-typo-size-select",
+      value: "1.625rem / 26px",
+      sample: "select — значение селекта и выпадающий список (Inter)",
+      line: "var(--ds-typo-line-select) / 1",
+      weight: "var(--ds-typo-weight-select) / 400",
+    },
+    {
       token: "--ds-typo-size-body-md",
       value: "1rem / 16px",
-      sample: "body-md — базовый UI-текст (Inter)",
+      sample: "body-md — базовый UI-текст (Gotham Pro)",
       line: "var(--ds-typo-line-body-md) / 24px",
       weight: "var(--ds-typo-weight-body) / 400",
     },
     {
       token: "--ds-typo-size-body-sm",
       value: "0.875rem / 14px",
-      sample: "body-sm — вторичный текст (Inter)",
+      sample: "body-sm — вторичный текст (Gotham Pro)",
       line: "var(--ds-typo-line-body-sm) / 20px",
       weight: "var(--ds-typo-weight-body) / 400",
     },
     {
       token: "--ds-typo-size-caption",
       value: "0.75rem / 12px",
-      sample: "caption — подписи (Inter)",
+      sample: "caption — подписи (Gotham Pro)",
       line: "var(--ds-typo-line-caption) / 16px",
       weight: "var(--ds-typo-weight-caption) / 500",
     },
   ];
 
   const rhythmTokens: FontToken[] = [
+    { token: "--ds-typo-line-select", value: "1", note: "Значение в селекте (компактная строка)" },
     { token: "--ds-typo-line-tight", value: "1", note: "Плотные UI-лейблы" },
     { token: "--ds-typo-line-default", value: "1.3", note: "Заголовки" },
     { token: "--ds-typo-line-comfort", value: "1.5", note: "Параграфы" },
@@ -105,6 +116,9 @@
       <p :class="$style.lead">
         Секция синхронизирована с типографическими токенами дизайн-системы из Figma (node 6037:3):
         канонические переменные <code>--ds-typo-*</code> и проектные алиасы <code>--a-font-*</code>.
+        На главной странице в <code>layouts/main.vue</code> для основного текста переопределяется
+        <code>--a-font-body</code> на Inter; селекты по-прежнему используют
+        <code>--ds-typo-family-select</code> (Inter).
       </p>
     </header>
 
@@ -157,9 +171,23 @@
             :class="$style.inter"
             :style="{ fontFamily: 'var(--a-font-body)' }"
           >
-            Inter — основной текст интерфейса
+            Gotham Pro — основной текст интерфейса бронирования
           </p>
           <code :class="$style.token">var(--a-font-body), weight 400</code>
+        </li>
+        <li :class="$style.sampleCard">
+          <span :class="$style.sampleLabel">Пример select</span>
+          <p
+            :class="$style.inter"
+            :style="{
+              fontFamily: 'var(--a-font-select)',
+              fontSize: 'var(--ds-typo-size-select)',
+              lineHeight: 'var(--ds-typo-line-select)',
+            }"
+          >
+            Inter, 26px — значение в селекте
+          </p>
+          <code :class="$style.token">var(--a-font-select), var(--ds-typo-size-select)</code>
         </li>
       </ul>
     </section>
