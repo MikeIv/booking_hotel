@@ -2,7 +2,7 @@
 
 <template>
   <section :class="$style.section">
-    <LayoutAside />
+    <LayoutHeaderAside />
   </section>
 </template>
 
