@@ -17,7 +17,7 @@
 </template>
 
 <script setup lang="ts">
-  const headerHeight = ref(95);
+  const headerHeight = ref(94);
   let resizeObserver: ResizeObserver | null = null;
 
   const updateHeaderHeight = () => {

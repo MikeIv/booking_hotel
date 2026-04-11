@@ -370,8 +370,8 @@
     /* medium desktop: 1024–1641px — одна строка */
     @media (min-width: #{size.$desktopMin}) {
       grid-template-columns: auto 1fr auto auto;
-      grid-template-rows: rem(93);
-      min-height: rem(93);
+      grid-template-rows: rem(94);
+      min-height: rem(94);
       row-gap: 0;
       align-content: center;
       padding: 0 var(--ds-space-300);
