@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import type { BookingDetailsRoom } from "~/types/booking-details";
 import { formatCount } from "~/utils/declension";
 import { formatPrice } from "~/utils/price";
@@ -129,7 +129,7 @@ const formattedTotalPrice = computed(() => formatPrice(props.totalPrice));
   }
 
   .sectionTitle {
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(24);
     font-weight: 500;
     color: var(--a-text-dark);
@@ -174,7 +174,7 @@ const formattedTotalPrice = computed(() => formatPrice(props.totalPrice));
   }
 
   .bookingDetailLabel {
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(16);
     font-weight: 600;
     color: var(--a-text-dark);
@@ -197,7 +197,7 @@ const formattedTotalPrice = computed(() => formatPrice(props.totalPrice));
 
   .detailDay {
     width: calc(100% / 3);
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(14);
     font-weight: 400;
     color: var(--a-text-dark);
@@ -216,7 +216,7 @@ const formattedTotalPrice = computed(() => formatPrice(props.totalPrice));
     align-items: center;
     justify-content: center;
     padding: rem(2) rem(12);
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(12);
     color: var(--a-text-dark);
     border: rem(1) solid var(--a-border-dark);
@@ -257,7 +257,7 @@ const formattedTotalPrice = computed(() => formatPrice(props.totalPrice));
     justify-content: space-between;
     align-items: center;
     gap: rem(12);
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(18);
     font-weight: 600;
     color: var(--a-text-dark);

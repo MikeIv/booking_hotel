@@ -83,7 +83,7 @@
 
   .roomTitle {
     margin: 0;
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(24);
     font-weight: 700;
     color: var(--a-text-dark);
@@ -141,7 +141,7 @@
   }
 
   .priceValue {
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(24);
     font-weight: 700;
     color: var(--a-text-dark);

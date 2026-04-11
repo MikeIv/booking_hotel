@@ -107,7 +107,7 @@ const props = withDefaults(defineProps<Props>(), {
   }
 
   .hotelName {
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(18);
     font-weight: 600;
     color: var(--a-text-dark);

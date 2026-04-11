@@ -131,7 +131,7 @@
 
   .title {
     margin: 0 0 rem(24) 0;
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(22);
     font-weight: 700;
     color: var(--a-text-dark);
@@ -161,7 +161,7 @@
 
   .additional {
     margin: 0 0 rem(24) 0;
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(18);
     font-weight: 400;
     color: var(--a-text-dark);

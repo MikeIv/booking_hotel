@@ -466,7 +466,7 @@
   .title {
     display: inline-flex;
     flex-shrink: 1;
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(22);
     font-weight: bold;
     color: var(--a-text-dark);
@@ -606,7 +606,7 @@
   }
 
   .price {
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(24);
     font-weight: 700;
     color: var(--a-text-dark);

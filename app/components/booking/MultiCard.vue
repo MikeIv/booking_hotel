@@ -588,7 +588,7 @@
     min-width: 0;
     display: flex;
     align-items: center;
-    font-family: Lora, serif;
+    font-family: var(--a-font-heading);
     font-size: rem(22);
     font-weight: bold;
     color: var(--a-text-dark);
@@ -702,7 +702,7 @@
   }
 
   .tariffTitle {
-    font-family: Lora, serif;
+    font-family: var(--a-font-heading);
     font-size: rem(20);
     font-weight: 600;
     color: var(--a-text-dark);
@@ -742,7 +742,7 @@
   }
 
   .tariffName {
-    font-family: Lora, serif;
+    font-family: var(--a-font-heading);
     font-size: rem(20);
     font-weight: 600;
     color: var(--a-text-dark);
@@ -757,7 +757,7 @@
   }
 
   .tariffPrice {
-    font-family: Lora, serif;
+    font-family: var(--a-font-heading);
     font-size: rem(20);
     font-weight: 700;
     color: var(--a-text-dark);
@@ -837,7 +837,7 @@
   }
 
   .confirmPrice {
-    font-family: Lora, serif;
+    font-family: var(--a-font-heading);
     font-size: rem(24);
     font-weight: 700;
     color: var(--a-text-dark);
@@ -1002,7 +1002,7 @@
   }
 
   .tariffDetailText {
-    font-family: Lora, serif;
+    font-family: var(--a-font-heading);
     font-size: rem(18);
     font-weight: 400;
     color: var(--a-text-dark);
@@ -1103,7 +1103,7 @@
   }
 
   .priceDetailsTitle {
-    font-family: Lora, serif;
+    font-family: var(--a-font-heading);
     font-size: rem(18);
     font-weight: 600;
     color: var(--a-text-dark);

@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 interface Props {
   bookingNumber?: string | number | null;
   pdfUrl?: string;
@@ -81,7 +81,7 @@ const handlePrint = () => {
   }
 
   .sectionTitle {
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(24);
     font-weight: 500;
     color: var(--a-text-dark);
@@ -124,7 +124,7 @@ const handlePrint = () => {
   }
 
   .bookingNumber {
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(20);
     font-weight: 500;
     color: var(--a-text-dark);

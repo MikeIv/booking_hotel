@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
   interface Props {
     isOpen: boolean;
     title?: string;
@@ -197,7 +197,7 @@
     padding: rem(24) rem(24) 0 rem(24);
 
     .popupTitle {
-      font-family: "Lora", serif;
+      font-family: var(--a-font-heading);
       font-size: rem(24);
       font-weight: 700;
       color: var(--a-text-dark);

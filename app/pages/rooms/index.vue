@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
   import { useBookingStore } from "~/stores/booking";
   import type { Room } from "~/types/room";
   import { useNotificationToast } from "~/composables/useToast";
@@ -278,7 +278,7 @@
     justify-content: center;
     align-items: center;
     margin: rem(40) 0;
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(28);
     font-weight: 600;
     color: var(--a-black);
@@ -365,7 +365,7 @@
       width: 100%;
       min-height: rem(54);
       padding: rem(6) rem(24);
-      font-family: "Inter", sans-serif;
+      font-family: var(--a-font-body);
       font-size: rem(26);
       background: var(--a-text-white);
       border: rem(1) solid var(--a-border-primary);

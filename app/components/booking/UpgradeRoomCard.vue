@@ -136,7 +136,7 @@
   }
 
   .comfortText {
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(18);
     font-weight: 500;
     color: var(--a-black);
@@ -162,7 +162,7 @@
   }
 
   .priceValue {
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(20);
     font-weight: 700;
     color: var(--a-text-accent);

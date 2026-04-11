@@ -61,7 +61,7 @@
   }
   .advantagesTitle {
     margin-bottom: rem(40);
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(28);
     font-weight: 600;
     color: var(--a-text-dark);
@@ -69,7 +69,7 @@
   .description {
     width: 100%;
     margin-bottom: rem(30);
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(24);
     color: var(--a-text-dark);
 

@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
   import { ref, watch } from "vue";
 
   const props = defineProps<{
@@ -84,7 +84,7 @@
       justify-content: center;
       align-items: center;
       margin-bottom: rem(24);
-      font-family: "Lora", serif;
+      font-family: var(--a-font-heading);
       font-size: rem(24);
       font-weight: 500;
       line-height: 1.2;

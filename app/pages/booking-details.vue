@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { useBookingStore } from "~/stores/booking";
 import { useAuthStore } from "~/stores/auth";
 import { storeToRefs } from "pinia";
@@ -261,7 +261,7 @@ onMounted(async () => {
     align-items: center;
     text-align: center;
     margin: rem(24) 0 rem(32);
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(24);
     font-weight: 600;
     line-height: 1.3;
@@ -290,7 +290,7 @@ onMounted(async () => {
     justify-content: center;
     gap: rem(20);
     padding: rem(40) 0;
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(16);
     color: var(--a-text-dark);
   }
@@ -302,7 +302,7 @@ onMounted(async () => {
     justify-content: center;
     gap: rem(20);
     padding: rem(40) 0;
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(16);
     color: var(--a-text-dark);
   }

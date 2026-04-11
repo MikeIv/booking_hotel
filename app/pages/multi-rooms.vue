@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
   import { useBookingStore } from "~/stores/booking";
   import type { PackageResource } from "~/types/room";
   import type { SelectedEntry } from "~/types/booking";
@@ -387,7 +387,7 @@
     align-items: center;
     margin: rem(40) 0;
     text-align: center;
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(28);
     font-weight: 600;
     color: var(--a-black);
@@ -471,7 +471,7 @@
     align-items: center;
     margin-bottom: rem(40);
     padding-left: rem(30);
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(20);
     color: var(--a-text-dark);
     cursor: pointer;
@@ -518,7 +518,7 @@
       width: 100%;
       min-height: rem(54);
       padding: rem(6) rem(24);
-      font-family: "Inter", sans-serif;
+      font-family: var(--a-font-body);
       font-size: rem(26);
       background: var(--a-text-white);
       border: rem(1) solid var(--a-border-primary);
@@ -572,7 +572,7 @@
   .loadingText {
     margin: 0;
     text-align: center;
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(14);
     font-weight: 400;
     color: var(--a-text-dark);
@@ -597,7 +597,7 @@
 
   .warningTitle {
     margin: 0;
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(24);
     font-weight: 600;
     color: var(--a-text-dark);
@@ -605,7 +605,7 @@
 
   .warningText {
     margin: 0;
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(16);
     line-height: 1.5;
     color: var(--a-text-dark);
@@ -618,7 +618,7 @@
     color: var(--a-white);
     border: none;
     cursor: pointer;
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(16);
     font-weight: 500;
     transition: background-color 0.2s ease;

@@ -108,7 +108,7 @@
 
   .title {
     text-align: center;
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(28);
     color: var(--a-text-dark);
   }
@@ -139,7 +139,7 @@
     align-items: center;
     justify-content: center;
     padding: rem(2) rem(18);
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(14);
     color: var(--a-text-dark);
     border: rem(1) solid var(--a-border-dark);
@@ -154,7 +154,7 @@
   }
 
   .bookingDetailLabel {
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(18);
     font-weight: 600;
     color: var(--a-text-dark);
@@ -168,7 +168,7 @@
 
   .detailDay {
     width: calc(100% / 3);
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(16);
     font-weight: 400;
     color: var(--a-text-dark);

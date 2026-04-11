@@ -53,7 +53,7 @@
   .servicesTitle {
     margin-bottom: rem(40);
     text-align: center;
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(24);
     font-weight: 500;
     color: var(--a-text-dark);

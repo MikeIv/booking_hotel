@@ -149,7 +149,7 @@ const CHILD_DECLENSION: DeclensionRules = {
 
   .roomType {
     width: 50%;
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(16);
     font-weight: 600;
     color: var(--a-text-dark);
@@ -161,7 +161,7 @@ const CHILD_DECLENSION: DeclensionRules = {
   }
 
   .roomPriceLabel {
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(14);
     font-weight: 600;
     color: var(--a-text-dark);
@@ -173,7 +173,7 @@ const CHILD_DECLENSION: DeclensionRules = {
   }
 
   .roomTariff {
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(14);
     font-weight: 500;
     color: var(--a-text-dark);
@@ -209,7 +209,7 @@ const CHILD_DECLENSION: DeclensionRules = {
   }
 
   .servicesHeader {
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(14);
     font-weight: 500;
     color: var(--a-text-dark);
@@ -249,7 +249,7 @@ const CHILD_DECLENSION: DeclensionRules = {
     align-items: center;
     justify-content: space-between;
     gap: rem(12);
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(16);
     font-weight: 600;
     color: var(--a-text-dark);
@@ -259,7 +259,7 @@ const CHILD_DECLENSION: DeclensionRules = {
     }
 
     strong {
-      font-family: "Lora", serif;
+      font-family: var(--a-font-heading);
       font-size: rem(16);
       font-weight: 600;
 

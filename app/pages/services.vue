@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
   import { useBookingStore } from "~/stores/booking";
   import { useNotificationToast } from "~/composables/useToast";
   import type { Room, RoomTariff } from "~/types/room";
@@ -429,7 +429,7 @@
     align-items: center;
     margin: rem(40) 0;
     text-align: center;
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(28);
     font-weight: 600;
     color: var(--a-black);
@@ -559,7 +559,7 @@
   .servicesListTitle {
     grid-column: 1 / -1;
     margin: 0 0 rem(16) 0;
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(24);
     font-weight: 500;
     color: var(--a-text-dark);

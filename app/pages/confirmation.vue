@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
   import { useBookingStore } from "~/stores/booking";
   import { useAuthStore } from "~/stores/auth";
   import { storeToRefs } from "pinia";
@@ -543,7 +543,7 @@
     align-items: center;
     text-align: center;
     margin: rem(24) rem(16);
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(24);
     font-weight: 600;
     line-height: 1.3;
@@ -632,7 +632,7 @@
   }
 
   .sectionTitle {
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(18);
     font-weight: 500;
     color: var(--a-text-dark);
@@ -679,7 +679,7 @@
   }
 
   .bookingNumber {
-    font-family: "Lora", serif;
+    font-family: var(--a-font-heading);
     font-size: rem(20);
     font-weight: 500;
     color: var(--a-text-dark);
@@ -694,7 +694,7 @@
   }
 
   .bookingMessage {
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(18);
     font-weight: 400;
     color: var(--a-text-dark);
@@ -746,7 +746,7 @@
   }
 
   .confirmationText {
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(14);
     font-weight: 400;
     color: var(--a-text-dark);
