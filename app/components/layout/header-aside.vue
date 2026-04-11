@@ -1,3 +1,168 @@
+<script setup lang="ts">
+  import { useI18n } from "vue-i18n";
+  import LogoRadisson from "~/assets/images/logo_radisson.svg";
+
+  const { locale, setLocale } = useI18n();
+  const router = useRouter();
+  const authStore = useAuthStore();
+
+  // --- Auth state ---
+  const authDialogType = ref<"login" | "register" | "recovery" | null>(null);
+  const recoveryEmail = ref("");
+  const showMyBookingPopup = ref(false);
+  const hasUnauthenticatedBooking = ref(false);
+
+  const checkUnauthenticatedBooking = () => {
+    if (typeof window !== "undefined") {
+      hasUnauthenticatedBooking.value =
+        sessionStorage.getItem("hasUnauthenticatedBooking") === "true";
+    }
+  };
+
+  const route = useRoute();
+
+  onMounted(() => {
+    checkUnauthenticatedBooking();
+  });
+
+  watch(
+    () => route.path,
+    () => {
+      checkUnauthenticatedBooking();
+    },
+  );
+
+  watch(
+    () => authStore.isAuthenticated,
+    () => {
+      checkUnauthenticatedBooking();
+      if (authStore.isAuthenticated) {
+        showMyBookingPopup.value = false;
+        if (typeof window !== "undefined") {
+          sessionStorage.removeItem("hasUnauthenticatedBooking");
+        }
+      }
+    },
+  );
+
+  const showMyBookingDialog = () => {
+    showMyBookingPopup.value = true;
+  };
+  const hideMyBookingDialog = () => {
+    showMyBookingPopup.value = false;
+  };
+  const handleMyBookingLoginSuccess = () => {
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem("hasUnauthenticatedBooking");
+    }
+    hasUnauthenticatedBooking.value = false;
+    hideMyBookingDialog();
+  };
+  const showAuthDialog = (type: "login" | "register" | "recovery", email?: string) => {
+    authDialogType.value = type;
+    if (email) recoveryEmail.value = email;
+  };
+  const hideAuthDialog = () => {
+    authDialogType.value = null;
+    recoveryEmail.value = "";
+  };
+  const switchAuthDialog = (to: "login" | "register" | "recovery", email?: string) => {
+    authDialogType.value = to;
+    if (email) recoveryEmail.value = email;
+  };
+
+  // --- Navigation ---
+  const goToHome = () => {
+    router.push("/");
+  };
+
+  const navLinks = [
+    { url: "https://www.ukraina-hotel.ru/accommodation", text: "Размещение" },
+    { url: "https://www.ukraina-hotel.ru/events", text: "Мероприятия" },
+    { url: "https://collection.wedding/", text: "Свадьбы" },
+    { url: "https://collection.catering/", text: "Кейтеринг" },
+    { url: "https://www.ukraina-hotel.ru/restaurants/", text: "Рестораны" },
+    { url: "https://www.ukraina-hotel.ru/services", text: "Услуги отеля" },
+    { url: "https://www.ukraina-hotel.ru/virtual-tours/", text: "Виртуальные туры" },
+  ] as const;
+
+  // --- Burger / SlideMenu ---
+  const isMenuOpen = ref(false);
+  const asideRef = ref<HTMLElement | null>(null);
+  const asideHeight = ref(95);
+
+  const toggleMenu = () => {
+    isMenuOpen.value = !isMenuOpen.value;
+  };
+
+  const updateHeight = () => {
+    if (asideRef.value) {
+      asideHeight.value = asideRef.value.offsetHeight;
+    }
+  };
+
+  // --- Language ---
+  const LOCALE_OPTIONS: { code: "ru" | "en"; label: string }[] = [
+    { code: "ru", label: "Рус" },
+    { code: "en", label: "Eng" },
+  ];
+  const isLangOpen = ref(false);
+  const langDropdownRef = ref<HTMLElement | null>(null);
+
+  const toggleLangDropdown = () => {
+    isLangOpen.value = !isLangOpen.value;
+  };
+
+  const selectLocale = (code: "ru" | "en") => {
+    setLocale(code);
+    isLangOpen.value = false;
+  };
+
+  const localeLabel = computed(() => (locale.value === "ru" ? "Рус" : "Eng"));
+
+  // --- Search ---
+  const isSearchOpen = ref(false);
+  const searchQuery = ref("");
+  const searchInputRef = ref<HTMLInputElement | null>(null);
+
+  const toggleSearch = () => {
+    isSearchOpen.value = !isSearchOpen.value;
+    if (isSearchOpen.value) {
+      searchQuery.value = "";
+      nextTick(() => {
+        searchInputRef.value?.focus();
+      });
+    }
+  };
+
+  // --- Click outside to close dropdowns ---
+  const closeDropdownsOnClickOutside = (e: MouseEvent) => {
+    const target = e.target as Node;
+    if (
+      isLangOpen.value &&
+      langDropdownRef.value &&
+      !langDropdownRef.value.contains(target)
+    ) {
+      isLangOpen.value = false;
+    }
+  };
+
+  onMounted(() => {
+    updateHeight();
+    const observer = new ResizeObserver(updateHeight);
+    if (asideRef.value) observer.observe(asideRef.value);
+    if (typeof document !== "undefined") {
+      document.addEventListener("click", closeDropdownsOnClickOutside);
+    }
+    onUnmounted(() => {
+      observer.disconnect();
+      if (typeof document !== "undefined") {
+        document.removeEventListener("click", closeDropdownsOnClickOutside);
+      }
+    });
+  });
+</script>
+
 <template>
   <aside ref="asideRef" :class="$style.aside">
     <div :class="$style.wrapper">
@@ -169,171 +334,6 @@
     @login-success="handleMyBookingLoginSuccess"
   />
 </template>
-
-<script setup lang="ts">
-  import { useI18n } from "vue-i18n";
-  import LogoRadisson from "~/assets/images/logo_radisson.svg";
-
-  const { locale, setLocale } = useI18n();
-  const router = useRouter();
-  const authStore = useAuthStore();
-
-  // --- Auth state ---
-  const authDialogType = ref<"login" | "register" | "recovery" | null>(null);
-  const recoveryEmail = ref("");
-  const showMyBookingPopup = ref(false);
-  const hasUnauthenticatedBooking = ref(false);
-
-  const checkUnauthenticatedBooking = () => {
-    if (typeof window !== "undefined") {
-      hasUnauthenticatedBooking.value =
-        sessionStorage.getItem("hasUnauthenticatedBooking") === "true";
-    }
-  };
-
-  const route = useRoute();
-
-  onMounted(() => {
-    checkUnauthenticatedBooking();
-  });
-
-  watch(
-    () => route.path,
-    () => {
-      checkUnauthenticatedBooking();
-    },
-  );
-
-  watch(
-    () => authStore.isAuthenticated,
-    () => {
-      checkUnauthenticatedBooking();
-      if (authStore.isAuthenticated) {
-        showMyBookingPopup.value = false;
-        if (typeof window !== "undefined") {
-          sessionStorage.removeItem("hasUnauthenticatedBooking");
-        }
-      }
-    },
-  );
-
-  const showMyBookingDialog = () => {
-    showMyBookingPopup.value = true;
-  };
-  const hideMyBookingDialog = () => {
-    showMyBookingPopup.value = false;
-  };
-  const handleMyBookingLoginSuccess = () => {
-    if (typeof window !== "undefined") {
-      sessionStorage.removeItem("hasUnauthenticatedBooking");
-    }
-    hasUnauthenticatedBooking.value = false;
-    hideMyBookingDialog();
-  };
-  const showAuthDialog = (type: "login" | "register" | "recovery", email?: string) => {
-    authDialogType.value = type;
-    if (email) recoveryEmail.value = email;
-  };
-  const hideAuthDialog = () => {
-    authDialogType.value = null;
-    recoveryEmail.value = "";
-  };
-  const switchAuthDialog = (to: "login" | "register" | "recovery", email?: string) => {
-    authDialogType.value = to;
-    if (email) recoveryEmail.value = email;
-  };
-
-  // --- Navigation ---
-  const goToHome = () => {
-    router.push("/");
-  };
-
-  const navLinks = [
-    { url: "https://www.ukraina-hotel.ru/accommodation", text: "Размещение" },
-    { url: "https://www.ukraina-hotel.ru/events", text: "Мероприятия" },
-    { url: "https://collection.wedding/", text: "Свадьбы" },
-    { url: "https://collection.catering/", text: "Кейтеринг" },
-    { url: "https://www.ukraina-hotel.ru/restaurants/", text: "Рестораны" },
-    { url: "https://www.ukraina-hotel.ru/services", text: "Услуги отеля" },
-    { url: "https://www.ukraina-hotel.ru/virtual-tours/", text: "Виртуальные туры" },
-  ] as const;
-
-  // --- Burger / SlideMenu ---
-  const isMenuOpen = ref(false);
-  const asideRef = ref<HTMLElement | null>(null);
-  const asideHeight = ref(95);
-
-  const toggleMenu = () => {
-    isMenuOpen.value = !isMenuOpen.value;
-  };
-
-  const updateHeight = () => {
-    if (asideRef.value) {
-      asideHeight.value = asideRef.value.offsetHeight;
-    }
-  };
-
-  // --- Language ---
-  const LOCALE_OPTIONS: { code: "ru" | "en"; label: string }[] = [
-    { code: "ru", label: "Рус" },
-    { code: "en", label: "Eng" },
-  ];
-  const isLangOpen = ref(false);
-  const langDropdownRef = ref<HTMLElement | null>(null);
-
-  const toggleLangDropdown = () => {
-    isLangOpen.value = !isLangOpen.value;
-  };
-
-  const selectLocale = (code: "ru" | "en") => {
-    setLocale(code);
-    isLangOpen.value = false;
-  };
-
-  const localeLabel = computed(() => (locale.value === "ru" ? "Рус" : "Eng"));
-
-  // --- Search ---
-  const isSearchOpen = ref(false);
-  const searchQuery = ref("");
-  const searchInputRef = ref<HTMLInputElement | null>(null);
-
-  const toggleSearch = () => {
-    isSearchOpen.value = !isSearchOpen.value;
-    if (isSearchOpen.value) {
-      searchQuery.value = "";
-      nextTick(() => {
-        searchInputRef.value?.focus();
-      });
-    }
-  };
-
-  // --- Click outside to close dropdowns ---
-  const closeDropdownsOnClickOutside = (e: MouseEvent) => {
-    const target = e.target as Node;
-    if (
-      isLangOpen.value &&
-      langDropdownRef.value &&
-      !langDropdownRef.value.contains(target)
-    ) {
-      isLangOpen.value = false;
-    }
-  };
-
-  onMounted(() => {
-    updateHeight();
-    const observer = new ResizeObserver(updateHeight);
-    if (asideRef.value) observer.observe(asideRef.value);
-    if (typeof document !== "undefined") {
-      document.addEventListener("click", closeDropdownsOnClickOutside);
-    }
-    onUnmounted(() => {
-      observer.disconnect();
-      if (typeof document !== "undefined") {
-        document.removeEventListener("click", closeDropdownsOnClickOutside);
-      }
-    });
-  });
-</script>
 
 <style module lang="scss">
   @use "~/assets/styles/variables/resolutions" as size;
