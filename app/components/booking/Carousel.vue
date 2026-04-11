@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
   import Carousel from "primevue/carousel";
 
   interface PlaceholderSlide {
@@ -233,7 +233,7 @@
     border-radius: rem(8);
     background-color: var(--a-accentLightBg);
     color: var(--a-text-light);
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(16);
     font-weight: 500;
     text-transform: uppercase;

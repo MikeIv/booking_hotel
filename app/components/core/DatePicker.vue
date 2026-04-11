@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
   import { computed, ref, watch } from "vue";
   import VueDatePicker from "@vuepic/vue-datepicker";
   import "@vuepic/vue-datepicker/dist/main.css";
@@ -113,7 +113,7 @@
       left: rem(50);
       font-size: rem(12);
       font-weight: 400;
-      font-family: Inter, sans-serif;
+      font-family: var(--a-font-body);
       color: var(--a-text-light);
       margin-left: rem(12);
       z-index: z.z("booking-label");
@@ -126,7 +126,7 @@
     flex-direction: column;
     width: 100%;
     padding: 0;
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
 
     & .dp__calendar_item .dp--future {
       font-weight: 500;
@@ -184,7 +184,7 @@
       flex-grow: 1;
       width: 100%;
       padding: rem(22) rem(36) rem(2) rem(12);
-      font-family: "Inter", sans-serif;
+      font-family: var(--a-font-body);
       font-size: rem(16);
       border: rem(1) solid var(--a-border-light);
       border-radius: var(--a-borderR--input);

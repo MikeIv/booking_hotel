@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
   // Переиспользуемый компонент для содержимого popover тарифа
   // Используется для избежания дублирования кода
 </script>
@@ -25,7 +25,7 @@
     display: flex;
     justify-content: space-between;
     gap: rem(10);
-    font-family: Inter, sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(14);
   }
 </style>

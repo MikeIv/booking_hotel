@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 interface Props {
   name?: string;
   surname?: string;
@@ -120,7 +120,7 @@ defineProps<Props>();
   }
 
   .infoLabel {
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(14);
     font-weight: 400;
     color: var(--a-text-light);
@@ -128,7 +128,7 @@ defineProps<Props>();
   }
 
   .infoValue {
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(14);
     font-weight: 500;
     color: var(--a-text-dark);

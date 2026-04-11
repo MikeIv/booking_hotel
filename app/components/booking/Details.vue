@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
   import { formatCount } from "~/utils/declension";
 
   const props = defineProps<{
@@ -197,14 +197,14 @@
   }
 
   .bookingTotalLabel {
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(16);
     font-weight: 600;
     color: var(--a-text-dark);
   }
 
   .bookingTotalValue {
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(18);
     font-weight: 700;
     color: var(--a-text-primary);

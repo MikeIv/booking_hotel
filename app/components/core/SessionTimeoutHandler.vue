@@ -1,4 +1,4 @@
-<!-- app/components/SessionTimeoutHandler.vue -->
+﻿<!-- app/components/SessionTimeoutHandler.vue -->
 <script setup lang="ts">
   import Popup from "~/components/ui/Popup.vue";
   import { useBookingStore } from "~/stores/booking";
@@ -82,7 +82,7 @@
   .text {
     margin-bottom: rem(24);
     text-align: center;
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(21);
     font-weight: 500;
     color: var(--a-text-accent);

@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import type { BookingDetailsRoom } from "~/types/booking-details";
 import { formatCount } from "~/utils/declension";
 import type { DeclensionRules } from "~/utils/declension";
@@ -117,7 +117,7 @@ const CHILD_DECLENSION: DeclensionRules = {
   .roomButtonText {
     flex: 1;
     text-align: left;
-    font-family: Inter, sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(14);
     color: var(--a-white);
   }
@@ -194,7 +194,7 @@ const CHILD_DECLENSION: DeclensionRules = {
   }
 
   .roomGuestLine {
-    font-family: Inter, sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(14);
     font-weight: 400;
     color: var(--a-text-dark);
@@ -238,7 +238,7 @@ const CHILD_DECLENSION: DeclensionRules = {
 
   .serviceTitle {
     flex: 1;
-    font-family: Inter, sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(14);
     font-weight: 400;
     color: var(--a-text-dark);

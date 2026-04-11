@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
   const ready = useState<boolean>("app-initial-load-ready", () => false);
 
   onMounted(() => {
@@ -90,7 +90,7 @@
 
   .label {
     margin: 0;
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(14);
     font-weight: 500;
     color: var(--a-text-dark);

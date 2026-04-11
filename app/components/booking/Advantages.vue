@@ -1,4 +1,4 @@
-<script setup lang="ts"></script>
+﻿<script setup lang="ts"></script>
 
 <template>
   <section :class="$style.advantages">
@@ -95,7 +95,7 @@
     align-items: center;
     width: 100%;
     height: rem(44);
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(18);
     border-radius: var(--a-borderR--btn);
     cursor: pointer;

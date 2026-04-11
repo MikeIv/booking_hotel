@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
   import UIPopup from "~/components/ui/Popup.vue";
   import type { Room } from "~/types/room";
   import { formatCount } from "~/utils/declension";
@@ -184,7 +184,7 @@
     min-width: rem(274);
     height: rem(44);
     padding: 0 rem(20);
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(18);
     font-weight: 400;
     color: var(--a-text-white);

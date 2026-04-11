@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
   import type { PackageResource } from "~/types/room";
 
   interface Props {
@@ -93,7 +93,7 @@
   }
 
   .serviceText {
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(20);
     color: var(--a-text-dark);
   }

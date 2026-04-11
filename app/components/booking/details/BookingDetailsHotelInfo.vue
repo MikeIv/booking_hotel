@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 interface Props {
   name: string;
   address: string;
@@ -123,7 +123,7 @@ const props = withDefaults(defineProps<Props>(), {
   }
 
   .hotelAddress {
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(14);
     font-weight: 400;
     font-style: normal;
@@ -137,7 +137,7 @@ const props = withDefaults(defineProps<Props>(), {
 
   .hotelPhone,
   .hotelEmail {
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(14);
     font-weight: 400;
     color: var(--a-text-dark);

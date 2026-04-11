@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
   import { useBookingStore } from "~/stores/booking";
 
   interface Props {
@@ -226,7 +226,7 @@
   }
 
   .itemTitle {
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(12);
     font-weight: 500;
     color: var(--a-text-light);
@@ -269,7 +269,7 @@
     border-radius: var(--a-borderR--btn);
     background-color: var(--a-blackBg);
     color: var(--a-white);
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(18);
     font-weight: 500;
     cursor: pointer;

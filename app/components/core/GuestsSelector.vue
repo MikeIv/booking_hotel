@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { AGE_MIN, AGE_MAX } from "~/utils/age";
 import { declension } from "~/utils/declension";
 
@@ -292,7 +292,7 @@ const MAX_ROOMS = 5;
     justify-content: space-between;
     align-items: center;
     margin-bottom: rem(12);
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
   }
 
   .roomsTitle {

@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 const emit = defineEmits<{
   "change-dates": [];
   "change-room": [];
@@ -84,7 +84,7 @@ const handleChangeContacts = () => emit("change-contacts");
   }
 
   .managementText {
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(14);
     font-weight: 400;
     color: var(--a-text-dark);

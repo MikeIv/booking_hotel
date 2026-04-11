@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
   import { formatPrice } from "~/utils/price";
   import { formatCount } from "~/utils/declension";
   import type { Room } from "~/types/room";
@@ -113,7 +113,7 @@
   .loaderText {
     margin: 0;
     text-align: center;
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(14);
     font-weight: 400;
     color: var(--a-text-dark);
@@ -170,7 +170,7 @@
   }
 
   .pricePeriod {
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(14);
     font-weight: 500;
     color: var(--a-text-light);
@@ -192,7 +192,7 @@
     min-width: rem(179);
     height: rem(44);
     padding: 0 rem(20);
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(18);
     font-weight: 400;
     color: var(--a-text-white);

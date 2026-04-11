@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
   type Props = {
     hasManagementActions: boolean;
     canEditDates: boolean;
@@ -93,7 +93,7 @@
   }
 
   .managementText {
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(14);
     font-weight: 400;
     color: var(--a-text-dark);

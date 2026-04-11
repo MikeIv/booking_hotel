@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
   import {
     useCssModule,
     ref,
@@ -265,7 +265,7 @@
     transition:
       border-color 0.3s ease,
       box-shadow 0.3s ease;
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(16);
     background: var(--a-whiteBg);
     cursor: pointer;
@@ -364,7 +364,7 @@
     color: var(--a-text-dark);
     border: rem(1) solid var(--a-border-light);
     border-radius: var(--a-borderR--input);
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(16);
     background: var(--a-whiteBg);
     transition:
@@ -417,7 +417,7 @@
     padding: rem(12) rem(16);
     text-align: left;
     color: var(--a-text-dark);
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(16);
     background: var(--a-whiteBg);
     border: none;
@@ -440,14 +440,14 @@
     padding: rem(12) rem(16);
     text-align: center;
     color: var(--a-text-light);
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(16);
   }
 
   .errorText {
     display: block;
     margin-top: rem(8);
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(14);
     color: var(--a-text-accent);
   }

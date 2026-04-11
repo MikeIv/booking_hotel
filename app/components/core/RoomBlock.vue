@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import type { RoomGuests } from "~/components/core/GuestsSelector.vue";
 import { AGE_MIN } from "~/utils/age";
 
@@ -107,7 +107,7 @@ const roomTitle = computed(() =>
   justify-content: space-between;
   align-items: center;
   margin-bottom: rem(6);
-  font-family: "Inter", sans-serif;
+  font-family: var(--a-font-body);
 }
 
 .roomTitle {
@@ -117,7 +117,7 @@ const roomTitle = computed(() =>
   min-height: rem(40);
   margin: 0 rem(-16) rem(8) rem(-16);
   padding: rem(6) rem(20) rem(6) rem(16);
-  font-family: "Inter", sans-serif;
+  font-family: var(--a-font-body);
   font-size: rem(18);
   color: var(--a-black);
   background-color: var(--a-accentLightBg);
@@ -164,7 +164,7 @@ const roomTitle = computed(() =>
 }
 
 .name {
-  font-family: "Inter", sans-serif;
+  font-family: var(--a-font-body);
   font-size: rem(18);
   color: var(--a-text-dark);
   text-wrap: wrap;
@@ -175,7 +175,7 @@ const roomTitle = computed(() =>
 }
 
 .subName {
-  font-family: "Inter", sans-serif;
+  font-family: var(--a-font-body);
   font-size: rem(14);
   color: var(--a-text-primary);
 }

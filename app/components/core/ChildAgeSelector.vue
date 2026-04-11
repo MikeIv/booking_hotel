@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { getAgeOptions, childAgeLabel } from "~/utils/age";
 
 interface Props {
@@ -48,7 +48,7 @@ const label = computed(() => childAgeLabel(props.totalChildren, props.childIndex
 }
 
 .name {
-  font-family: "Inter", sans-serif;
+  font-family: var(--a-font-body);
   font-size: rem(18);
   color: var(--a-text-dark);
   text-wrap: wrap;
@@ -85,7 +85,7 @@ const label = computed(() => childAgeLabel(props.totalChildren, props.childIndex
   width: rem(120);
   height: rem(36);
   font-size: rem(16);
-  font-family: "Inter", sans-serif;
+  font-family: var(--a-font-body);
   background-color: var(--a-whiteBg);
   border: rem(1) solid var(--a-border-primary);
   border-radius: var(--a-borderR--input);
@@ -104,7 +104,7 @@ const label = computed(() => childAgeLabel(props.totalChildren, props.childIndex
 
 .ageOption {
   padding: rem(8);
-  font-family: "Inter", sans-serif;
+  font-family: var(--a-font-body);
   font-size: rem(16);
 }
 </style>

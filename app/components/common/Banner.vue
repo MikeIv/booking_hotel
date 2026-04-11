@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
   import type { Banner } from "~/types/banner";
 
   interface Props {
@@ -76,7 +76,7 @@
 
   .title {
     margin: 0;
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(14);
     font-weight: 400;
     line-height: 1.5;
@@ -89,7 +89,7 @@
 
   .description {
     margin: 0;
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(13);
     font-weight: 400;
     line-height: 1.5;

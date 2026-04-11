@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
   import { ref, computed, watch } from "vue";
   import { formatCount } from "~/utils/declension";
   import { useNights } from "~/composables/useNights";
@@ -531,7 +531,7 @@
   }
 
   .itemTitle {
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(12);
     font-weight: 500;
     color: var(--a-text-light);
@@ -553,7 +553,7 @@
       max-width: 100%;
       min-height: rem(44);
       padding: rem(8) rem(16);
-      font-family: "Inter", sans-serif;
+      font-family: var(--a-font-body);
       font-size: rem(14);
       color: var(--a-text-dark);
       background: var(--a-text-white);
@@ -565,7 +565,7 @@
   .bedSelectLabel {
     display: inline-flex;
     align-items: center;
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(18);
     color: var(--a-text-dark);
     white-space: nowrap;
@@ -587,7 +587,7 @@
 
   .guestInfo {
     margin: 0 0 rem(4) 0;
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(14);
     font-weight: 500;
     color: var(--a-text-light);
@@ -598,7 +598,7 @@
     align-items: center;
     gap: rem(4);
     margin: 0;
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(14);
     font-weight: 500;
     color: var(--a-text-accent);
@@ -626,7 +626,7 @@
     border-radius: var(--a-borderR--btn);
     background-color: var(--a-blackBg);
     color: var(--a-white);
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(18);
     font-weight: 500;
     cursor: pointer;

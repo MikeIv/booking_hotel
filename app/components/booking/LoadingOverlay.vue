@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
   import { storeToRefs } from "pinia";
 
   const bookingStore = useBookingStore();
@@ -50,7 +50,7 @@
   .loadingText {
     margin: 0;
     text-align: center;
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(14);
     font-weight: 400;
     color: var(--a-text-dark);

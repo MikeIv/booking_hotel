@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
   import type { Room } from "~/types/room";
   import { formatPrice } from "~/utils/price";
   import { formatCount } from "~/utils/declension";
@@ -97,7 +97,7 @@
     margin: 0;
     padding: 0;
     list-style: none;
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(14);
     font-weight: 500;
     color: var(--a-text-light);
@@ -122,7 +122,7 @@
     align-items: center;
     justify-content: center;
     padding: rem(4) rem(14);
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(16);
     font-weight: 400;
     color: var(--a-text-dark);
@@ -152,7 +152,7 @@
   }
 
   .period {
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(14);
     font-weight: 500;
     color: var(--a-text-light);

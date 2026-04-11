@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
   const route = useRoute();
   const router = useRouter();
 
@@ -139,7 +139,7 @@
   .item {
     display: flex;
     align-items: center;
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
   }
 
   .link {

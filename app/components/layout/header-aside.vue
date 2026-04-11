@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
   import { useI18n } from "vue-i18n";
   import LogoRadisson from "~/assets/images/logo_radisson.svg";
 
@@ -535,7 +535,7 @@
     min-height: rem(44);
     height: rem(44);
     padding: rem(12) var(--ds-space-300);
-    font-family: Inter, sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(18);
     font-weight: 400;
     line-height: 1;
@@ -621,7 +621,7 @@
     border-radius: rem(16);
     color: var(--ds-neutral-700);
     font-size: rem(14);
-    font-family: Inter, sans-serif;
+    font-family: var(--a-font-body);
     font-weight: 400;
     line-height: 1;
     cursor: pointer;
@@ -668,7 +668,7 @@
     border: none;
     color: var(--secondary);
     font-size: rem(14);
-    font-family: Inter, sans-serif;
+    font-family: var(--a-font-body);
     font-weight: 400;
     cursor: pointer;
     transition: color 0.2s ease, background-color 0.2s ease;

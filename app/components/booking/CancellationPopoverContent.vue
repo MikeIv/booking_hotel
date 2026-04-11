@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
   interface Props {
     /** Заголовок popover */
     title?: string;
@@ -29,7 +29,7 @@
   }
 
   .cancellationTitle {
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(16);
     font-weight: 600;
     color: var(--a-text-dark);
@@ -37,7 +37,7 @@
   }
 
   .cancellationDescription {
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(16);
     color: var(--a-text-dark);
     margin: 0;

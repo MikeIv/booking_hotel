@@ -1,4 +1,4 @@
-<script lang="ts">
+﻿<script lang="ts">
   import { computed, defineComponent } from "vue";
 
   export interface RequestErrorContent {
@@ -143,7 +143,7 @@
     display: flex;
     flex-direction: column;
     gap: rem(4);
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     color: var(--color-text, #1b1b1b);
   }
 

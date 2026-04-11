@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
   import type { Room, RoomTariff, PackageResource } from "~/types/room";
   import { formatCount } from "~/utils/declension";
   import { useBookingStore } from "~/stores/booking";
@@ -676,7 +676,7 @@
   }
 
   .itemTitle {
-    font-family: Inter, sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(14);
     font-weight: 500;
     color: var(--a-text-dark);
@@ -798,7 +798,7 @@
   }
 
   .confirmTitle {
-    font-family: Inter, sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(12);
     font-weight: 500;
     color: var(--a-text-accent);
@@ -870,7 +870,7 @@
     color: var(--a-white);
     border: none;
     cursor: pointer;
-    font-family: Inter, sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(14);
     font-weight: 500;
     transition: background-color 0.2s ease;
@@ -1016,7 +1016,7 @@
   }
 
   .averagePriceLabel {
-    font-family: Inter, sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(12);
     font-weight: 500;
     color: var(--a-text-light);
@@ -1067,7 +1067,7 @@
   }
 
   .amenitiesListShow {
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(16);
     font-weight: 500;
     color: var(--a-text-light);
@@ -1086,7 +1086,7 @@
     display: flex;
     align-items: center;
     padding: rem(2) rem(14);
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(16);
     color: var(--a-text-dark);
     border: rem(1) solid var(--a-border-primary);
@@ -1111,7 +1111,7 @@
   }
 
   .priceDetailsDates {
-    font-family: Inter, sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(14);
     color: var(--a-text-light);
     margin-bottom: rem(4);
@@ -1131,7 +1131,7 @@
   }
 
   .guestDetailItem {
-    font-family: Inter, sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(16);
     color: var(--a-text-dark);
     line-height: 1.5;
@@ -1149,7 +1149,7 @@
     justify-content: space-between;
     align-items: center;
     gap: rem(12);
-    font-family: Inter, sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(14);
     color: var(--a-text-dark);
   }

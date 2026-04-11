@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
   import type { RegisterData } from "~/types/auth";
   import { countriesRu } from "~/utils/countries";
 
@@ -449,7 +449,7 @@
   }
 
   .checkboxText {
-    font-family: "Inter", sans-serif;
+    font-family: var(--a-font-body);
     font-size: rem(16);
     font-weight: 400;
     line-height: 1.2;
