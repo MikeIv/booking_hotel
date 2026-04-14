@@ -223,21 +223,19 @@
     <Booking mode="inner" />
 
     <div :class="$style.filtersWrapper" data-testid="filters-wrapper">
-      <Select
+      <UiFilterSelect
         v-model="selectedView"
         :options="viewOptions"
         option-label="title"
         option-value="id"
         placeholder="Вид из окна"
-        :class="$style.filterSelect"
       />
-      <Select
+      <UiFilterSelect
         v-model="selectedBalcony"
         :options="balconyOptions"
         option-label="title"
         option-value="id"
         placeholder="Балкон"
-        :class="$style.filterSelect"
       />
     </div>
 
@@ -351,56 +349,5 @@
     font-size: var(--ds-typo-size-body-lg);
     color: var(--a-text-accent);
     text-align: center;
-  }
-
-  .filterSelect {
-    color: var(--a-black);
-    width: 100%;
-
-    @media (min-width: #{size.$mobile}) {
-      max-width: rem(368);
-    }
-
-    &:global(.p-select) {
-      display: flex;
-      align-items: center;
-      width: 100%;
-      min-height: rem(54);
-      padding: rem(6) rem(24);
-      font-family: var(--a-font-select);
-      font-size: var(--ds-typo-size-select);
-      line-height: var(--ds-typo-line-select);
-      font-weight: var(--ds-typo-weight-select);
-      background: var(--a-text-white);
-      border: rem(1) solid var(--a-border-primary);
-      border-radius: var(--a-borderR--input);
-      outline: none;
-
-      &:hover {
-        border-color: var(--a-border-primary);
-      }
-    }
-
-    :global {
-      .p-select-label {
-        font-size: var(--ds-typo-size-select);
-        line-height: var(--ds-typo-line-select);
-        font-family: var(--a-font-select);
-      }
-      .p-select-clear-icon {
-        top: 48%;
-        right: rem(54);
-        width: rem(20);
-        color: var(--a-text-accent);
-      }
-      .p-select-dropdown {
-        width: rem(22);
-        color: var(--a-text-light);
-
-        svg {
-          width: rem(22);
-        }
-      }
-    }
   }
 </style>

@@ -306,7 +306,10 @@
         <div :class="$style.roomInfo">
           <h2 :class="$style.title">{{ currentRoom.title }}</h2>
 
-          <button
+          <UiButton
+            type="button"
+            variant="icon"
+            size="icon40"
             :class="$style.infoButton"
             data-popup-button
             aria-label="Подробнее о номере"
@@ -317,7 +320,7 @@
               :class="$style.chevronIcon"
               aria-hidden="true"
             />
-          </button>
+          </UiButton>
         </div>
 
         <dl :class="$style.description">
@@ -474,33 +477,13 @@
   }
 
   .infoButton {
-    display: grid;
-    place-items: center;
     flex: none;
-    width: rem(40);
-    height: rem(40);
-    min-width: auto;
-    padding: 0;
-    border: rem(1) solid var(--a-border-dark);
-    border-radius: 50%;
-    background: transparent;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-
-    &:hover {
-      background-color: var(--a-primaryBg);
-      border: none;
-
-      .chevronIcon {
-        color: var(--a-white);
-      }
-    }
   }
 
   .chevronIcon {
     width: rem(26);
     height: rem(26);
-    color: var(--a-black);
+    color: currentColor;
   }
 
   .description {

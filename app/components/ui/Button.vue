@@ -1,8 +1,8 @@
 <script setup lang="ts">
   import { computed, useAttrs } from "vue";
 
-  type ButtonVariant = "primary" | "dark" | "ghost" | "danger";
-  type ButtonSize = "m" | "l" | "xl";
+  type ButtonVariant = "primary" | "dark" | "ghost" | "danger" | "icon";
+  type ButtonSize = "m" | "l" | "xl" | "icon40";
   type ButtonRadius = "default" | "round";
   type ButtonSeverity = "primary" | "secondary" | "contrast" | "danger";
 
@@ -131,6 +131,15 @@
     font-size: rem(24);
   }
 
+  .icon40 {
+    width: rem(40);
+    height: rem(40);
+    min-height: rem(40);
+    min-width: rem(40);
+    max-width: rem(40);
+    padding: 0;
+  }
+
   .radiusDefault {
     border-radius: var(--a-borderR--btn);
   }
@@ -178,6 +187,19 @@
 
     &:hover:not(:disabled) {
       background-color: var(--a-blackBg);
+    }
+  }
+
+  .icon {
+    color: var(--a-black);
+    background: transparent;
+    border: rem(1) solid var(--a-border-dark);
+    border-radius: 50%;
+
+    &:hover:not(:disabled) {
+      color: var(--a-white);
+      background-color: var(--a-primaryBg);
+      border-color: var(--a-primaryBg);
     }
   }
 </style>

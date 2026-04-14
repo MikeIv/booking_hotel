@@ -80,3 +80,128 @@
   line-height: var(--ds-typo-line-h2);
   font-weight: var(--ds-typo-weight-h);
 }
+
+/* stylelint-disable no-invalid-position-declaration, selector-pseudo-class-no-unknown */
+
+/* Фильтр-селект в потоке бронирования — Figma: Booking / Select (368×54, обводка Gold U, типографика select) */
+@mixin booking-filter-select {
+  color: var(--a-black);
+  width: 100%;
+
+  @media (min-width: #{size.$mobile}) {
+    max-width: rem(368);
+  }
+
+  &:global(.p-select) {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: rem(54);
+    padding: rem(6) rem(24);
+    box-sizing: border-box;
+    font-family: var(--a-font-select);
+    font-size: var(--ds-typo-size-select);
+    line-height: var(--ds-typo-line-select);
+    font-weight: var(--ds-typo-weight-select);
+    background: var(--a-text-white);
+    border: rem(1) solid var(--a-border-primary);
+    border-radius: var(--a-borderR--input);
+    outline: none;
+
+    &:hover {
+      border-color: var(--a-border-primary);
+    }
+  }
+
+  :global {
+    .p-select-label {
+      color: var(--a-black);
+      font-size: var(--ds-typo-size-select);
+      line-height: var(--ds-typo-line-select);
+      font-family: var(--a-font-select);
+    }
+
+    .p-select-label.p-placeholder {
+      color: var(--a-black);
+    }
+
+    .p-select-clear-icon {
+      top: 48%;
+      right: rem(54);
+      width: rem(20);
+      color: var(--a-text-accent);
+    }
+
+    .p-select-dropdown {
+      width: rem(22);
+      color: var(--a-text-light);
+
+      svg {
+        width: rem(22);
+      }
+    }
+  }
+}
+
+/* Тот же визуал, что booking-filter-select, для кастомного UiFilterSelect (без PrimeVue .p-select) */
+@mixin booking-filter-select-ui {
+  color: var(--a-black);
+  width: 100%;
+
+  @media (min-width: #{size.$mobile}) {
+    max-width: rem(368);
+  }
+
+  .trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: rem(8);
+    width: 100%;
+    min-height: rem(54);
+    padding: rem(6) rem(24);
+    box-sizing: border-box;
+    font-family: var(--a-font-select);
+    font-size: var(--ds-typo-size-select);
+    line-height: var(--ds-typo-line-select);
+    font-weight: var(--ds-typo-weight-select);
+    background: var(--a-text-white);
+    border: rem(1) solid var(--a-border-primary);
+    border-radius: var(--a-borderR--input);
+    outline: none;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      border-color: var(--a-border-primary);
+    }
+
+    &:focus-visible {
+      outline: rem(2) solid var(--a-border-primary-accent);
+      outline-offset: rem(2);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+  }
+
+  .label {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: left;
+    color: var(--a-black);
+  }
+
+  .chevron {
+    flex-shrink: 0;
+    width: rem(22);
+    height: rem(9);
+    color: var(--a-text-light);
+    transform: translateY(rem(2));
+  }
+}
+/* stylelint-enable no-invalid-position-declaration, selector-pseudo-class-no-unknown */

@@ -1,6 +1,9 @@
 import type { Meta, StoryObj } from "@nuxtjs/storybook";
+import { ref } from "vue";
 
+import FilterSelect from "./FilterSelect.vue";
 import Select from "./Select.vue";
+import { FILTER_VIEW_OPTIONS } from "./selectStoryOptions";
 
 const meta = {
   title: "Simple Components/Select",
@@ -18,8 +21,8 @@ const meta = {
     open: { control: "boolean" },
   },
   args: {
-    label: "Гости",
-    valueText: "1 номер, 1 взр., 0 дет.",
+    label: "",
+    valueText: "",
     iconName: "i-chevron-down",
     variant: "default",
     disabled: false,
@@ -31,7 +34,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const renderWithBox = (args: Story["args"]) => ({
+const renderBookingSelect = (args: Story["args"]) => ({
   components: { Select },
   setup() {
     return { args };
@@ -51,46 +54,39 @@ const renderWithBox = (args: Story["args"]) => ({
   `,
 });
 
+/** Один фильтр «вид из окна», как на странице номеров */
 export const Default: Story = {
-  render: renderWithBox,
+  render: () => ({
+    components: { FilterSelect },
+    setup() {
+      const model = ref(0);
+      return {
+        model,
+        options: FILTER_VIEW_OPTIONS,
+      };
+    },
+    template: `
+      <div style="width: 368px;">
+        <FilterSelect
+          v-model="model"
+          :options="options"
+          option-label="title"
+          option-value="id"
+          placeholder="Вид из окна"
+        />
+      </div>
+    `,
+  }),
 };
 
-export const HoverFocus: Story = {
-  args: {
-    label: "Гости",
-    valueText: "2 взрослых, 0 детей",
-  },
-  render: renderWithBox,
-};
-
-export const Disabled: Story = {
-  args: {
-    label: "Гости",
-    valueText: "1 номер, 1 взр., 0 дет.",
-    disabled: true,
-  },
-  render: renderWithBox,
-};
-
-export const Error: Story = {
-  args: {
-    label: "Гости",
-    valueText: "1 номер, 1 взр., 0 дет.",
-    invalid: true,
-  },
-  render: renderWithBox,
-};
-
-export const Playground: Story = {
-  render: renderWithBox,
-};
-
+/** Триггер «как селект» в модуле брони (даты / гости) — не FilterSelect */
 export const BookingSpecialCase: Story = {
+  name: "Booking Special Case",
   args: {
     label: "Гости",
     valueText: "2 взрослых, 0 детей",
     iconName: "i-chevron-down-select",
     variant: "booking",
   },
-  render: renderWithBox,
+  render: renderBookingSelect,
 };

@@ -195,11 +195,13 @@
             <div :class="$style.wrapperInfoBlock">
               <div :class="$style.roomInfo">
                 <h2 :class="$style.title">{{ room.title }}</h2>
-                <button
+                <UiButton
                   type="button"
+                  variant="icon"
+                  size="icon40"
                   :class="$style.infoButton"
                   data-popup-button
-                  ariaLabel="Подробнее о номере"
+                  aria-label="Подробнее о номере"
                   @click="openPopup($event)"
                 >
                   <UIcon
@@ -207,7 +209,7 @@
                     :class="$style.chevronIcon"
                     aria-hidden="true"
                   />
-                </button>
+                </UiButton>
               </div>
 
               <dl :class="$style.description">
@@ -606,38 +608,12 @@
 
   .infoButton {
     flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: rem(34);
-    height: rem(34);
-    padding: 0;
-    border: rem(1) solid var(--a-border-dark);
-    border-radius: 50%;
-    background: transparent;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-
-    &:hover {
-      background-color: var(--a-primaryBg);
-      border-color: var(--a-primaryBg);
-    }
-
-    @media (min-width: #{size.$tablet}) {
-      width: rem(41);
-      height: rem(41);
-    }
-
-    @media (min-width: #{size.$desktopMin}) {
-      width: rem(41);
-      height: rem(41);
-    }
   }
 
   .chevronIcon {
     width: rem(28);
     height: rem(28);
-    color: var(--a-black);
+    color: currentColor;
   }
 
   .description {
