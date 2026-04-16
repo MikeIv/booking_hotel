@@ -4,6 +4,7 @@
 
   const { locale, setLocale } = useI18n();
   const authStore = useAuthStore();
+  const router = useRouter();
 
   // --- Auth state ---
   const authDialogType = ref<"login" | "register" | "recovery" | null>(null);
@@ -220,7 +221,7 @@
           v-else
           :class="[$style.headerButton, $style.headerButtonNarrow]"
           unstyled
-          @click="$router.push('/cabinet')"
+          @click="router.push('/cabinet')"
         >
           Личный кабинет
         </Button>
@@ -303,7 +304,7 @@
   </Transition>
 
   <!-- Выезжающее меню -->
-  <SlideMenu
+  <UiSlideMenu
     :is-open="isMenuOpen"
     :links="navLinks"
     :top-offset="asideHeight"
@@ -656,7 +657,7 @@
 
   .langDropdown {
     position: absolute;
-    top: calc(100% + rem(4));
+    top: calc(100% + var(--ds-space-025));
     left: 0;
     min-width: 100%;
     background: var(--a-whiteBg);

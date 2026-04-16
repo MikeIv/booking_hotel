@@ -106,13 +106,19 @@
           >
             <span>{{ amenity.title }}</span>
           </li>
-          <button
+          <li
             v-if="!props.expanded && (room.amenities?.length || 0) > 4"
-            :class="$style.amenitiesListShow"
-            @click="_toggleExpand"
+            :class="$style.amenitiesListItem"
           >
-            + ещё {{ (room.amenities?.length || 0) - 4 }}
-          </button>
+            <UiButton
+              type="button"
+              unstyled
+              :class="$style.amenitiesListShow"
+              @click="_toggleExpand"
+            >
+              + ещё {{ (room.amenities?.length || 0) - 4 }}
+            </UiButton>
+          </li>
         </ul>
       </div>
 
@@ -151,6 +157,16 @@
   @use "~/assets/styles/tools/mixins" as typo;
 
   .roomInfoSection {
+    --room-card-gap: var(--a-space-4);
+    --room-card-image-width: 45%;
+    --room-card-content-width: 55%;
+    --room-card-select-max-width: rem(320);
+    --room-card-select-height: rem(40);
+    --room-card-select-padding-x: var(--a-space-2);
+    --room-card-select-chevron-width: rem(18);
+    --room-card-select-chevron-height: rem(8);
+    --room-card-select-chevron-gap: var(--a-space-1);
+
     display: flex;
     flex-direction: column;
     margin-bottom: rem(40);
@@ -167,7 +183,7 @@
     @media (min-width: #{size.$tablet}) {
       min-height: rem(318);
       flex-direction: row;
-      padding: rem(16) rem(22) rem(16) rem(16);
+      padding: var(--a-space-2) var(--a-space-3) var(--a-space-2) var(--a-space-2);
     }
   }
 
@@ -175,14 +191,14 @@
     @media (min-width: #{size.$tablet}) {
       display: flex;
       align-self: stretch;
-      width: 45%;
-      max-width: 45%;
-      margin-right: rem(32);
+      width: var(--room-card-image-width);
+      max-width: var(--room-card-image-width);
+      margin-right: var(--room-card-gap);
       height: 100%;
     }
 
     :global(.p-carousel-indicator-list) {
-      display: none !important;
+      display: none;
     }
 
     :global(.p-carousel) {
@@ -272,10 +288,10 @@
     min-height: 0;
 
     @media (min-width: #{size.$tablet}) {
-      width: 55%;
-      max-width: 55%;
+      width: var(--room-card-content-width);
+      max-width: var(--room-card-content-width);
       margin: 0;
-      margin-right: rem(32);
+      margin-right: var(--room-card-gap);
       align-self: stretch;
     }
   }
@@ -319,14 +335,31 @@
     gap: rem(12);
   }
 
+  .amenitiesListItem {
+    display: flex;
+    list-style: none;
+  }
+
   .amenitiesListShow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: none;
+    background: none;
     @include typo.typo-body-md;
     font-weight: 500;
     color: var(--a-text-light);
     cursor: pointer;
+    transition: color 0.2s ease;
 
     &:hover {
       color: var(--a-text-primary);
+    }
+
+    &:focus-visible {
+      outline: rem(2) solid var(--a-border-primary);
+      outline-offset: rem(2);
     }
   }
 
@@ -339,7 +372,10 @@
     border: rem(1) solid var(--a-border-primary);
     border-radius: var(--a-borderR--dialog);
     background: var(--a-whiteBg);
-    transition: all 0.2s ease;
+    transition:
+      color 0.2s ease,
+      border-color 0.2s ease,
+      background-color 0.2s ease;
   }
 
   /* Блок селекта «Тип кровати» прижат к низу карточки */
@@ -364,11 +400,11 @@
     display: flex;
     align-items: center;
     width: 100%;
-    max-width: rem(321);
-    height: rem(41);
-    padding: 0 rem(14) 0 rem(13);
+    max-width: var(--room-card-select-max-width);
+    height: var(--room-card-select-height);
+    padding: 0 var(--room-card-select-padding-x);
     border-radius: var(--a-borderR--select);
-    border: 1px solid var(--a-border-primary);
+    border: rem(1) solid var(--a-border-primary);
     background: var(--a-whiteBg);
   }
 
@@ -379,7 +415,9 @@
     min-width: 0;
     height: 100%;
     padding: 0;
-    padding-right: rem(17 + 8);
+    padding-right: calc(
+      var(--room-card-select-chevron-width) + var(--room-card-select-chevron-gap)
+    );
     @include typo.typo-body-lg;
     color: var(--a-text-dark);
     background: transparent;
@@ -397,10 +435,10 @@
   /* Стрелка раскрытия из макета Figma (17×7, opacity 0.3) — не перехватывает клики */
   .bedTypeChevron {
     position: absolute;
-    right: rem(14);
+    right: var(--room-card-select-padding-x);
     top: 50%;
-    width: rem(17);
-    height: rem(7);
+    width: var(--room-card-select-chevron-width);
+    height: var(--room-card-select-chevron-height);
     transform: translateY(-50%);
     pointer-events: none;
     z-index: 0;

@@ -1,24 +1,24 @@
 <script setup lang="ts">
   import { gsap } from "gsap";
 
-  const props = defineProps({
-    isOpen: {
-      type: Boolean,
-      required: true,
+  interface SlideMenuLink {
+    url: string;
+    text: string;
+  }
+
+  const props = withDefaults(
+    defineProps<{
+      isOpen: boolean;
+      links?: readonly SlideMenuLink[];
+      topOffset?: number;
+      backgroundColor?: string;
+    }>(),
+    {
+      links: () => [],
+      topOffset: 95,
+      backgroundColor: "--a-mainBg",
     },
-    links: {
-      type: Array as () => Array<{ url: string; text: string }>,
-      default: () => [],
-    },
-    topOffset: {
-      type: Number,
-      default: 95,
-    },
-    backgroundColor: {
-      type: String,
-      default: "--a-mainBg",
-    },
-  });
+  );
 
   const menuStyles = computed(() => ({
     "--top-offset": `${props.topOffset}px`,

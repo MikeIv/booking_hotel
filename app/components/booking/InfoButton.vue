@@ -22,7 +22,10 @@
 </script>
 
 <template>
-  <button
+  <UiButton
+    type="button"
+    variant="icon"
+    size="icon40"
     :class="$style.infoButton"
     :aria-label="ariaLabel || undefined"
     :aria-expanded="ariaExpanded !== undefined ? ariaExpanded : undefined"
@@ -30,40 +33,20 @@
     @click="handleClick"
   >
     <UIcon :name="iconName" :class="$style.icon" />
-  </button>
+  </UiButton>
 </template>
 
 <style module lang="scss">
   .infoButton {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: rem(40);
-    height: rem(40);
-    min-width: rem(40);
-    max-width: rem(40);
     flex-shrink: 0;
     flex-grow: 0;
-    padding: 0;
-    border: rem(1) solid var(--a-border-dark);
-    border-radius: 50%;
-    background: transparent;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-
-    &:hover {
-      background-color: var(--a-primaryBg);
-      border: none;
-
-      .icon {
-        color: var(--a-white);
-      }
-    }
   }
 
   .icon {
-    width: rem(30);
-    height: rem(30);
-    color: var(--a-black);
+    display: block;
+    width: rem(26);
+    height: rem(26);
+    color: currentColor;
+    transform: translateY(rem(2));
   }
 </style>

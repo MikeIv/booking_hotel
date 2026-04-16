@@ -1,7 +1,6 @@
 <script setup lang="ts">
   import Logo from "~/assets/images/logo.svg";
   import BurgerButton from "~/components/ui/BurgerButton.vue";
-  import SlideMenu from "~/components/ui/SlideMenu.vue";
   import { useI18n } from "vue-i18n";
 
   const { locale, t, setLocale } = useI18n();
@@ -230,7 +229,7 @@
           v-else
           :class="[$style.headerButton, $style.headerButtonNarrow]"
           unstyled
-          @click="$router.push('/cabinet')"
+          @click="router.push('/cabinet')"
         >
           Личный кабинет
         </Button>
@@ -308,7 +307,7 @@
     </div>
   </aside>
 
-  <SlideMenu
+  <UiSlideMenu
     :is-open="isMenuOpen"
     :links="menuLinks"
     :top-offset="asideHeight"
