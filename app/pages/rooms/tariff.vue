@@ -223,10 +223,16 @@
     <!-- <BookingAdvantages /> -->
 
     <section :class="$style.tariffBlock">
-      <Button :class="$style.return" unstyled @click="goBackToRooms">
-        <UIcon name="i-arrow-back" :class="$style.arrowIcon" />
-        <span>Назад к выбору номеров</span>
-      </Button>
+      <UiButton
+        :class="$style.return"
+        variant="text"
+        icon="i-arrow-back"
+        icon-position="left"
+        :icon-size="28"
+        @click="goBackToRooms"
+      >
+        Назад к выбору номеров
+      </UiButton>
 
       <div v-if="loading" :class="$style.loadingContainer">
         <div :class="$style.spinner" />
@@ -328,25 +334,8 @@
   }
 
   .return {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: rem(32);
     margin-bottom: rem(40);
-    font-family: var(--a-font-heading);
-    font-size: rem(20);
-    color: var(--a-text-dark);
-    cursor: pointer;
-
-    &:hover {
-      color: var(--a-text-accent);
-    }
-  }
-
-  .arrowIcon {
-    width: rem(14);
-    height: rem(28);
-    flex-shrink: 0;
+    margin-right: auto;
   }
 
   .tariffTitle {

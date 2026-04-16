@@ -1,10 +1,9 @@
 <script setup lang="ts">
-  import { computed, useAttrs } from "vue";
-
-  type ButtonVariant = "primary" | "dark" | "ghost" | "danger" | "icon";
+  type ButtonVariant = "primary" | "dark" | "ghost" | "danger" | "icon" | "text";
   type ButtonSize = "m" | "l" | "xl" | "icon40";
   type ButtonRadius = "default" | "round";
   type ButtonSeverity = "primary" | "secondary" | "contrast" | "danger";
+  type IconPosition = "left" | "right";
 
   const props = withDefaults(
     defineProps<{
@@ -18,6 +17,9 @@
       label?: string;
       unstyled?: boolean;
       type?: "button" | "submit" | "reset";
+      icon?: string;
+      iconPosition?: IconPosition;
+      iconSize?: number | string;
     }>(),
     {
       variant: "primary",
@@ -30,6 +32,9 @@
       label: "",
       unstyled: false,
       type: "button",
+      icon: "",
+      iconPosition: "left",
+      iconSize: "",
     },
   );
 
@@ -59,6 +64,18 @@
 
   const isDisabled = computed(() => props.disabled || props.loading);
   const attrs = useAttrs();
+  const hasIcon = computed(() => Boolean(props.icon));
+  const shouldUseSizedStyles = computed(() => resolvedVariant.value !== "text");
+  const iconStyle = computed<Record<string, string> | undefined>(() => {
+    if (!hasIcon.value || props.iconSize === "") {
+      return undefined;
+    }
+
+    const sizeValue =
+      typeof props.iconSize === "number" ? `${props.iconSize}px` : props.iconSize;
+
+    return { "--ui-btn-icon-size": sizeValue };
+  });
 </script>
 
 <template>
@@ -73,13 +90,26 @@
         : [
             $style.btn,
             $style[resolvedVariant],
-            $style[props.size],
-            $style[resolvedRadiusClass],
-            { [$style.loading]: props.loading },
+            shouldUseSizedStyles ? $style[props.size] : undefined,
+            shouldUseSizedStyles ? $style[resolvedRadiusClass] : undefined,
+            {
+              [$style.loading]: props.loading,
+              [$style.withIcon]: hasIcon,
+              [$style.iconRight]: hasIcon && props.iconPosition === 'right',
+            },
           ],
     ]"
   >
-    <slot>{{ props.label }}</slot>
+    <UIcon
+      v-if="hasIcon"
+      :name="props.icon"
+      :class="$style.iconGlyph"
+      :style="iconStyle"
+      aria-hidden="true"
+    />
+    <span v-if="$slots.default || props.label">
+      <slot>{{ props.label }}</slot>
+    </span>
   </button>
 </template>
 
@@ -152,6 +182,20 @@
     opacity: 0.8;
   }
 
+  .withIcon {
+    gap: rem(8);
+  }
+
+  .iconRight {
+    flex-direction: row-reverse;
+  }
+
+  .iconGlyph {
+    width: var(--ui-btn-icon-size, 1em);
+    height: var(--ui-btn-icon-size, 1em);
+    flex-shrink: 0;
+  }
+
   .primary {
     color: var(--a-text-white);
     background-color: var(--a-primaryBg);
@@ -200,6 +244,21 @@
       color: var(--a-white);
       background-color: var(--a-primaryBg);
       border-color: var(--a-primaryBg);
+    }
+  }
+
+  .text {
+    min-height: auto;
+    padding: 0;
+    color: var(--a-text-dark);
+    font-family: var(--a-font-heading);
+    font-size: rem(20);
+    line-height: 1.2;
+    background-color: transparent;
+    border: none;
+
+    &:hover:not(:disabled) {
+      color: var(--a-text-accent);
     }
   }
 </style>

@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@nuxtjs/storybook";
 import Button from "./Button.vue";
 
 type ButtonStoryArgs = {
-  variant?: "primary" | "dark" | "ghost" | "danger" | "icon";
+  variant?: "primary" | "dark" | "ghost" | "danger" | "icon" | "text";
   size?: "m" | "l" | "xl" | "icon40";
   radius?: "default" | "round";
   round?: boolean;
@@ -11,6 +11,9 @@ type ButtonStoryArgs = {
   unstyled?: boolean;
   type?: "button" | "submit" | "reset";
   label?: string;
+  icon?: string;
+  iconPosition?: "left" | "right";
+  iconSize?: number | string;
 };
 
 const meta = {
@@ -22,7 +25,7 @@ const meta = {
   argTypes: {
     variant: {
       control: "select",
-      options: ["primary", "dark", "ghost", "danger", "icon"],
+      options: ["primary", "dark", "ghost", "danger", "icon", "text"],
     },
     size: {
       control: "select",
@@ -43,6 +46,18 @@ const meta = {
       control: "text",
       description: "Button text content",
     },
+    icon: {
+      control: "text",
+      description: "Nuxt Icon name (e.g. i-arrow-back)",
+    },
+    iconPosition: {
+      control: "radio",
+      options: ["left", "right"],
+    },
+    iconSize: {
+      control: "text",
+      description: "Icon size in px (number) or CSS string",
+    },
   },
   args: {
     variant: "primary",
@@ -53,6 +68,9 @@ const meta = {
     unstyled: false,
     type: "button",
     label: "Button",
+    icon: "",
+    iconPosition: "left",
+    iconSize: "",
   },
   render: (args: ButtonStoryArgs) => ({
     components: { Button },
@@ -334,6 +352,43 @@ export const RoundButtonDefault: Story = {
                   />
                 </svg>
               </span>
+            </Button>
+          </div>
+        </div>
+
+      </div>
+    `,
+  }),
+};
+
+export const Text: Story = {
+  parameters: {
+    layout: "centered",
+  },
+  render: () => ({
+    components: { Button },
+    template: `
+      <div style="display:flex; flex-direction:column; gap:12px; min-width:640px;">
+        <h3 style="margin:0;">Text</h3>
+        <div style="display:flex; gap:24px; align-items:flex-start; flex-wrap:wrap;">
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <span style="font-size:12px; color:var(--a-text-light);">Default (left)</span>
+            <Button variant="text" icon="i-arrow-back" icon-position="left" :icon-size="28">
+              Назад к выбору номеров
+            </Button>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <span style="font-size:12px; color:var(--a-text-light);">Right icon</span>
+            <Button variant="text" icon="i-arrow-back" icon-position="right" :icon-size="28">
+              Назад к выбору номеров
+            </Button>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <span style="font-size:12px; color:var(--a-text-light);">Disabled</span>
+            <Button variant="text" icon="i-arrow-back" icon-position="left" :icon-size="28" disabled>
+              Назад к выбору номеров
             </Button>
           </div>
         </div>
