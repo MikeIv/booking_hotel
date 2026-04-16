@@ -360,7 +360,7 @@
     --ui-slider-control-disabled-opacity: 0.45;
     --ui-slider-indicator-gap: var(--a-space-1);
     --ui-slider-indicator-padding-top: var(--a-space-1);
-    --ui-slider-indicator-bottom-offset: calc(var(--a-space-1) + var(--ds-space-025));
+    --ui-slider-indicator-bottom-offset: var(--a-space-2);
     --ui-slider-indicator-track-color: rgba(255, 255, 255, 0.5);
     --ui-slider-indicator-active-color: var(--a-white);
     --ui-slider-indicator-track-height: var(--a-space-1);
