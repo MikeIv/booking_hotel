@@ -524,9 +524,6 @@
       min-height: rem(281);
     }
 
-    :global(.p-carousel) {
-      width: 100%;
-    }
   }
 
   .cardDetails {

@@ -438,10 +438,6 @@
     min-height: rem(326);
     justify-content: center;
     align-items: flex-start;
-
-    :global(.p-carousel) {
-      width: 100%;
-    }
   }
 
   .cardDetails {

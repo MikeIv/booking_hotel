@@ -79,6 +79,7 @@
       :alt-prefix="'Фото номера'"
       :alt-text="room.title || ''"
       :height="getCarouselHeight"
+      controls-visibility="hover"
       :class="$style.roomImage"
     />
     <div :class="$style.roomInfo">
@@ -195,88 +196,6 @@
       max-width: var(--room-card-image-width);
       margin-right: var(--room-card-gap);
       height: 100%;
-    }
-
-    :global(.p-carousel-indicator-list) {
-      display: none;
-    }
-
-    :global(.p-carousel) {
-      @media (min-width: #{size.$tablet}) {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        height: 100%;
-      }
-    }
-
-    :global(.p-carousel-content) {
-      @media (min-width: #{size.$tablet}) {
-        display: flex;
-        flex: 1;
-        width: 100%;
-        height: 100%;
-      }
-    }
-
-    :global(.p-carousel-content-container) {
-      @media (min-width: #{size.$tablet}) {
-        display: flex;
-        flex: 1;
-        width: 100%;
-        height: 100%;
-      }
-    }
-
-    :global(.p-carousel-items-container) {
-      @media (min-width: #{size.$tablet}) {
-        display: flex;
-        flex: 1;
-        width: 100%;
-        height: 100%;
-      }
-    }
-
-    :global(.p-carousel-items-content) {
-      @media (min-width: #{size.$tablet}) {
-        display: flex;
-        flex: 1;
-        width: 100%;
-        height: 100%;
-      }
-    }
-
-    :global(.p-carousel-viewport) {
-      @media (min-width: #{size.$tablet}) {
-        display: flex;
-        flex: 1;
-        width: 100%;
-        height: 100%;
-      }
-    }
-
-    :global(.p-carousel-item) {
-      @media (min-width: #{size.$tablet}) {
-        display: flex;
-        width: 100%;
-        height: 100%;
-      }
-    }
-
-    :global(.carouselItem) {
-      @media (min-width: #{size.$tablet}) {
-        display: flex;
-        width: 100%;
-        height: 100%;
-      }
-    }
-
-    :global(img) {
-      @media (min-width: #{size.$tablet}) {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
     }
   }
 

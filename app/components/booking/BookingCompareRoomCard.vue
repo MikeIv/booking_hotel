@@ -26,6 +26,7 @@
         alt-prefix="Фото номера"
         :alt-text="room.title"
         :height="'326px'"
+        controls-visibility="hover"
       />
     </div>
     <p :class="$style.roomTitle">{{ room.title }}</p>
@@ -75,10 +76,6 @@
     border-radius: var(--a-borderR--x10);
     overflow: hidden;
     aspect-ratio: 484 / 326;
-
-    :global(.p-carousel-indicator-list) {
-      display: none !important;
-    }
   }
 
   .roomTitle {
