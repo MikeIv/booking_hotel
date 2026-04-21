@@ -19,11 +19,6 @@
     (e: "toggle-expand" | "bed-type-change", value: string): void;
   }>();
 
-  const visibleAmenities = computed(() => {
-    const amenities = props.room.amenities || [];
-    return props.expanded ? amenities : amenities.slice(0, 4);
-  });
-
   const _toggleExpand = () => {
     emit("toggle-expand", props.room.title || "");
   };
@@ -99,28 +94,12 @@
       />
 
       <div :class="$style.amenitiesSection">
-        <ul :class="$style.amenitiesList">
-          <li
-            v-for="(amenity, index) in visibleAmenities"
-            :key="index"
-            :class="$style.amenityItem"
-          >
-            <span>{{ amenity.title }}</span>
-          </li>
-          <li
-            v-if="!props.expanded && (room.amenities?.length || 0) > 4"
-            :class="$style.amenitiesListItem"
-          >
-            <UiButton
-              type="button"
-              unstyled
-              :class="$style.amenitiesListShow"
-              @click="_toggleExpand"
-            >
-              + ещё {{ (room.amenities?.length || 0) - 4 }}
-            </UiButton>
-          </li>
-        </ul>
+        <UiAmenitiesList
+          :items="room.amenities || []"
+          :expanded="!!props.expanded"
+          :limit="4"
+          @show-more="_toggleExpand"
+        />
       </div>
 
       <!-- Селект «Тип кровати» только для карточки повышенного комфорта (прижат к низу блока) -->
@@ -246,55 +225,6 @@
 
   .amenitiesSection {
     margin-bottom: rem(24);
-  }
-
-  .amenitiesList {
-    display: flex;
-    flex-wrap: wrap;
-    gap: rem(12);
-  }
-
-  .amenitiesListItem {
-    display: flex;
-    list-style: none;
-  }
-
-  .amenitiesListShow {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0;
-    border: none;
-    background: none;
-    @include typo.typo-body-md;
-    font-weight: 500;
-    color: var(--a-text-light);
-    cursor: pointer;
-    transition: color 0.2s ease;
-
-    &:hover {
-      color: var(--a-text-primary);
-    }
-
-    &:focus-visible {
-      outline: rem(2) solid var(--a-border-primary);
-      outline-offset: rem(2);
-    }
-  }
-
-  .amenityItem {
-    display: flex;
-    align-items: center;
-    padding: rem(2) rem(14);
-    @include typo.typo-body-md;
-    color: var(--a-text-dark);
-    border: rem(1) solid var(--a-border-primary);
-    border-radius: var(--a-borderR--dialog);
-    background: var(--a-whiteBg);
-    transition:
-      color 0.2s ease,
-      border-color 0.2s ease,
-      background-color 0.2s ease;
   }
 
   /* Блок селекта «Тип кровати» прижат к низу карточки */

@@ -71,10 +71,6 @@
   });
 
   const expanded = ref(false);
-  const visibleAmenities = computed(() => {
-    const amenities = props.room.amenities || [];
-    return expanded.value ? amenities : amenities.slice(0, 4);
-  });
 
   const _toggleExpand = () => {
     expanded.value = true;
@@ -239,27 +235,14 @@
             </div>
 
             <div :class="$style.amenitiesSection">
-              <ul :class="$style.amenitiesList">
-                <li
-                  v-for="(amenity, index) in visibleAmenities"
-                  :key="index"
-                  :class="$style.amenityItem"
-                >
-                  <span>{{ amenity.title }}</span>
-                </li>
-                <li
-                  v-if="!expanded && (room.amenities?.length || 0) > 4"
-                  :class="$style.amenitiesListItem"
-                >
-                  <button
-                    type="button"
-                    :class="$style.amenitiesListShow"
-                    @click="_toggleExpand"
-                  >
-                    + ещё {{ (room.amenities?.length || 0) - 4 }}
-                  </button>
-                </li>
-              </ul>
+              <UiAmenitiesList
+                :items="room.amenities || []"
+                :expanded="expanded"
+                :limit="4"
+                size="lg"
+                :class="$style.amenitiesListView"
+                @show-more="_toggleExpand"
+              />
             </div>
           </div>
         </main>
@@ -1014,18 +997,18 @@
     }
   }
 
-  .amenitiesList {
-    display: flex;
-    flex-wrap: wrap;
-    gap: rem(10) rem(16);
-    min-width: 0;
+  .amenitiesListView {
+    --ui-amenities-gap-row: #{rem(10)};
+    --ui-amenities-gap-column: #{rem(16)};
 
     @media (min-width: #{size.$tablet}) {
-      gap: rem(16);
+      --ui-amenities-gap-row: #{rem(16)};
+      --ui-amenities-gap-column: #{rem(16)};
     }
 
     @media (min-width: #{size.$desktopMin}) {
-      gap: rem(8) rem(16);
+      --ui-amenities-gap-row: #{rem(8)};
+      --ui-amenities-gap-column: #{rem(16)};
       max-width: 100%;
       align-content: flex-start;
     }
@@ -1033,39 +1016,6 @@
     @media (min-width: #{size.$desktopMedium}) {
       max-width: rem(263);
     }
-  }
-
-  .amenitiesListItem {
-    list-style: none;
-  }
-
-  .amenitiesListShow {
-    font-family: var(--a-font-body);
-    font-size: rem(16);
-    font-weight: 500;
-    color: var(--a-text-light);
-    background: none;
-    border: none;
-    padding: 0;
-    cursor: pointer;
-    transition: color 0.2s ease;
-
-    &:hover {
-      color: var(--a-text-primary);
-    }
-  }
-
-  .amenityItem {
-    display: flex;
-    align-items: center;
-    padding: rem(2) rem(14);
-    font-family: var(--a-font-body);
-    font-size: rem(16);
-    color: var(--a-text-dark);
-    border: rem(1) solid var(--a-border-primary);
-    border-radius: var(--a-borderR--dialog);
-    background: var(--a-whiteBg);
-    transition: all 0.2s ease;
   }
 
   .priceDetailsPopup {

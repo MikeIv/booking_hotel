@@ -26,8 +26,7 @@
   );
 
   const emit = defineEmits<{
-    (e: "update:index", value: number): void;
-    (e: "change", value: number): void;
+    (e: "update:index" | "change", value: number): void;
   }>();
 
   const viewportRef = ref<HTMLElement | null>(null);
@@ -325,9 +324,9 @@
       </template>
       <div v-if="showIndicatorsValue" :class="$style.indicators">
         <button
-          data-slider-indicator="true"
           v-for="(_, index) in props.items"
           :key="index"
+          data-slider-indicator="true"
           type="button"
           :class="[$style.indicator, index === activeIndex && $style.indicatorActive]"
           :aria-label="`Перейти к слайду ${index + 1}`"

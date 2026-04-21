@@ -77,15 +77,10 @@
         </div>
 
         <div id="amenities" :class="$style.amenitiesSection">
-          <div :class="$style.amenities">
-            <div
-              v-for="(item, index) in room.amenities"
-              :key="index"
-              :class="$style.amenityItem"
-            >
-              <span>{{ item.title }}</span>
-            </div>
-          </div>
+          <UiAmenitiesList
+            :items="room.amenities || []"
+            :class="$style.amenitiesListView"
+          />
         </div>
 
         <p :class="$style.description" v-html="room.description" />
@@ -196,23 +191,8 @@
     }
   }
 
-  .amenities {
-    display: flex;
-    flex-wrap: wrap;
-    gap: rem(12);
+  .amenitiesListView {
     width: 100%;
-  }
-
-  .amenityItem {
-    display: flex;
-    align-items: center;
-    padding: rem(2) rem(14);
-    @include typo.typo-body-md;
-    color: var(--a-text-dark);
-    border: rem(1) solid var(--a-border-primary);
-    border-radius: var(--a-borderR--x8);
-    background: var(--a-whiteBg);
-    transition: all 0.2s ease;
   }
 
   .sliderWrapper {
