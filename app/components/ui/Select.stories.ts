@@ -15,7 +15,7 @@ const meta = {
     label: { control: "text" },
     valueText: { control: "text" },
     iconName: { control: "text" },
-    variant: { control: "radio", options: ["default", "booking"] },
+    variant: { control: "radio", options: ["default", "booking", "personal"] },
     disabled: { control: "boolean" },
     invalid: { control: "boolean" },
     open: { control: "boolean" },
@@ -89,4 +89,63 @@ export const BookingSpecialCase: Story = {
     variant: "booking",
   },
   render: renderBookingSelect,
+};
+
+export const Form: Story = {
+  name: "Form",
+  args: {
+    label: "",
+    valueText: "",
+    iconName: "i-chevron-down-select",
+    variant: "personal",
+  },
+  render: (args) => ({
+    components: { Select },
+    setup() {
+      return { args };
+    },
+    template: `
+      <div style="width: 482px; display:flex; flex-direction:column; gap:16px;">
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <span style="font-size:14px; color:#6B6B6B;">Default</span>
+          <Select
+            :label="args.label"
+            :value-text="args.valueText"
+            placeholder="Время заезда"
+            :icon-name="args.iconName"
+            :variant="args.variant"
+            :disabled="false"
+            :invalid="false"
+            :open="false"
+          />
+        </div>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <span style="font-size:14px; color:#6B6B6B;">Warning</span>
+          <Select
+            :label="args.label"
+            :value-text="args.valueText"
+            placeholder="Время заезда"
+            :icon-name="args.iconName"
+            :variant="args.variant"
+            :disabled="false"
+            :invalid="true"
+            :open="false"
+          />
+        </div>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <span style="font-size:14px; color:#6B6B6B;">Disabled</span>
+          <Select
+            :label="args.label"
+            value-text="Россия"
+            placeholder="Время заезда"
+            :icon-name="args.iconName"
+            :variant="args.variant"
+            :disabled="true"
+            :invalid="false"
+            :open="false"
+          />
+        </div>
+      </div>
+    `,
+  }),
 };

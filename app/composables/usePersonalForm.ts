@@ -121,17 +121,17 @@ export const usePersonalForm = () => {
     {
       key: "checkInTime" as const,
       placeholder: "Время заезда",
-      type: "text",
+      type: "select",
     },
     {
       key: "checkOutTime" as const,
       placeholder: "Время выезда",
-      type: "text",
+      type: "select",
     },
     {
       key: "comment" as const,
       placeholder: "Комментарий",
-      type: "text",
+      type: "textarea",
     },
   ];
 

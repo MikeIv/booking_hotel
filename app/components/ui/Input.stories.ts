@@ -13,7 +13,7 @@ const meta = {
     label: { control: "text" },
     placeholder: { control: "text" },
     modelValue: { control: "text" },
-    variant: { control: "radio", options: ["default", "booking"] },
+    variant: { control: "radio", options: ["default", "booking", "personal"] },
     disabled: { control: "boolean" },
     invalid: { control: "boolean" },
     readonly: { control: "boolean" },
@@ -119,5 +119,27 @@ export const BookingSpecialCase: Story = {
     },
     template:
       '<div style="width:368px;"><Input v-model="value" :label="args.label" :placeholder="args.placeholder" :variant="args.variant" /></div>',
+  }),
+};
+
+export const Form: Story = {
+  render: () => ({
+    components: { Input },
+    template: `
+      <div style="width: 482px; display:flex; flex-direction:column; gap:16px;">
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <span style="font-size:14px; color:#6B6B6B;">Default</span>
+          <Input model-value="" placeholder="Фамилия" variant="personal" />
+        </div>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <span style="font-size:14px; color:#6B6B6B;">Warning</span>
+          <Input model-value="" placeholder="Фамилия (warning)" variant="personal" :invalid="true" />
+        </div>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <span style="font-size:14px; color:#6B6B6B;">Disabled</span>
+          <Input model-value="Иванов" placeholder="Фамилия (disabled)" variant="personal" :disabled="true" />
+        </div>
+      </div>
+    `,
   }),
 };
