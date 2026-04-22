@@ -13,7 +13,16 @@
   // Временно отключаем блок "Включенные пакеты" до повторного использования.
   const isPackagesSectionEnabled = false;
 
-  const selectedFilter = ref<string | null>(null);
+  const allTariffsFilterValue = "all";
+  const basicFilterValue = "basic";
+  const prepaidFilterValue = "prepaid";
+
+  const selectedFilter = ref<string>(allTariffsFilterValue);
+  const filterTabs = [
+    { label: "Все тарифы", value: allTariffsFilterValue },
+    { label: "Базовый", value: basicFilterValue },
+    { label: "Предоплатный", value: prepaidFilterValue },
+  ];
 
   /**
    * Состояние открытия/закрытия информационных блоков для каждого тарифа
@@ -58,7 +67,7 @@
    * Отфильтрованные тарифы на основе выбранного фильтра
    */
   const filteredTariffs = computed(() => {
-    if (selectedFilter.value === null) {
+    if (selectedFilter.value === allTariffsFilterValue) {
       return props.tariffs;
     }
     return props.tariffs.filter(
@@ -94,7 +103,7 @@
     loadingTariffs.value = {};
   });
 
-  const handleFilterClick = (filterType: string | null) => {
+  const handleFilterClick = (filterType: string) => {
     selectedFilter.value = filterType;
   };
 </script>
@@ -102,42 +111,13 @@
 <template>
   <section :class="$style.tariffsSection">
     <h2 :class="$style.tariffsTitle">Тарифы к номеру</h2>
-    <nav
-      :class="$style.tarifsFiltersBlock"
-      role="group"
+    <UiTabs
+      :items="filterTabs"
+      :model-value="selectedFilter"
       aria-label="Фильтры тарифов"
-    >
-      <button
-        :class="[
-          $style.filterItem,
-          { [$style.filterItemActive]: selectedFilter === null },
-        ]"
-        :aria-pressed="selectedFilter === null"
-        @click="handleFilterClick(null)"
-      >
-        Все тарифы
-      </button>
-      <button
-        :class="[
-          $style.filterItem,
-          { [$style.filterItemActive]: selectedFilter === 'basic' },
-        ]"
-        :aria-pressed="selectedFilter === 'basic'"
-        @click="handleFilterClick('basic')"
-      >
-        Базовый
-      </button>
-      <button
-        :class="[
-          $style.filterItem,
-          { [$style.filterItemActive]: selectedFilter === 'prepaid' },
-        ]"
-        :aria-pressed="selectedFilter === 'prepaid'"
-        @click="handleFilterClick('prepaid')"
-      >
-        Предоплатный
-      </button>
-    </nav>
+      mode="tariff"
+      @update:model-value="handleFilterClick"
+    />
     <div
       v-if="filteredTariffs.length === 0"
       :class="$style.emptyState"
@@ -327,67 +307,6 @@
     text-align: center;
     @include typo.typo-h3;
     color: var(--a-text-dark);
-  }
-
-  .tarifsFiltersBlock {
-    display: flex;
-    flex-direction: column;
-    gap: rem(20);
-    padding: 0;
-    margin: 0 0 rem(24) 0;
-    width: 100%;
-
-    @media (min-width: #{size.$tabletMin}) {
-      flex-direction: row;
-      flex-wrap: wrap;
-      justify-content: flex-start;
-    }
-  }
-
-  .filterItem {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: rem(50);
-    padding: rem(2) rem(14);
-    @include typo.typo-body-lg;
-    color: var(--a-text-dark);
-    border: rem(1) solid var(--a-border-primary);
-    border-radius: var(--a-borderR--dialog);
-    background: var(--a-whiteBg);
-    transition: all 0.2s ease;
-    cursor: pointer;
-
-    @media (min-width: #{size.$tabletMin}) {
-      width: rem(300);
-      flex: 0 1 auto;
-    }
-
-    &:hover {
-      color: var(--a-text-primary);
-      border-color: var(--a-text-primary);
-    }
-
-    &:focus-visible {
-      outline: rem(2) solid var(--a-primaryBg);
-      outline-offset: rem(2);
-    }
-
-    &.filterItemActive {
-      background: var(--a-primaryBg);
-      color: var(--a-text-white);
-      border-color: var(--a-primaryBg);
-
-      &:hover {
-        color: var(--a-text-white);
-        border-color: var(--a-primaryBg);
-      }
-
-      &:focus-visible {
-        outline-color: var(--a-text-white);
-      }
-    }
   }
 
   .tariffsList {

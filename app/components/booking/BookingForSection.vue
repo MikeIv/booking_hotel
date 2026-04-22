@@ -14,30 +14,34 @@ const forSelf = computed({
   get: () => props.modelValue,
   set: (value) => emit("update:modelValue", value),
 });
+
+const bookingForTabs = [
+  { label: "Для себя", value: "self" },
+  { label: "Для другого", value: "other" },
+];
+
+const selectedBookingForTab = computed({
+  get: () => (forSelf.value ? "self" : "other"),
+  set: (value: string) => {
+    forSelf.value = value === "self";
+  },
+});
 </script>
 
 <template>
   <section :class="$style.personalBlock">
-    <NuxtLink to="/rooms/tariff" :class="$style.return"
-      >Назад к тарифам</NuxtLink
+    <NuxtLink to="/services" :class="$style.return"
+      >Назад к услугам</NuxtLink
     >
-    <h2 :class="$style.personalTitle">Введите свои данные</h2>
     <div :class="$style.wrapper">
-      <h3 :class="$style.sectionHeader">Я бронирую</h3>
-      <div :class="$style.btnBlock">
-        <Button
-          label="Для себя"
-          class="btn__bs"
-          :class="{ ghost: !forSelf }"
-          unstyled
-          @click="forSelf = true"
-        />
-        <Button
-          label="Для другого"
-          class="btn__bs"
-          :class="{ ghost: forSelf }"
-          unstyled
-          @click="forSelf = false"
+      <div :class="$style.bookingForRow">
+        <h3 :class="$style.sectionHeader">Я бронирую</h3>
+        <UiTabs
+          v-model="selectedBookingForTab"
+          :items="bookingForTabs"
+          aria-label="Кто оформляет бронирование"
+          mode="personal"
+          style="margin-bottom: 0"
         />
       </div>
       <p v-if="!forSelf" :class="$style.personalNote">
@@ -85,16 +89,6 @@ const forSelf = computed({
   }
 }
 
-.personalTitle {
-  margin-bottom: rem(24);
-  text-align: center;
-  font-family: var(--a-font-heading);
-  font-size: rem(28);
-  font-weight: 600;
-  color: var(--a-text-dark);
-  text-transform: uppercase;
-}
-
 .wrapper {
   display: flex;
   flex-direction: column;
@@ -103,21 +97,28 @@ const forSelf = computed({
   border-bottom: rem(1) solid var(--a-border-dark);
 }
 
+.bookingForRow {
+  display: flex;
+  flex-direction: column;
+
+  @media (min-width: #{size.$desktopMin}) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: rem(24);
+  }
+}
+
 .sectionHeader {
   font-family: var(--a-font-body);
   font-size: rem(24);
   font-weight: 400;
   color: var(--a-text-dark);
-  margin-bottom: rem(16);
-}
+  margin: 0 0 rem(16) 0;
 
-.btnBlock {
-  display: flex;
-  flex-direction: column;
-  gap: rem(24);
-  margin-bottom: rem(25);
-  @media (min-width: #{size.$tablet}) {
-    flex-direction: row;
+  @media (min-width: #{size.$desktopMin}) {
+    margin: 0;
+    white-space: nowrap;
   }
 }
 
