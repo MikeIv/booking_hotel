@@ -1,0 +1,38 @@
+---
+description: Execute — дисципліна реалізації (Superpowers)
+alwaysApply: true
+---
+
+# Execute: як писати код
+
+## До правок
+
+1. Прочитати релевантні файли і сусідній код
+2. Звіритись з `nuxt4.mdc`, `pinia-store-patterns.mdc`
+3. Звіритись з `brief.md` / планом поточної хвилі
+
+## Під час правок
+
+- **Одна логічна задача** за ітерацію
+- **Мінімальний diff** — без drive-by рефакторингу
+- SFC: `script setup` → `template` → `style module lang="scss"`
+- API: `useApi` composable, не дублювати прямий `$fetch` без потреби
+- Pinia: читати через `storeToRefs`, писати тільки через actions (див. `pinia-store-patterns.mdc`)
+- Не комітити без явного прохання
+
+## Порядок
+
+1. Типи / `shared/types` (для нової функціональності і **L+** — узгодити контракти в Discuss, див. `06-fundamental-principles.mdc` §3)
+2. Composables / stores
+3. Компоненти / сторінки
+4. Стилі через токени `--ds-space-*`, `--a-space-*` (кратно 8px)
+
+## Відзвіт після хвилі
+
+```markdown
+## Зроблено / Файли / Перевірено / Далі
+```
+
+## Застряг
+
+- Не вгадувати 4+ разів — гіпотеза, перевірка, блокер користувачу

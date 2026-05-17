@@ -5,7 +5,6 @@
 .cache
 dist
 storybook-static
-.cursor
 
 # Node
 node_modules
@@ -21,9 +20,16 @@ yarn-error.log
 # IDE
 .idea
 .vscode
-.cursor
+.cursor/*
+!.cursor/rules/
+!.cursor/rules/**
 .cursorrules
 CURSOR_RULES_EXPORT.md
+
+# Planning — робочі файли сесії (в git: PROJECT.md, шаблони)
+.planning/brief.md
+.planning/plan.md
+.planning/state.md
 *.swp
 *.swo
 *~

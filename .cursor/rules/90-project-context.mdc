@@ -1,0 +1,76 @@
+---
+description: Контекст проєкту Booking_ukr (grand-booking-ukr) — стек, структура, команди
+alwaysApply: true
+---
+
+# Booking_ukr — контекст проєкту
+
+## Продукт
+
+- **Пакет:** `grand-booking-ukr` (`package.json`)
+- **Назначення:** система бронювання готелю «Олімпійський» (Україна), SPA
+- **Режим:** `ssr: false`, `nitro.static`/prerender
+
+## Стек
+
+| Шар | Технологія |
+|-----|------------|
+| Framework | Nuxt 4, Vue 3, TypeScript strict |
+| Стан | Pinia (`booking`, `auth`) |
+| UI | `@nuxt/ui`, `@headlessui/vue` |
+| Стилі | SCSS, CSS Modules (`$style`), токени `--ds-space-*` / `--a-space-*` |
+| API | `useApi` composable → `NUXT_PUBLIC_API_BASE` |
+| Пакети | yarn |
+| Тести | Vitest (`yarn test`) |
+| Storybook | `yarn storybook` |
+
+## Структура
+
+```
+app/
+  pages/          # index, booking-details, confirmation, personal,
+                  # cabinet, cancellation, multi-rooms, services
+  components/
+    booking/      # Card, Booking, TariffsList, BookingSummary, …
+    cabinet/      # CabinetBookings, CabinetBookingCard
+    core/         # DatePicker, GuestsSelector, RoomBlock, Breadcrumbs, …
+    common/       # Banner, RequestErrorMessage
+    layout/       # header, aside, footer, InitialLoadOverlay
+    ui/           # Button, Input, Select, Tabs, Slider, …
+    main/         # PlacementSection, AdvantageSection, EventsSection, …
+  composables/    # useApi, useBooking*, useFormValidation, useUserProfile, …
+  stores/         # booking.ts, auth.ts
+  assets/styles/  # variables (_colors, _spacing, _rounding), tools
+shared/types, shared/utils
+```
+
+## Команди
+
+```bash
+yarn dev          # http://localhost:3000
+yarn build
+yarn lint
+yarn lint:fix
+yarn test         # Vitest
+yarn storybook
+```
+
+## Соглашения
+
+- Workflow: `00-workflow-core` … `06-fundamental-principles`
+- Стек: `nuxt4.mdc`, `nuxt4-app-vue.mdc`
+- Pinia: `pinia-store-patterns.mdc`
+- Figma: `figma-styles.mdc`, `figma-value-rounding.mdc`
+- `.cursor/` в git — тільки `rules/`
+
+## Не чіпати без погодження
+
+- Глобальна зміна `ssr`, `nitro.static`, модулів Nuxt
+- Архітектура stores (`booking`, `auth`) без явного ТЗ
+- Масове перейменування токенів/змінних без задачі
+- `.env` (тільки `.env.example`)
+
+## Планування
+
+- `.planning/PROJECT.md`
+- `cp .planning/brief-template.md .planning/brief.md`

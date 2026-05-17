@@ -1,0 +1,16 @@
+---
+description: Nuxt 4 правила для grand-booking-ukr (Vue 3 + TS + Nuxt UI + Pinia)
+alwaysApply: true
+---
+
+# База (применяется всегда)
+
+- **Nuxt 4 + Vue 3 + TypeScript по умолчанию**. Не предлагай “нестандартные” подходы без причины.
+- **Учитывай режим приложения**: в этом репо `ssr: false` и используется `nitro.static`/prerender — решения должны работать в SPA/SSG контексте.
+- **Следуй структуре репо**: `app/**` (UI), `server/routes/**` (Nitro), `shared/types/**` (типы).
+- **Не дублируй паттерны**: перед новой реализацией быстро проверь существующие компоненты/composables/stores/routes.
+- **При любых стилистических правках/создании компонентов учитывай систему Grid & Spacing**: использовать токены из `app/assets/styles/variables/_spacing.scss` (`--ds-space-*`, `--a-space-*`) и шаг 8px; значения 4px (`--ds-space-025`) — только как редкое микро-исключение.
+
+Детальные правила разнесены по файлам в `.cursor/rules/` и подключаются по `globs` (страницы/компоненты, Nitro routes, конфиг Nuxt, TypeScript).
+
+Workflow GSD + Superpowers: `00-workflow-core` … `06-fundamental-principles`. При конфликте по стеку — репозиторные `rules/` важнее глобальных User Rules Cursor.

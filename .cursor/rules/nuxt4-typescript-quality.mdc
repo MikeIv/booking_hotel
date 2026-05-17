@@ -1,0 +1,16 @@
+---
+description: TypeScript/линт/формат для этого репо
+globs: **/*.{ts,vue,scss,js,json,md}
+alwaysApply: false
+---
+
+# Качество кода (TS/ESLint/Prettier)
+
+- **Сверка с правилами**: при проверке и оптимизации компонентов всегда сверяйся с правилами в `.cursor/rules` и применяй их (в т.ч. объединение сигнатур `defineEmits`, порядок импортов).
+- **TypeScript (запрет `any`)**: **не используй тип `any`** (включая `as any`, `ref<any>`, `Record<string, any>`). Вместо этого используй `unknown`, дженерики, `ReturnType<>`, `typeof`, узкие интерфейсы/типы, `satisfies` и/или type guards. Типизируй публичные API composables/сторов/утилит и ответы запросов.
+- **Объединение сигнатур defineEmits**: если несколько перегрузок имеют одинаковый тип аргументов (например, `(e: "close"): void` и `(e: "upgrade"): void` или `(e: "a", v: string)` и `(e: "b", v: string)`), объединяй их в одну сигнатуру с union типов (`(e: "close" | "upgrade"): void`), чтобы избежать ошибки ESLint `This overload and the one on line X can be combined into one signature`.
+- **Порядок импортов**: все `import` в начале модуля, без вставок между ними (вызовы `definePageMeta`, переменные и т.п. — после импортов). Ошибка `Import in body of module; reorder to top` устраняется объединением импортов в один блок сверху.
+- **Типы тела запроса в useApi**: для параметра `body` в методах `post`/`put`/`patch` используй `NitroFetchOptions<NitroFetchRequest>["body"]` вместо `unknown` — это гарантирует совместимость с `$fetch` без явного `any`. Тип выводится напрямую из `NitroFetchOptions`, поэтому автоматически синхронизируется с библиотекой.
+- **ESLint/Prettier**: изменения должны проходить `yarn lint` и форматирование (pre-commit использует eslint+prettier).
+- **console/debugger**: в production запрещены; перед финалом вычищай отладочные следы.
+- **Стили**: SCSS держи в `app/assets/styles/**`, следуй существующей структуре переменных/миксинов.

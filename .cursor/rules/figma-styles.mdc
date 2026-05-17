@@ -1,0 +1,19 @@
+---
+description: Адаптация стилей из Figma к правилам проекта
+globs: app/**/*.vue, app/**/*.scss, app/**/*.css
+---
+
+# Стили из Figma
+
+При переносе кода или стилей из Figma в проект:
+
+1. **Переменные** — не использовать статичные значения из макета. Подставлять соответствующие переменные из `app/assets/styles/variables`:
+   - Цвета: `app/assets/styles/variables/_colors.scss` (напр. `#686062` → `var(--secondary)`, чёрный → `var(--a-border-dark)` / `var(--a-text-dark)`, белый фон → `var(--a-whiteBg)`).
+   - Скругления: `_rounding.scss` (напр. 10px → `var(--a-borderR--btn)`).
+   - Разрешения: `resolutions.scss` для брейкпоинтов (`$desktopMin`, `$tablet` и т.д.).
+
+2. **Размеры** — использовать функцию `rem()` из `~/assets/styles/tools/functions` (уже подключена через `vite.css.preprocessorOptions.scss.additionalData`).
+
+3. **Стилизация** — следовать принятым в проекте паттернам: CSS Modules (`<style module lang="scss">`), без дублирования глобальных стилей, с медиа-запросами по переменным из `resolutions`.
+
+4. **Компоненты** — не копировать React/styled-components из экспорта Figma «как есть»; переводить в Vue 3 + scoped/module стили и существующие UI-компоненты (Button, иконки и т.д.).

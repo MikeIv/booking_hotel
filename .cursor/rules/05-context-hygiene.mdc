@@ -1,0 +1,33 @@
+---
+description: Контекст — боротьба з context rot (GSD)
+alwaysApply: true
+---
+
+# Контекст: вузько і по справі
+
+## Принципи
+
+- **Один фокус** — поточна хвиля
+- **Файли > пам'ять** — `.planning/state.md`, `brief.md`
+- Після хвилі — коротко в `state.md`, не весь diff у чат
+
+## Що читати
+
+| Ситуація | Джерело |
+|----------|---------|
+| Нова сесія | `.planning/PROJECT.md`, `state.md` |
+| Задача | `brief.md`, `plan.md` |
+| Стек | `nuxt4.mdc`, `pinia-store-patterns.mdc`, `figma-styles.mdc` |
+| Код | тільки релевантні файли |
+
+## Типові зони Booking_ukr
+
+- `app/pages/` — index, booking-details, confirmation, personal, cabinet, cancellation, multi-rooms, services
+- `app/stores/` — booking.ts, auth.ts
+- `app/composables/` — useApi, useBooking*, useFormValidation, useUserProfile
+- `app/components/booking/`, `cabinet/`, `core/`, `ui/`
+- `app/assets/styles/` — токени, variables, tools
+
+## Довгі задачі (XL)
+
+- Фази в `plan.md`; початок/кінець сесії — оновити `state.md`
