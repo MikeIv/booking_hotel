@@ -1,33 +1,33 @@
 ---
-description: Контекст — боротьба з context rot (GSD)
+description: Контекст — борьба с context rot (GSD)
 alwaysApply: true
 ---
 
-# Контекст: вузько і по справі
+# Контекст: узко и по делу
 
-## Принципи
+## Принципы
 
-- **Один фокус** — поточна хвиля
-- **Файли > пам'ять** — `.planning/state.md`, `brief.md`
-- Після хвилі — коротко в `state.md`, не весь diff у чат
+- **Один фокус** — текущая волна
+- **Файлы > память** — `.planning/state.md`, `brief.md`
+- После волны — кратко в `state.md`, не весь diff в чат
 
-## Що читати
+## Что читать
 
-| Ситуація | Джерело |
-|----------|---------|
-| Нова сесія | `.planning/PROJECT.md`, `state.md` |
+| Ситуация | Источник |
+|----------|----------|
+| Новая сессия | `.planning/PROJECT.md`, `state.md` |
 | Задача | `brief.md`, `plan.md` |
 | Стек | `nuxt4.mdc`, `pinia-store-patterns.mdc`, `figma-styles.mdc` |
-| Код | тільки релевантні файли |
+| Код | только релевантные файлы |
 
-## Типові зони Booking_ukr
+## Типичные зоны Booking_ukr
 
 - `app/pages/` — index, booking-details, confirmation, personal, cabinet, cancellation, multi-rooms, services
 - `app/stores/` — booking.ts, auth.ts
 - `app/composables/` — useApi, useBooking*, useFormValidation, useUserProfile
 - `app/components/booking/`, `cabinet/`, `core/`, `ui/`
-- `app/assets/styles/` — токени, variables, tools
+- `app/assets/styles/` — токены, variables, tools
 
-## Довгі задачі (XL)
+## Длинные задачи (XL)
 
-- Фази в `plan.md`; початок/кінець сесії — оновити `state.md`
+- Фазы в `plan.md`; начало/конец сессии — обновить `state.md`

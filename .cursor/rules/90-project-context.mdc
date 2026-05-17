@@ -1,27 +1,27 @@
 ---
-description: Контекст проєкту Booking_ukr (grand-booking-ukr) — стек, структура, команди
+description: Контекст проекта Booking_ukr (grand-booking-ukr) — стек, структура, команды
 alwaysApply: true
 ---
 
-# Booking_ukr — контекст проєкту
+# Booking_ukr — контекст проекта
 
 ## Продукт
 
 - **Пакет:** `grand-booking-ukr` (`package.json`)
-- **Назначення:** система бронювання готелю «Олімпійський» (Україна), SPA
+- **Назначение:** система бронирования отеля (Grand), SPA
 - **Режим:** `ssr: false`, `nitro.static`/prerender
 
 ## Стек
 
-| Шар | Технологія |
-|-----|------------|
+| Слой | Технология |
+|------|------------|
 | Framework | Nuxt 4, Vue 3, TypeScript strict |
-| Стан | Pinia (`booking`, `auth`) |
+| Состояние | Pinia (`booking`, `auth`) |
 | UI | `@nuxt/ui`, `@headlessui/vue` |
-| Стилі | SCSS, CSS Modules (`$style`), токени `--ds-space-*` / `--a-space-*` |
-| API | `useApi` composable → `NUXT_PUBLIC_API_BASE` |
-| Пакети | yarn |
-| Тести | Vitest (`yarn test`) |
+| Стили | SCSS, CSS Modules (`$style`), токены `--ds-space-*` / `--a-space-*` |
+| API | composable `useApi` → `NUXT_PUBLIC_API_BASE` |
+| Пакеты | yarn |
+| Тесты | Vitest (`yarn test`) |
 | Storybook | `yarn storybook` |
 
 ## Структура
@@ -44,7 +44,7 @@ app/
 shared/types, shared/utils
 ```
 
-## Команди
+## Команды
 
 ```bash
 yarn dev          # http://localhost:3000
@@ -61,16 +61,16 @@ yarn storybook
 - Стек: `nuxt4.mdc`, `nuxt4-app-vue.mdc`
 - Pinia: `pinia-store-patterns.mdc`
 - Figma: `figma-styles.mdc`, `figma-value-rounding.mdc`
-- `.cursor/` в git — тільки `rules/`
+- `.cursor/` в git — только `rules/`
 
-## Не чіпати без погодження
+## Не трогать без согласования
 
-- Глобальна зміна `ssr`, `nitro.static`, модулів Nuxt
-- Архітектура stores (`booking`, `auth`) без явного ТЗ
-- Масове перейменування токенів/змінних без задачі
-- `.env` (тільки `.env.example`)
+- Глобальная смена `ssr`, `nitro.static`, модулей Nuxt
+- Архитектура stores (`booking`, `auth`) без явного ТЗ
+- Массовое переименование токенов/переменных без задачи
+- `.env` (только `.env.example`)
 
-## Планування
+## Планирование
 
 - `.planning/PROJECT.md`
 - `cp .planning/brief-template.md .planning/brief.md`

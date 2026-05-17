@@ -1,33 +1,33 @@
 # Booking_ukr — PROJECT
 
-Контекст для Cursor Agent. Оновлюйте при зміні архітектури або API.
+Контекст для Cursor Agent. Обновляйте при смене архитектуры или API.
 
-## Назначення
+## Назначение
 
-Система бронювання готелю «Олімпійський» (Україна). SPA на Nuxt 4 (`ssr: false`). Розділи: пошук номерів, бронювання, підтвердження, особистий кабінет, скасування, мульти-кімнати, сервіси.
+Система бронирования отеля (Grand). SPA на Nuxt 4 (`ssr: false`). Разделы: поиск номеров, бронирование, подтверждение, личный кабинет, отмена, мульти-комнаты, сервисы.
 
 ## Стек
 
-| Шар | Технологія |
-|-----|------------|
+| Слой | Технология |
+|------|------------|
 | Frontend | Nuxt 4, Vue 3, @nuxt/ui |
-| Стан | Pinia (booking, auth) |
+| Состояние | Pinia (booking, auth) |
 | API | useApi → NUXT_PUBLIC_API_BASE |
-| Тести | Vitest |
+| Тесты | Vitest |
 | PM | yarn |
 
-## Ключові модулі
+## Ключевые модули
 
-| Шлях | Назначення |
+| Путь | Назначение |
 |------|------------|
-| `app/stores/booking.ts` | Стан бронювання (пошук, номери, тарифи) |
-| `app/stores/auth.ts` | Аутентифікація |
-| `app/composables/useApi.ts` | HTTP-клієнт |
-| `app/composables/useBooking*.ts` | Логіка змін бронювання |
-| `app/components/booking/Booking.vue` | Головний компонент бронювання |
+| `app/stores/booking.ts` | Состояние бронирования (поиск, номера, тарифы) |
+| `app/stores/auth.ts` | Аутентификация |
+| `app/composables/useApi.ts` | HTTP-клиент |
+| `app/composables/useBooking*.ts` | Логика изменений бронирования |
+| `app/components/booking/Booking.vue` | Главный компонент бронирования |
 | `app/components/core/` | DatePicker, GuestsSelector, RoomBlock |
 
-## Команди
+## Команды
 
 ```bash
 yarn dev
@@ -45,6 +45,6 @@ yarn test
 
 ## Ограничения для агента
 
-- Pinia: тільки через actions, не мутувати storeToRefs напряму
-- API тільки через `useApi`
-- Мінімальний diff
+- Pinia: только через actions, не мутировать storeToRefs напрямую
+- API только через `useApi`
+- Минимальный diff
