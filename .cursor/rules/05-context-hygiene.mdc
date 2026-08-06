@@ -9,25 +9,27 @@ alwaysApply: true
 
 - **Один фокус** — текущая волна
 - **Файлы > память** — `.planning/state.md`, `brief.md`
-- После волны — кратко в `state.md`, не весь diff в чат
+- После волны — 3–5 строк в `state.md`, не весь diff в чат
 
 ## Что читать
 
-| Ситуация | Источник |
-|----------|----------|
-| Новая сессия | `.planning/PROJECT.md`, `state.md` |
-| Задача | `brief.md`, `plan.md` |
-| Стек | `nuxt4.mdc`, `pinia-store-patterns.mdc`, `figma-styles.mdc` |
-| Код | только релевантные файлы |
+| Ситуация       | Источник                                                                               |
+| -------------- | -------------------------------------------------------------------------------------- |
+| Новая сессия   | `.planning/PROJECT.md`, `state.md` (если есть)                                         |
+| Текущая задача | `brief.md`, `plan.md`                                                                  |
+| Стек           | `nuxt-template.mdc`, `90-project-context.mdc`, `pinia-store-patterns.mdc`, `figma.mdc` |
+| Код            | только релевантные файлы под задачу                                                    |
 
 ## Типичные зоны Booking_ukr
 
 - `app/pages/` — index, booking-details, confirmation, personal, cabinet, cancellation, multi-rooms, services
 - `app/stores/` — booking.ts, auth.ts
-- `app/composables/` — useApi, useBooking*, useFormValidation, useUserProfile
+- `app/composables/` — useApi, useBooking\*, useFormValidation, useUserProfile
 - `app/components/booking/`, `cabinet/`, `core/`, `ui/`
 - `app/assets/styles/` — токены, variables, tools
 
 ## Длинные задачи (XL)
 
-- Фазы в `plan.md`; начало/конец сессии — обновить `state.md`
+- Фазы в `plan.md`
+- Начало сессии: прочитать `state.md`, назвать волну
+- Конец: обновить `state.md`

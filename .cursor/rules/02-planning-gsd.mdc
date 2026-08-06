@@ -28,6 +28,7 @@ alwaysApply: true
 - `shared/types` / API → composables → страницы/компоненты
 - Pinia stores → composables → UI
 - SCSS токены → компоненты
+- `useApi` — не дублировать сырой `$fetch` с `baseURL`
 
 ## Согласование
 

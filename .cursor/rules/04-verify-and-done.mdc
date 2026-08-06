@@ -16,11 +16,11 @@ alwaysApply: true
 
 ## Проверки по классу
 
-| Класс | Минимум перед «готово» |
-|-------|------------------------|
-| **S** | ReadLints или `yarn lint` по затронутым файлам |
-| **M** | `yarn lint`; при изменении типов/API — typecheck (`vue-tsc --noEmit` или `nuxi typecheck`) |
-| **L+** | `yarn lint` + `yarn test` + `yarn build` |
+| Класс  | Минимум перед «готово»                                                        |
+| ------ | ----------------------------------------------------------------------------- |
+| **S**  | ReadLints или `yarn lint` по затронутым файлам                                |
+| **M**  | `yarn lint`; при изменении типов/API — typecheck (`nuxi typecheck` / vue-tsc) |
+| **L+** | `yarn lint` + `yarn test` + `yarn build`                                      |
 
 Не объявляй задачу выполненной, пока обязательные для класса проверки не пройдены (если агент может их запустить).
 
@@ -28,7 +28,24 @@ alwaysApply: true
 
 1. **Spec** — сделано то, что договорились?
 2. **Quality** — типы, edge cases, a11y, целостность booking-flow
-3. **Consistency** — `nuxt4.mdc`, `pinia-store-patterns.mdc`, существующие паттерны в `app/`
+3. **Consistency** — `nuxt-template.mdc`, `pinia-store-patterns.mdc`, паттерны в `app/`
+
+## Формулировка «готово»
+
+```markdown
+## Итог
+
+…
+
+## Проверка
+
+- lint: …
+- вручную: …
+
+## Ограничения
+
+- …
+```
 
 ## Не считать выполненным
 

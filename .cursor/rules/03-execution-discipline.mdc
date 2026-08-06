@@ -8,7 +8,7 @@ alwaysApply: true
 ## До правок
 
 1. Прочитать релевантные файлы и соседний код
-2. Свериться с `nuxt4.mdc`, `pinia-store-patterns.mdc`
+2. Свериться с `nuxt-template.mdc` (SFC, SCSS modules, `useApi`) и `pinia-store-patterns.mdc`
 3. Свериться с `brief.md` / планом текущей волны
 
 ## Во время правок
@@ -17,8 +17,8 @@ alwaysApply: true
 - **Минимальный diff** — без drive-by рефакторинга
 - SFC: `script setup` → `template` → `style module lang="scss"`
 - API: composable `useApi`, не дублировать прямой `$fetch` без нужды
-- Pinia: читать через `storeToRefs`, писать только через actions (см. `pinia-store-patterns.mdc`)
-- Не коммитить без явной просьбы
+- Pinia: читать через `storeToRefs`, писать только через actions
+- Не коммитить и не пушить без явной просьбы
 
 ## Порядок
 
@@ -30,9 +30,23 @@ alwaysApply: true
 ## Отчёт после волны
 
 ```markdown
-## Сделано / Файлы / Проверено / Дальше
+## Сделано
+
+- …
+
+## Файлы
+
+- path — зачем
+
+## Проверено
+
+- [ ] ReadLints / yarn lint (по изменённым файлам)
+
+## Дальше
+
+- …
 ```
 
 ## Застрял
 
-- Не угадывать 4+ раза — гипотеза, проверка, блокер пользователю
+- Не угадывать 4+ раза — гипотеза, проверка, сообщить блокер

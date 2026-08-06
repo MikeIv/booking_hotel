@@ -23,7 +23,7 @@ alwaysApply: true
 
 - **Новая** функциональность и задачи **L+**: сначала типы / контракты (`shared/types`, API-типы), согласование в **Discuss** (`01`), затем логика и UI (`03`).
 - **M с новым API / контрактом:** мини-Discuss по типам — 1–2 интерфейса (request / response), подтверждение, потом код.
-- Строгий TypeScript — `nuxt4-typescript-quality.mdc`; порядок слоёв — `03-execution-discipline.mdc`.
+- Строгий TypeScript — `nuxt-template.mdc`; порядок слоёв — `03-execution-discipline.mdc`.
 
 ## 4. Единообразие через эталон
 
