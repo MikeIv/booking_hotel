@@ -65,9 +65,11 @@
   };
 
   const viewBookingDetails = async (bookingId: string | number) => {
-    // Ищем бронирование по ID (сравниваем как строки для универсальности)
-    const booking = bookingHistory.value.find((b) =>
-      String(b.id) === String(bookingId)
+    // Ищем бронирование по id или uuid (сравниваем как строки)
+    const booking = bookingHistory.value.find(
+      (b) =>
+        String(b.id) === String(bookingId) ||
+        (b.uuid != null && String(b.uuid) === String(bookingId)),
     );
 
     if (booking) {

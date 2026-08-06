@@ -783,7 +783,7 @@ const handleNewBooking = () => {
     align-items: flex-start;
     justify-content: center;
     order: 2;
-    
+
     @media (min-width: #{size.$desktopMin}) {
       order: 0;
       justify-content: flex-end;

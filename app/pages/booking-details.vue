@@ -4,6 +4,7 @@ import { useAuthStore } from "~/stores/auth";
 import { storeToRefs } from "pinia";
 import type { BookingDetailsRoom } from "~/types/booking-details";
 import { HOTEL_INFO } from "~/utils/hotel";
+import { getBookingNumber } from "~/utils/bookingStatus";
 import { useNotificationToast } from "~/composables/useToast";
 
 const router = useRouter();
@@ -11,18 +12,46 @@ const route = useRoute();
 const bookingStore = useBookingStore();
 const authStore = useAuthStore();
 const toast = useNotificationToast();
+const { getErrorMessage } = useApiHelpers();
+const { handleBookingAccessDeniedIfNeeded } = useBookingAccessDenied();
 
 const { currentBookingDetails } = storeToRefs(bookingStore);
 const bookingDetails = currentBookingDetails;
 const isLoadingDetails = ref(false);
 
-const bookingNumber = computed(() => {
-  return (
-    bookingDetails.value?.confirmation_number ||
-    bookingDetails.value?.id ||
-    undefined
-  );
+const bookingNumber = computed(() => getBookingNumber(bookingDetails.value));
+
+const currentBookingUuid = computed<string | null>(() => {
+  const fromDetails = bookingDetails.value?.uuid;
+  if (fromDetails && String(fromDetails).trim() !== "") {
+    return String(fromDetails);
+  }
+  const fromQuery = route.query.id;
+  if (typeof fromQuery === "string" && fromQuery.trim() !== "") {
+    return fromQuery;
+  }
+  return null;
 });
+
+const { startChangeServicesFlow } = useBookingChangeServices(currentBookingUuid);
+
+const showChangeServicesError = (detail: string) => {
+  toast.add({
+    severity: "error",
+    summary: "Не удалось изменить услуги",
+    detail,
+    life: 5000,
+  });
+};
+
+const {
+  canEditDates,
+  canEditRoom,
+  canEditPackages,
+  canEditContacts,
+  canCancelBooking,
+  hasManagementActions,
+} = useBookingAllowedActions(() => bookingDetails.value?.allowed);
 
 const rooms = computed<BookingDetailsRoom[] | undefined>(() => {
   return bookingDetails.value?.rooms;
@@ -37,15 +66,15 @@ const nights = computed(() => {
 });
 
 const userPhone = computed(() => {
-  const phoneFromBooking = 
-    bookingDetails.value?.rooms?.[0]?.guests?.main?.phone || 
+  const phoneFromBooking =
+    bookingDetails.value?.rooms?.[0]?.guests?.main?.phone ||
     bookingDetails.value?.order?.phone;
-  
-  return phoneFromBooking || authStore.user?.phone || '—';
+
+  return phoneFromBooking || authStore.user?.phone || "—";
 });
 
 const userEmail = computed(() => {
-  return bookingDetails.value?.rooms?.[0]?.guests?.main?.email || '—';
+  return bookingDetails.value?.rooms?.[0]?.guests?.main?.email || "—";
 });
 
 const hasPdf = computed(() => {
@@ -93,11 +122,36 @@ const handleChangeRoom = () => {
   // TODO: Реализовать изменение номера
 };
 
-const handleChangeServices = () => {
-  if (import.meta.dev) {
-    console.log("Изменить услуги");
+const handleChangeServices = async () => {
+  const uuid = currentBookingUuid.value;
+  if (!uuid) {
+    showChangeServicesError("UUID бронирования не найден. Обновите страницу.");
+    return;
   }
-  // TODO: Реализовать изменение услуг
+
+  if (bookingStore.createdBooking?.uuid !== uuid) {
+    try {
+      await bookingStore.getBookingByUuid(uuid);
+    } catch (err: unknown) {
+      if (await handleBookingAccessDeniedIfNeeded(err)) {
+        return;
+      }
+
+      showChangeServicesError(
+        getErrorMessage(err).trim() ||
+          "Не удалось загрузить данные бронирования",
+      );
+      return;
+    }
+  }
+
+  const flowError = startChangeServicesFlow();
+  if (flowError) {
+    showChangeServicesError(flowError);
+    return;
+  }
+
+  await router.push("/services");
 };
 
 const handleChangeContacts = () => {
@@ -108,54 +162,55 @@ const handleChangeContacts = () => {
 };
 
 onMounted(async () => {
-  // Если данных нет в store, загружаем их через API
-  if (!bookingDetails.value) {
-    const bookingId = route.query.id;
-    
-    if (!bookingId) {
+  const bookingId = route.query.id;
+
+  if (!bookingId) {
+    if (!bookingDetails.value) {
       if (import.meta.dev) {
         console.warn("⚠️ ID бронирования не указан в query параметрах");
       }
       await router.push("/cabinet");
+    }
+    return;
+  }
+
+  isLoadingDetails.value = true;
+
+  try {
+    if (import.meta.dev) {
+      console.log("📡 Загрузка деталей бронирования через API...", {
+        bookingId,
+      });
+    }
+
+    await bookingStore.getBookingDetails(
+      typeof bookingId === "string" ? bookingId : String(bookingId),
+    );
+
+    if (import.meta.dev) {
+      console.log("✅ Детали бронирования загружены");
+    }
+  } catch (err: unknown) {
+    if (import.meta.dev) {
+      console.error("❌ Ошибка загрузки деталей бронирования:", err);
+    }
+
+    if (await handleBookingAccessDeniedIfNeeded(err)) {
       return;
     }
 
-    isLoadingDetails.value = true;
+    toast.add({
+      severity: "error",
+      summary: "Ошибка",
+      detail:
+        getErrorMessage(err).trim() ||
+        "Не удалось загрузить детали бронирования",
+      life: 5000,
+    });
 
-    try {
-      if (import.meta.dev) {
-        console.log("📡 Загрузка деталей бронирования через API...", {
-          bookingId,
-        });
-      }
-
-      await bookingStore.getBookingDetails(
-        typeof bookingId === "string" ? bookingId : String(bookingId),
-      );
-
-      if (import.meta.dev) {
-        console.log("✅ Детали бронирования загружены");
-      }
-    } catch (err: unknown) {
-      if (import.meta.dev) {
-        console.error("❌ Ошибка загрузки деталей бронирования:", err);
-      }
-
-      const errorMessage =
-        (err as { message?: string })?.message ||
-        "Не удалось загрузить детали бронирования";
-
-      toast.add({
-        severity: "error",
-        summary: "Ошибка",
-        detail: errorMessage,
-        life: 5000,
-      });
-
-      await router.push("/cabinet");
-    } finally {
-      isLoadingDetails.value = false;
-    }
+    await router.push("/cabinet");
+  } finally {
+    isLoadingDetails.value = false;
   }
 });
 </script>
@@ -164,7 +219,7 @@ onMounted(async () => {
   <main :class="$style.container">
     <h1 :class="$style.header">Детали бронирования</h1>
 
-    <article v-if="bookingDetails" :class="$style.content">
+    <article v-if="bookingDetails && !isLoadingDetails" :class="$style.content">
       <BookingDetailsHeader
         :booking-number="bookingNumber"
         :pdf-url="bookingDetails.order?.pdf"
@@ -173,14 +228,20 @@ onMounted(async () => {
         @print="handlePrint"
       />
 
-      <hr :class="$style.divider" />
+      <template v-if="hasManagementActions">
+        <hr :class="$style.divider" />
 
-      <BookingDetailsManagement
-        @change-dates="handleChangeDates"
-        @change-room="handleChangeRoom"
-        @change-services="handleChangeServices"
-        @change-contacts="handleChangeContacts"
-      />
+        <BookingDetailsManagement
+          :can-edit-dates="canEditDates"
+          :can-edit-room="canEditRoom"
+          :can-edit-packages="canEditPackages"
+          :can-edit-contacts="canEditContacts"
+          @change-dates="handleChangeDates"
+          @change-room="handleChangeRoom"
+          @change-services="handleChangeServices"
+          @change-contacts="handleChangeContacts"
+        />
+      </template>
 
       <hr :class="$style.divider" />
 
@@ -217,6 +278,7 @@ onMounted(async () => {
       <hr :class="$style.divider" />
 
       <BookingDetailsActions
+        :can-cancel-booking="canCancelBooking"
         @cancel="handleCancelBooking"
         @new-booking="handleNewBooking"
         @back-to-cabinet="handleBackToCabinet"

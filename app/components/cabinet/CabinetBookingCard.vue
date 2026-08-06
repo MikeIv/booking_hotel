@@ -1,5 +1,9 @@
 <script setup lang="ts">
   import type { BookingHistoryItem } from "~/types/booking";
+  import {
+    getBookingDisplayNumber,
+    getBookingStatusLabel,
+  } from "~/utils/bookingStatus";
 
   interface Props {
     booking: BookingHistoryItem;
@@ -11,6 +15,11 @@
 
   const props = defineProps<Props>();
   const emit = defineEmits<Emits>();
+
+  const bookingNumber = computed(() => getBookingDisplayNumber(props.booking));
+  const bookingStatusLabel = computed(() =>
+    getBookingStatusLabel(props.booking.status),
+  );
 
   const formatDate = (dateString: string | undefined): string => {
     if (!dateString) return "—";
@@ -26,8 +35,9 @@
   };
 
   const handleViewDetails = () => {
-    if (props.booking.id) {
-      emit("view-details", props.booking.id);
+    const bookingUuid = props.booking.uuid ?? props.booking.id;
+    if (bookingUuid) {
+      emit("view-details", bookingUuid);
     }
   };
 </script>
@@ -35,12 +45,12 @@
 <template>
   <article :class="$style.bookingCard">
     <header :class="$style.bookingTitle">
-      {{
-        booking.confirmation_number
-          ? `Ваше бронирование  № ${booking.confirmation_number}`
-          : `Ваше бронирование  № ${booking.id}`
-      }}
+      Ваше бронирование № {{ bookingNumber }}
     </header>
+
+    <p :class="$style.bookingStatus">
+      Статус бронирования: {{ bookingStatusLabel }}
+    </p>
 
     <div
       v-if="booking.order?.start_at || booking.order?.end_at"
@@ -60,7 +70,7 @@
         label="Подробнее"
         variant="dark"
         :class="$style.detailsBtn"
-        :disabled="!booking.id"
+        :disabled="!(booking.uuid ?? booking.id)"
         @click="handleViewDetails"
       />
     </footer>
@@ -92,10 +102,22 @@
     font-size: rem(16);
     color: var(--a-text-dark);
     line-height: 1.3;
-    margin-bottom: rem(18);
 
     @media (min-width: #{size.$tablet}) {
       font-size: rem(18);
+    }
+  }
+
+  .bookingStatus {
+    margin: 0 0 rem(18);
+    font-family: var(--a-font-heading);
+    font-size: rem(14);
+    font-weight: 400;
+    line-height: 1.4;
+    color: var(--a-text-dark);
+
+    @media (min-width: #{size.$tablet}) {
+      font-size: rem(16);
     }
   }
 
@@ -161,4 +183,3 @@
     }
   }
 </style>
-

@@ -1,28 +1,35 @@
 <script setup lang="ts">
+defineProps<{
+  canCancelBooking: boolean;
+}>();
+
 const emit = defineEmits<{
   cancel: [];
   "new-booking": [];
   "back-to-cabinet": [];
 }>();
-
-const handleCancel = () => emit("cancel");
-const handleNewBooking = () => emit("new-booking");
-const handleBackToCabinet = () => emit("back-to-cabinet");
 </script>
 
 <template>
   <nav :class="$style.actionsWrapper" aria-label="Действия с бронированием">
     <section :class="$style.section">
-      <div :class="$style.finalButtons" role="group" aria-label="Основные действия">
+      <div
+        :class="$style.finalButtons"
+        role="group"
+        aria-label="Основные действия"
+      >
         <Button
-          variant="danger"
-          @click="handleCancel"
+          v-if="canCancelBooking"
+          class="btn__bs danger"
+          unstyled
+          @click="emit('cancel')"
         >
           Отменить бронирование
         </Button>
         <Button
-          variant="danger"
-          @click="handleNewBooking"
+          class="btn__bs danger"
+          unstyled
+          @click="emit('new-booking')"
         >
           Новое бронирование
         </Button>
@@ -31,9 +38,10 @@ const handleBackToCabinet = () => emit("back-to-cabinet");
 
     <section :class="$style.section">
       <Button
-        variant="dark"
+        class="btn__bs dark"
         :class="$style.backButton"
-        @click="handleBackToCabinet"
+        unstyled
+        @click="emit('back-to-cabinet')"
       >
         Вернуться в кабинет
       </Button>
@@ -104,4 +112,3 @@ const handleBackToCabinet = () => emit("back-to-cabinet");
     }
   }
 </style>
-

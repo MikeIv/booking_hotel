@@ -29,6 +29,10 @@
 
   const loading = computed(() => authStore.loading);
 
+  const showRecoveryLink = computed(
+    () => !!apiError.value && apiError.value !== "Пользователь не найден",
+  );
+
   const validateForm = () => {
     let isValid = true;
     emailError.value = "";
@@ -118,9 +122,7 @@
           response.message?.includes("invalid password") ||
           response.message?.includes("неверные учетные данные")
         ) {
-          // Если неверный пароль, предлагаем восстановление
           apiError.value = "Неверный email или пароль";
-          emit("switch-to-recovery", formData.value.email);
         } else if (
           response.message?.includes("пользователь не найден") ||
           response.message?.includes("user not found")
@@ -146,6 +148,10 @@
     } finally {
       authStore.setLoading(false);
     }
+  };
+
+  const handlePasswordRecovery = () => {
+    emit("switch-to-recovery", formData.value.email);
   };
 
   const resetForm = () => {
@@ -234,6 +240,15 @@
         <div v-if="apiError" :class="$style.apiError">
           {{ apiError }}
         </div>
+
+        <button
+          v-if="showRecoveryLink"
+          type="button"
+          :class="$style.recoveryLink"
+          @click="handlePasswordRecovery"
+        >
+          Восстановить пароль?
+        </button>
       </section>
     </template>
 
@@ -369,6 +384,22 @@
     color: var(--a-text-accent);
     font-size: rem(14);
     text-align: center;
+  }
+
+  .recoveryLink {
+    align-self: center;
+    padding: 0;
+    border: none;
+    background: transparent;
+    font-size: rem(14);
+    line-height: 1.4;
+    color: var(--a-text-dark);
+    text-decoration: underline;
+    cursor: pointer;
+
+    &:hover {
+      color: var(--a-accentBg);
+    }
   }
 
   .btnGroup {

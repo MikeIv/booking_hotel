@@ -1,19 +1,23 @@
 <script setup lang="ts">
-  import Popup from "~/components/ui/Popup.vue";
+import Popup from "~/components/ui/Popup.vue";
 
-  type Props = {
-    isOpen: boolean;
-    isChangingRoom: boolean;
-    changeRoomSuccess: string | null;
-    changeRoomError: string | null;
-  };
+type Props = {
+  isOpen: boolean;
+  isChangingRoom: boolean;
+  changeRoomSuccess: string | null;
+  changeRoomError: string | null;
+};
 
-  defineProps<Props>();
+const props = defineProps<Props>();
 
-  const emit = defineEmits<{
-    close: [];
-    confirm: [];
-  }>();
+const emit = defineEmits<{
+  close: [];
+  confirm: [];
+}>();
+
+const isRoomChangeSuccessful = computed(() =>
+  Boolean(props.changeRoomSuccess),
+);
 </script>
 
 <template>
@@ -24,33 +28,51 @@
     @close="emit('close')"
   >
     <template #content>
-      <div :class="$style.content">
-        <p :class="$style.text">Вы подтверждаете смену номера?</p>
+      <div
+        :class="[
+          $style.content,
+          isRoomChangeSuccessful ? $style.contentSuccess : undefined,
+        ]"
+      >
+        <template v-if="isRoomChangeSuccessful">
+          <h2 :class="$style.title">
+            {{ changeRoomSuccess }}
+          </h2>
+          <div :class="$style.actions">
+            <Button
+              label="Выход"
+              class="btn__bs dark"
+              unstyled
+              @click="emit('close')"
+            />
+          </div>
+        </template>
 
-        <div :class="$style.actions">
-          <Button
-            label="Изменить номер"
-            class="btn__bs dark"
-            unstyled
-            :disabled="isChangingRoom"
-            @click="emit('confirm')"
-          />
-          <Button
-            label="Отмена"
-            class="btn__bs danger"
-            unstyled
-            :disabled="isChangingRoom"
-            @click="emit('close')"
-          />
-        </div>
+        <template v-else>
+          <p :class="$style.text">Вы подтверждаете смену номера?</p>
 
-        <p v-if="isChangingRoom" :class="$style.status">Изменяем номер...</p>
-        <p v-else-if="changeRoomSuccess" :class="$style.success">
-          {{ changeRoomSuccess }}
-        </p>
-        <p v-else-if="changeRoomError" :class="$style.error">
-          {{ changeRoomError }}
-        </p>
+          <div :class="$style.actions">
+            <Button
+              label="Изменить номер"
+              class="btn__bs dark"
+              unstyled
+              :disabled="isChangingRoom"
+              @click="emit('confirm')"
+            />
+            <Button
+              label="Отмена"
+              class="btn__bs danger"
+              unstyled
+              :disabled="isChangingRoom"
+              @click="emit('close')"
+            />
+          </div>
+
+          <p v-if="isChangingRoom" :class="$style.status">Изменяем номер...</p>
+          <p v-else-if="changeRoomError" :class="$style.error">
+            {{ changeRoomError }}
+          </p>
+        </template>
       </div>
     </template>
   </Popup>
@@ -62,8 +84,23 @@
   .content {
     display: flex;
     flex-direction: column;
-    gap: rem(24);
+    gap: rem(16);
     padding: 0 rem(24);
+  }
+
+  .contentSuccess {
+    gap: rem(24);
+  }
+
+  .title {
+    margin: 0;
+    font-family: var(--a-font-heading);
+    font-size: rem(24);
+    font-weight: 700;
+    line-height: 1.4;
+    color: var(--a-text-dark);
+    text-align: center;
+    word-break: break-word;
   }
 
   .text {
@@ -103,16 +140,6 @@
     line-height: 1.4;
     color: var(--a-text-light);
     text-align: center;
-  }
-
-  .success {
-    margin: 0;
-    font-family: var(--a-font-body);
-    font-size: rem(14);
-    line-height: 1.4;
-    color: var(--success);
-    text-align: center;
-    word-break: break-word;
   }
 
   .error {
