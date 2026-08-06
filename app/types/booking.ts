@@ -5,6 +5,7 @@ import type {
   ViewResource,
   BalconyResource,
   TariffPackage,
+  TariffGroup,
   RoomAmenity,
   RoomBed,
   RoomView,
@@ -23,6 +24,8 @@ interface SearchResponse {
   packages: PackageResource[];
   filters: SearchFilters;
   groupedByBed: boolean;
+  /** Группы тарифов для фильтрации (при grouped: true в запросе) */
+  tariffGroups?: TariffGroup[];
   rawPayload?: unknown;
 }
 
@@ -98,6 +101,7 @@ export interface BookingByUuidPayment {
 export interface BookingByUuidRoom {
   id?: number;
   title: string;
+  square?: number;
   tariff: { title: string; price: string | number };
   guests?: Array<{
     surname: string;
@@ -110,23 +114,31 @@ export interface BookingByUuidRoom {
   adults?: number;
   children?: number;
   total_guests?: number;
+  /** Доп. услуги в ответе booking.show (актуальное поле API) */
+  packages?: unknown[];
+  /** Устаревшее поле; оставлено для обратной совместимости */
   services?: unknown[];
   total: number;
 }
 
+/** Статус бронирования после оплаты (GET /v1/booking/{uuid}) */
+export type BookingStatus = "processing" | "confirmed" | "failed";
+
+/** Доступные действия с бронированием (поле allowed в booking.show) */
+export type BookingAllowedAction =
+  | "edit-dates"
+  | "edit-number"
+  | "edit-packages"
+  | "edit-contacts"
+  | "cancel";
+
 export interface BookingByUuidPayload {
   id: string;
   uuid: string;
-  confirmation_number: string;
-  status: string;
-  allowed?: Array<
-    | "edit-dates"
-    | "edit-number"
-    | "edit-packages"
-    | "edit-contacts"
-    | "cancel"
-    | null
-  >;
+  number: string;
+  confirmation_number?: string;
+  status: BookingStatus | string;
+  allowed?: Array<BookingAllowedAction | null>;
   order: BookingByUuidOrder;
   /** Может прийти массивом или JSON-строкой */
   rooms: BookingByUuidRoom[] | string;
@@ -138,11 +150,10 @@ export interface BookingByUuidPayload {
 interface BookingResponse {
   id?: number | string;
   uuid?: string;
+  number?: string;
   confirmation_number?: string;
   status?: string;
-  allowed?: Array<
-    "edit-dates" | "edit-number" | "edit-packages" | "edit-contacts" | "cancel"
-  >;
+  allowed?: BookingAllowedAction[];
   hotel?: HotelInfo;
   order?: OrderInfo & Partial<BookingByUuidOrder>;
   rooms?: unknown[];
@@ -156,8 +167,10 @@ interface BookingResponse {
 interface BookingHistoryItem {
   id: string | number;
   uuid?: string;
+  number?: string | null;
   confirmation_number: string | null;
   status: string;
+  allowed?: BookingAllowedAction[];
   order: {
     name: string;
     surname: string;
@@ -273,17 +286,31 @@ export interface SelectedEntry {
   roomTitle: string;
   room_type_code: string;
   ratePlanCode: string;
+  /** Цена за 1 ночь (не итог за период из API search) */
   price: number | null | undefined;
   title: string;
+  /** Площадь номера, м² (ключ square в API) */
+  square?: number;
 }
 
 /** API-типы ответа поиска (сырые данные от сервера, до маппинга) */
+
+export interface ApiTariffRoomPrice {
+  room_index: number | string;
+  room_number: number;
+  room_type_code: string;
+  rate_plan_code: string;
+  price: number | string;
+  price_for_register?: number;
+  packages?: string[];
+}
 
 export interface ApiRoomTariff {
   rate_plan_code: string;
   title: string;
   price: number | string;
   price_for_register?: number;
+  room_prices?: ApiTariffRoomPrice[];
   packages?: TariffPackage[];
   has_food?: boolean;
   cancellation_free?: boolean;
@@ -313,6 +340,7 @@ export interface ApiRoomType {
   amenities?: RoomAmenity[];
   bed?: RoomBed | null;
   view?: RoomView | null;
+  balcony?: BalconyResource | null;
   family?: RoomFamily | null;
   min_price?: number | string | null;
   price_for_register?: number;
@@ -321,6 +349,7 @@ export interface ApiRoomType {
 }
 
 export interface ApiGroupedRoom {
+  family_id?: string | number;
   title: string;
   description: string | null;
   max_occupancy: number;
@@ -344,11 +373,13 @@ export interface ApiUngroupedPayload {
   rooms: ApiRoomType[];
   packages?: PackageResource[];
   filters: SearchFilters;
+  tariff_groups?: TariffGroup[];
 }
 
 export interface ApiRoomTariffPayload {
   room: ApiRoomType;
   packages?: PackageResource[];
+  tariff_groups?: TariffGroup[];
 }
 
 export type ApiSearchPayload =

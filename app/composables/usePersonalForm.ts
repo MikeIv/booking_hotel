@@ -1,5 +1,16 @@
 import type { BookingData } from "~/types/booking";
 import { countriesRu } from "~/utils/countries";
+import {
+  additionalGuestFieldsRules,
+  guestFieldsRules,
+  validateField,
+  validateGuestFields,
+  type GuestValidationData,
+  type ValidationErrors,
+  type ValidationRules,
+} from "~/composables/useFormValidation";
+
+const HH_MM_TIME_REGEX = /^([0-1]?[0-9]|2[0-3]):([0-5][0-9])$/;
 
 export interface GuestData {
   lastName: string;
@@ -33,7 +44,75 @@ export interface FormField {
   key: keyof GuestData;
   placeholder: string;
   type: string;
-  required: boolean;
+}
+
+const GUEST_VALIDATION_ERROR_KEYS: Record<string, keyof GuestData> = {
+  surname: "lastName",
+  name: "firstName",
+  middle_name: "middleName",
+  phone: "phone",
+  email: "email",
+  country: "citizenship",
+};
+
+const GUEST_FIELD_TO_VALIDATION_KEY: Record<
+  keyof GuestData,
+  keyof GuestValidationData
+> = {
+  lastName: "surname",
+  firstName: "name",
+  middleName: "middle_name",
+  phone: "phone",
+  email: "email",
+  citizenship: "country",
+};
+
+const toGuestValidationData = (guest: GuestData): GuestValidationData => ({
+  surname: guest.lastName,
+  name: guest.firstName,
+  middle_name: guest.middleName || null,
+  phone: guest.phone,
+  email: guest.email,
+  country: guest.citizenship,
+});
+
+const mapValidationErrorsToGuest = (
+  result: ValidationErrors,
+): Partial<GuestData> => {
+  const guestErrors: Partial<GuestData> = {};
+  for (const [validationKey, guestKey] of Object.entries(
+    GUEST_VALIDATION_ERROR_KEYS,
+  )) {
+    const message = result[validationKey];
+    if (message) guestErrors[guestKey] = message;
+  }
+  return guestErrors;
+};
+
+export const validateGuestField = (
+  guest: GuestData,
+  field: keyof GuestData,
+  rules: ValidationRules = guestFieldsRules,
+): string | null => {
+  const validationKey = GUEST_FIELD_TO_VALIDATION_KEY[field];
+  const data = toGuestValidationData(guest);
+  return validateField(validationKey, data[validationKey], rules);
+};
+
+const validateGuest = (
+  guest: GuestData,
+  rules: ValidationRules = guestFieldsRules,
+): Partial<GuestData> =>
+  mapValidationErrorsToGuest(
+    validateGuestFields(toGuestValidationData(guest), rules),
+  );
+
+type AdditionalFieldKey = "checkInTime" | "checkOutTime" | "comment";
+
+export interface AdditionalField {
+  key: AdditionalFieldKey;
+  placeholder: string;
+  type: "text" | "select" | "textarea";
 }
 
 export interface FormErrors {
@@ -60,42 +139,12 @@ const initialGuestData = (): GuestData => ({
 
 export const usePersonalForm = () => {
   const formFields: FormField[] = [
-    {
-      key: "lastName",
-      placeholder: "Фамилия",
-      type: "text",
-      required: true,
-    },
-    {
-      key: "firstName",
-      placeholder: "Имя",
-      type: "text",
-      required: true,
-    },
-    {
-      key: "middleName",
-      placeholder: "Отчество",
-      type: "text",
-      required: false,
-    },
-    {
-      key: "phone",
-      placeholder: "Номер телефона",
-      type: "tel",
-      required: true,
-    },
-    {
-      key: "email",
-      placeholder: "Почта",
-      type: "email",
-      required: true,
-    },
-    {
-      key: "citizenship",
-      placeholder: "Гражданство",
-      type: "text",
-      required: false,
-    },
+    { key: "lastName", placeholder: "Фамилия", type: "text" },
+    { key: "firstName", placeholder: "Имя", type: "text" },
+    { key: "middleName", placeholder: "Отчество", type: "text" },
+    { key: "phone", placeholder: "Номер телефона", type: "tel" },
+    { key: "email", placeholder: "Почта", type: "email" },
+    { key: "citizenship", placeholder: "Страна", type: "text" },
   ];
 
   const paymentMethods = [
@@ -117,19 +166,19 @@ export const usePersonalForm = () => {
     },
   ];
 
-  const additionalFields = [
+  const additionalFields: AdditionalField[] = [
     {
-      key: "checkInTime" as const,
+      key: "checkInTime",
       placeholder: "Время заезда",
       type: "select",
     },
     {
-      key: "checkOutTime" as const,
+      key: "checkOutTime",
       placeholder: "Время выезда",
       type: "select",
     },
     {
-      key: "comment" as const,
+      key: "comment",
       placeholder: "Комментарий",
       type: "textarea",
     },
@@ -153,28 +202,6 @@ export const usePersonalForm = () => {
     mainGuest: initialGuestData(),
     additionalGuests: [],
   });
-
-  const validateGuest = (guest: GuestData): Partial<GuestData> => {
-    const guestErrors: Partial<GuestData> = {};
-    const { validateGuestFields } = useFormValidation();
-    const result = validateGuestFields({
-      surname: guest.lastName,
-      name: guest.firstName,
-      middle_name: guest.middleName || null,
-      phone: guest.phone,
-      email: guest.email,
-      country: guest.citizenship,
-    });
-
-    if (result.surname) guestErrors.lastName = result.surname;
-    if (result.name) guestErrors.firstName = result.name;
-    if (result.middle_name) guestErrors.middleName = result.middle_name;
-    if (result.phone) guestErrors.phone = result.phone;
-    if (result.email) guestErrors.email = result.email;
-    if (result.country) guestErrors.citizenship = result.country;
-
-    return guestErrors;
-  };
 
   const validateForm = (
     formData: PersonalFormData,
@@ -229,7 +256,7 @@ export const usePersonalForm = () => {
       }
 
       formData.additionalGuests.forEach((guest, index) => {
-        const guestErrors = validateGuest(guest);
+        const guestErrors = validateGuest(guest, additionalGuestFieldsRules);
         if (Object.keys(guestErrors).length > 0) {
           if (!errors.additionalGuests[index]) {
             errors.additionalGuests[index] = {};
@@ -248,18 +275,19 @@ export const usePersonalForm = () => {
     return isValid;
   };
 
-  const formatDateTime = (date: Date, time: string): string | null => {
+  const formatDateTime = (
+    date: Date,
+    time: string,
+    formatDate: (date: Date) => string,
+  ): string | null => {
     if (!date || !time) return null;
-    const timeRegex = /^([0-1]?[0-9]|2[0-3]):([0-5][0-9])$/;
-    if (!timeRegex.test(time)) {
+    if (!HH_MM_TIME_REGEX.test(time)) {
       console.warn(`Неверный формат времени: ${time}. Ожидается HH:mm.`);
       return null;
     }
-    const [hours, minutes] = time.split(":").map(Number);
-    if (hours === undefined || minutes === undefined) return null;
-    const dateTime = new Date(date);
-    dateTime.setHours(hours, minutes, 0, 0);
-    return dateTime.toISOString();
+    const formattedDate = formatDate(date);
+    if (!formattedDate) return null;
+    return `${formattedDate}T${time}:00Z`;
   };
 
   const prepareBookingData = (
@@ -315,10 +343,10 @@ export const usePersonalForm = () => {
       children_ages: childrenAges,
       additional: {
         start_at: formData.checkInTime
-          ? formatDateTime(date[0], formData.checkInTime)
+          ? formatDateTime(date[0], formData.checkInTime, formatDate)
           : null,
         end_at: formData.checkOutTime
-          ? formatDateTime(date[1], formData.checkOutTime)
+          ? formatDateTime(date[1], formData.checkOutTime, formatDate)
           : null,
         comment: formData.comment || null,
       },
@@ -387,8 +415,7 @@ export const usePersonalForm = () => {
       const isFirstRoom = index === 0;
       const roomGuestData = formData.roomGuests[entry.roomIdx];
 
-      // Если есть данные для этого номера, используем их, иначе используем основного гостя
-      const mainGuest = roomGuestData?.mainGuest || formData.mainGuest;
+      const mainGuest = roomGuestData?.mainGuest ?? initialGuestData();
       const additionalGuests = roomGuestData?.additionalGuests || [];
 
       // Базовый массив гостей: основной гость номера
@@ -450,10 +477,10 @@ export const usePersonalForm = () => {
       children_ages: allChildrenAges,
       additional: {
         start_at: formData.checkInTime
-          ? formatDateTime(date[0], formData.checkInTime)
+          ? formatDateTime(date[0], formData.checkInTime, formatDate)
           : null,
         end_at: formData.checkOutTime
-          ? formatDateTime(date[1], formData.checkOutTime)
+          ? formatDateTime(date[1], formData.checkOutTime, formatDate)
           : null,
         comment: formData.comment || null,
       },
@@ -470,7 +497,6 @@ export const usePersonalForm = () => {
     createFormData,
     createRoomGuestData,
     initialGuestData,
-    validateGuest,
     validateForm,
     formatDateTime,
     prepareBookingData,

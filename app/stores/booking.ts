@@ -1,7 +1,12 @@
 import { defineStore } from "pinia";
 import type { StateTree } from "pinia";
 import type { PersistenceOptions } from "pinia-plugin-persistedstate";
-import type { PackageResource, Room, RoomTariff } from "~/types/room";
+import type {
+  PackageResource,
+  Room,
+  RoomTariff,
+  TariffGroup,
+} from "~/types/room";
 import type {
   SearchResponse,
   BookingData,
@@ -15,7 +20,17 @@ import type {
   ApiUngroupedPayload,
   ApiRoomTariffPayload,
   ApiSearchPayload,
+  SelectedEntry,
 } from "~/types/booking";
+import {
+  getSortedMultiRoomEntries,
+  normalizeRoomIndex,
+} from "~/utils/multiBooking";
+import {
+  mapBookingShowToHistoryItem,
+  normalizeBookingByUuidPayload,
+} from "~/utils/mapBookingShowToHistoryItem";
+import { toBookingAllowedActionsArray } from "~/utils/bookingAllowedActions";
 
 export interface UserProfileData {
   name: string;
@@ -31,16 +46,6 @@ export interface SelectedService {
   title: string;
   price: number;
   packageCode?: string;
-}
-
-export interface SelectedMultiRoomEntry {
-  roomIdx: number;
-  roomCardIdx: number;
-  roomTitle: string;
-  room_type_code: string;
-  ratePlanCode: string;
-  price: number | null | undefined;
-  title: string;
 }
 
 export const useBookingStore = defineStore(
@@ -72,8 +77,19 @@ export const useBookingStore = defineStore(
     const currentBookingUuid = ref<string | null>(null);
     const currentBookingDetails = ref<BookingHistoryItem | null>(null);
     const packages = ref<PackageResource[]>([]);
-    const selectedMultiRooms = ref<Record<string, SelectedMultiRoomEntry>>({});
+    const selectedMultiRooms = ref<Record<string, SelectedEntry>>({});
     const changeRoomUuid = ref<string | null>(null);
+    const changeServicesUuid = ref<string | null>(null);
+    /** Индексы номеров без доступности в последнем multi-поиске (для подсветки в GuestsSelector) */
+    const multiBookingUnavailableRooms = ref<number[]>([]);
+
+    function setMultiBookingUnavailableRooms(indices: number[]) {
+      multiBookingUnavailableRooms.value = indices;
+    }
+
+    function clearMultiBookingUnavailableRooms() {
+      multiBookingUnavailableRooms.value = [];
+    }
 
     /** Услуги для одного номера (режим одного номера — индекс 0) */
     const selectedServices = computed(() => {
@@ -113,6 +129,16 @@ export const useBookingStore = defineStore(
       return selectedServicesByRoom.value[String(roomIndex)] ?? [];
     }
 
+    function setSelectedServicesByRoom(
+      value: Record<string, SelectedService[]>,
+    ) {
+      selectedServicesByRoom.value = { ...value };
+    }
+
+    function setRoomTariffs(value: Room[]) {
+      roomTariffs.value = value;
+    }
+
     function setCurrentBookingDetails(booking: BookingHistoryItem | null) {
       currentBookingDetails.value = booking;
     }
@@ -130,7 +156,10 @@ export const useBookingStore = defineStore(
         [uuid]: booking,
       };
       currentBookingUuid.value = uuid;
-      createdBooking.value = booking;
+      createdBooking.value = {
+        ...booking,
+        allowed: toBookingAllowedActionsArray(booking.allowed),
+      };
     }
 
     function getSessionBookingByUuid(uuid: string): BookingResponse | null {
@@ -139,9 +168,7 @@ export const useBookingStore = defineStore(
       return bookingsByUuid.value[safeUuid] ?? null;
     }
 
-    function setSelectedMultiRooms(
-      rooms: Record<string, SelectedMultiRoomEntry>,
-    ) {
+    function setSelectedMultiRooms(rooms: Record<string, SelectedEntry>) {
       selectedMultiRooms.value = { ...rooms };
     }
 
@@ -170,6 +197,10 @@ export const useBookingStore = defineStore(
 
     function setChangeRoomUuid(value: string | null) {
       changeRoomUuid.value = value;
+    }
+
+    function setChangeServicesUuid(value: string | null) {
+      changeServicesUuid.value = value;
     }
 
     const totalGuests = computed(() => {
@@ -294,6 +325,18 @@ export const useBookingStore = defineStore(
               ? Number(tariff.price)
               : tariff.price,
           price_for_register: tariff.price_for_register,
+          room_prices: tariff.room_prices?.map((roomPrice) => ({
+            room_index: normalizeRoomIndex(roomPrice.room_index),
+            room_number: roomPrice.room_number,
+            room_type_code: roomPrice.room_type_code,
+            rate_plan_code: roomPrice.rate_plan_code,
+            price:
+              typeof roomPrice.price === "string"
+                ? Number(roomPrice.price)
+                : roomPrice.price,
+            price_for_register: roomPrice.price_for_register,
+            packages: roomPrice.packages,
+          })),
           packages: tariff.packages ?? [],
           has_food: tariff.has_food,
           cancellation_free: tariff.cancellation_free,
@@ -302,6 +345,9 @@ export const useBookingStore = defineStore(
           description:
             tariff.description ?? tariff.cancellation_description ?? null,
           cancellation_popover,
+          group: tariff.group
+            ? { id: tariff.group.id, title: tariff.group.title }
+            : undefined,
         };
       });
     };
@@ -321,6 +367,7 @@ export const useBookingStore = defineStore(
             : (group?.amenities ?? []),
         bed: room.bed ?? null,
         view: room.view ?? null,
+        balcony: room.balcony ?? null,
         family: room.family ?? null,
         min_price: normalizeMinPrice(room.min_price ?? group?.min_price),
         price_for_register:
@@ -382,6 +429,7 @@ export const useBookingStore = defineStore(
             : (primaryVariant?.amenities ?? []),
         bed: primaryVariant?.bed ?? null,
         view: primaryVariant?.view ?? null,
+        balcony: primaryVariant?.balcony ?? null,
         family: primaryVariant?.family ?? null,
         min_price: normalizeMinPrice(
           group.min_price ?? primaryVariant?.min_price,
@@ -403,6 +451,19 @@ export const useBookingStore = defineStore(
       beds: [],
       views: [],
       balconies: [],
+    };
+
+    const extractTariffGroups = (
+      payload: ApiSearchPayload,
+    ): TariffGroup[] | undefined => {
+      if (!payload || Array.isArray(payload) || !("tariff_groups" in payload)) {
+        return undefined;
+      }
+
+      const groups = payload.tariff_groups;
+      if (!groups?.length) return undefined;
+
+      return groups.map(({ id, title }) => ({ id, title }));
     };
 
     /**
@@ -518,6 +579,7 @@ export const useBookingStore = defineStore(
           packages: p.packages ?? [],
           filters: EMPTY_FILTERS,
           groupedByBed: false,
+          tariffGroups: extractTariffGroups(payload),
           rawPayload: payload,
         };
       }
@@ -670,6 +732,9 @@ export const useBookingStore = defineStore(
       try {
         const { post } = useApi();
         const { searchData, groupedByBed } = prepareSearchData(roomTypeCode);
+        if (roomTypeCode) {
+          searchData.grouped = true;
+        }
         const multiBookingMode = (searchData.guests as unknown[])?.length > 1;
         // При мультибронировании бэкенд может обрабатывать запрос дольше — увеличиваем таймаут
         const searchTimeoutMs = multiBookingMode ? 35000 : 15000;
@@ -792,8 +857,17 @@ export const useBookingStore = defineStore(
       throw apiError!;
     }
 
+    /**
+     * Детали брони из ЛК. GET /v1/booking/{uuid} (booking.show).
+     * bookingId — uuid заказа из истории (поле id в BookingResource).
+     */
     async function getBookingDetails(bookingId: string | number) {
       const { get } = useApi();
+      const bookingUuid = String(bookingId).trim();
+
+      if (!bookingUuid) {
+        throw new Error("Не указан идентификатор бронирования");
+      }
 
       setLoading(true, "Загружаем детали брони...");
 
@@ -801,8 +875,8 @@ export const useBookingStore = defineStore(
 
       try {
         isServerRequest.value = true;
-        const response = await get<BookingHistoryItem>(
-          `/v1/users/bookings/${bookingId}`,
+        const response = await get<BookingByUuidPayload>(
+          `/v1/booking/${bookingUuid}`,
           {},
           {
             signal: AbortSignal.timeout(10000),
@@ -810,7 +884,9 @@ export const useBookingStore = defineStore(
         );
 
         if (response.success && response.payload) {
-          const bookingDetails = response.payload;
+          const normalized = normalizeBookingByUuidPayload(response.payload);
+          const bookingDetails = mapBookingShowToHistoryItem(response.payload);
+          setBookingByUuid(normalized);
           setCurrentBookingDetails(bookingDetails);
           return bookingDetails;
         }
@@ -835,15 +911,23 @@ export const useBookingStore = defineStore(
      * Загрузка бронирования по uuid (страница подтверждения после редиректа с оплаты).
      * GET /v1/booking/{uuid}
      */
-    async function getBookingByUuid(uuid: string): Promise<BookingResponse> {
+    async function getBookingByUuid(
+      uuid: string,
+      options?: { silent?: boolean },
+    ): Promise<BookingResponse> {
       const { get } = useApi();
+      const silent = options?.silent ?? false;
 
-      setLoading(true, "Загружаем данные бронирования...");
+      if (!silent) {
+        setLoading(true, "Загружаем данные бронирования...");
+      }
 
       let apiError: Error | null = null;
 
       try {
-        isServerRequest.value = true;
+        if (!silent) {
+          isServerRequest.value = true;
+        }
         const response = await get<BookingByUuidPayload>(
           `/v1/booking/${uuid}`,
           {},
@@ -851,49 +935,7 @@ export const useBookingStore = defineStore(
         );
 
         if (response.success && response.payload) {
-          const raw = response.payload;
-          let rooms: BookingByUuidPayload["rooms"] = raw.rooms;
-          const allowed = Array.isArray(raw.allowed)
-            ? raw.allowed.filter(
-                (
-                  item,
-                ): item is Exclude<
-                  NonNullable<BookingByUuidPayload["allowed"]>[number],
-                  null
-                > =>
-                  item === "edit-dates" ||
-                  item === "edit-number" ||
-                  item === "edit-packages" ||
-                  item === "edit-contacts" ||
-                  item === "cancel",
-              )
-            : [];
-          if (typeof rooms === "string") {
-            try {
-              rooms = JSON.parse(rooms) as BookingByUuidPayload["rooms"];
-            } catch {
-              rooms = [];
-            }
-          }
-          if (!Array.isArray(rooms)) {
-            rooms = [];
-          }
-
-          const normalized: BookingResponse = {
-            id: raw.id,
-            uuid: raw.uuid,
-            confirmation_number: raw.confirmation_number,
-            status: raw.status,
-            allowed,
-            hotel: raw.hotel,
-            order: {
-              ...raw.order,
-              nights: Number(raw.order.nights) || 0,
-            } as BookingResponse["order"],
-            rooms,
-            total_price: raw.total_price,
-            payment: raw.payment,
-          };
+          const normalized = normalizeBookingByUuidPayload(response.payload);
           setBookingByUuid(normalized);
           return normalized;
         }
@@ -907,8 +949,10 @@ export const useBookingStore = defineStore(
           "Произошла ошибка при загрузке бронирования";
         throw err;
       } finally {
-        isServerRequest.value = false;
-        setLoading(false);
+        if (!silent) {
+          isServerRequest.value = false;
+          setLoading(false);
+        }
       }
 
       error.value = apiError!.message;
@@ -926,22 +970,37 @@ export const useBookingStore = defineStore(
       try {
         const { post } = useApi();
 
-        const multiRoomsEntries = Object.values(selectedMultiRooms.value);
-        const isMultiRoom = multiRoomsEntries.length > 0;
+        const sortedMulti = getSortedMultiRoomEntries(selectedMultiRooms.value);
+        const isMultiRoom = sortedMulti.length > 0;
 
-        // Для мультибронирования: запрос по одному номеру (по индексу вкладки)
-        const effectiveRoomIndex = isMultiRoom ? (roomIndex ?? 0) : undefined;
+        // Для мультибронирования: roomIndex здесь — логический индекс номера (entry.roomIdx / guests.roomList index).
+        // Ищем запись по совпадению roomIdx (устойчиво к порядку ключей), с fallback на позицию для совместимости.
+        let effectiveRoomIndex: number | undefined = undefined;
+        let targetEntry: (typeof sortedMulti)[number] | undefined = undefined;
+
+        if (isMultiRoom) {
+          effectiveRoomIndex = roomIndex ?? 0;
+          targetEntry = sortedMulti.find(
+            (e) => e.roomIdx === effectiveRoomIndex,
+          );
+          if (
+            !targetEntry &&
+            effectiveRoomIndex != null &&
+            effectiveRoomIndex < sortedMulti.length
+          ) {
+            targetEntry = sortedMulti[effectiveRoomIndex];
+          }
+        }
         let roomTypeCode: string | undefined;
         let ratePlanCode: string | undefined;
 
-        if (isMultiRoom) {
-          const entry = multiRoomsEntries[effectiveRoomIndex!];
+        if (isMultiRoom && targetEntry) {
           roomTypeCode =
-            entry?.room_type_code?.trim() !== ""
-              ? entry?.room_type_code
+            targetEntry.room_type_code?.trim() !== ""
+              ? targetEntry.room_type_code
               : undefined;
-          ratePlanCode = entry?.ratePlanCode;
-        } else {
+          ratePlanCode = targetEntry.ratePlanCode;
+        } else if (!isMultiRoom) {
           const code = selectedRoomType.value;
           roomTypeCode = code && code.trim() !== "" ? code : undefined;
           ratePlanCode = selectedTariff.value?.rate_plan_code;
@@ -1004,6 +1063,8 @@ export const useBookingStore = defineStore(
       currentBookingDetails.value = null;
       selectedMultiRooms.value = {};
       changeRoomUuid.value = null;
+      changeServicesUuid.value = null;
+      multiBookingUnavailableRooms.value = [];
       setLoading(false);
       isServerRequest.value = false;
       // deliberately preserve persisted state (e.g., userProfiles)
@@ -1039,6 +1100,8 @@ export const useBookingStore = defineStore(
       removeService,
       isServiceSelected,
       getSelectedServicesForRoom,
+      setSelectedServicesByRoom,
+      setRoomTariffs,
       createdBooking,
       bookingsByUuid,
       currentBookingUuid,
@@ -1051,12 +1114,17 @@ export const useBookingStore = defineStore(
       selectedMultiRooms,
       setSelectedMultiRooms,
       changeRoomUuid,
+      changeServicesUuid,
       setServerRequest,
       setGuests,
       setSearchResults,
       setSelectedTariff,
       setDate,
       setChangeRoomUuid,
+      setChangeServicesUuid,
+      multiBookingUnavailableRooms,
+      setMultiBookingUnavailableRooms,
+      clearMultiBookingUnavailableRooms,
     };
   },
   {

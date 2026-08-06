@@ -2,9 +2,12 @@ import { useBookingStore } from "~/stores/booking";
 import { useAuthStore } from "~/stores/auth";
 import { storeToRefs } from "pinia";
 import type { ComputedRef } from "vue";
-import type { ContactFormData } from "~/types/booking";
-import { buildBookingContactFallback } from "~/utils/bookingFallback";
 import { pickNumber, pickString } from "~/utils/pick";
+import type { ContactFormData } from "~/types/booking";
+import {
+  buildContactUpdateGuest,
+  mapBookingUpdateRooms,
+} from "~/utils/bookingChangeRequest";
 
 type ChangeBookingResponse = {
   success: boolean;
@@ -67,10 +70,6 @@ export const useBookingChangeContacts = (
     isChangeContactsPopupOpen.value = false;
   };
 
-  function buildContactFormFromBooking(): ContactFormData {
-    return buildBookingContactFallback(createdBooking.value, authStore.user);
-  }
-
   const confirmChangeContacts = async () => {
     const uuid = currentBookingUuid.value;
     if (!uuid) {
@@ -99,14 +98,6 @@ export const useBookingChangeContacts = (
       };
 
       const order = createdBooking.value?.order;
-      const startAtRaw =
-        typeof order?.start_at === "string" ? order.start_at : "";
-      const endAtRaw = typeof order?.end_at === "string" ? order.end_at : "";
-      const startAt = startAtRaw.slice(0, 10);
-      const endAt = endAtRaw.slice(0, 10);
-      if (!startAt || !endAt) {
-        throw new Error("Не удалось определить даты текущего бронирования.");
-      }
       const roomsRaw = Array.isArray(createdBooking.value?.rooms)
         ? createdBooking.value.rooms
         : [];
@@ -115,74 +106,26 @@ export const useBookingChangeContacts = (
           "Не удалось определить состав бронирования. Обновите страницу.",
         );
       }
-      const rooms = roomsRaw.map((roomRaw, roomIndex) => {
-        const room = roomRaw as Record<string, unknown>;
-        const roomPackages = (Array.isArray(room.packages) ? room.packages : [])
-          .map((pkg) => pickString(pkg))
-          .filter((pkg): pkg is string => pkg !== null);
-        const childrenAges = (
-          Array.isArray(room.children_ages) ? room.children_ages : []
-        )
-          .map((age) => pickNumber(age))
-          .filter((age): age is number => age !== null);
+      const orderNationality =
+        pickString(order?.nationality) ?? f.country.trim();
+
+      const rooms = mapBookingUpdateRooms(roomsRaw, (room) => {
         const guestsRaw = Array.isArray(room.guests) ? room.guests : [];
-        const guests =
-          guestsRaw.length > 0
-            ? guestsRaw.map((guestRaw, guestIndex) => {
-                const guest = guestRaw as Record<string, unknown>;
-                const shouldUpdateGuest = roomIndex === 0 && guestIndex === 0;
-                return {
-                  id: pickNumber(guest.id),
-                  surname: shouldUpdateGuest
-                    ? contacts.surname
-                    : (pickString(guest.surname) ?? ""),
-                  name: shouldUpdateGuest
-                    ? contacts.name
-                    : (pickString(guest.name) ?? ""),
-                  middle_name: shouldUpdateGuest
-                    ? contacts.middle_name || null
-                    : pickString(guest.middle_name),
-                  phone: shouldUpdateGuest
-                    ? contacts.phone
-                    : (pickString(guest.phone) ?? ""),
-                  email: shouldUpdateGuest
-                    ? contacts.email
-                    : (pickString(guest.email) ?? ""),
-                };
-              })
-            : [
-                {
-                  id: null,
-                  surname: contacts.surname,
-                  name: contacts.name,
-                  middle_name: contacts.middle_name || null,
-                  phone: contacts.phone,
-                  email: contacts.email,
-                },
-              ];
+        const mainGuestRaw = guestsRaw[0] as
+          | Record<string, unknown>
+          | undefined;
+        const guestId = mainGuestRaw ? pickNumber(mainGuestRaw.id) : null;
 
         return {
-          booking_id: pickNumber(room.id),
-          room_type_code: pickString(room.room_type_code) ?? "",
-          rate_plan_code:
-            pickString(room.rate_plan_code) ??
-            pickString(room.rate_type_code) ??
-            "",
-          adults: pickNumber(room.adults) ?? 1,
-          children: pickNumber(room.children) ?? 0,
-          children_ages: childrenAges,
-          packages: roomPackages,
-          guests,
+          guests: [
+            buildContactUpdateGuest(guestId, contacts, orderNationality),
+          ],
         };
       });
 
       const response = (await put<unknown>(
         `/v1/booking/${uuid}`,
-        {
-          start_at: startAt,
-          end_at: endAt,
-          rooms,
-        },
+        { rooms },
         {
           signal: AbortSignal.timeout(15000),
         },
@@ -210,7 +153,6 @@ export const useBookingChangeContacts = (
     changeContactsSuccess,
     contactForm,
     canSubmitContactChange,
-    buildContactFormFromBooking,
     openChangeContactsPopup,
     closeChangeContactsPopup,
     confirmChangeContacts,

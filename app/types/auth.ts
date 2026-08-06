@@ -13,6 +13,10 @@ export interface RegisterResponse {
   accessToken: string;
 }
 
+export interface RefreshTokenResponse {
+  accessToken: string;
+}
+
 export interface LoginResponse {
   accessToken: string;
   user?: {
@@ -22,6 +26,17 @@ export interface LoginResponse {
     phone?: string;
     country?: string;
   };
+}
+
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ResetPasswordRequest {
+  email: string;
+  token: string;
+  password: string;
+  password_confirmation: string;
 }
 
 export interface AuthResponse {
