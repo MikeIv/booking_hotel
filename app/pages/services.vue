@@ -1,289 +1,315 @@
-﻿<script setup lang="ts">
-  import { useBookingStore } from "~/stores/booking";
-  import { useNotificationToast } from "~/composables/useToast";
-  import type { Room, RoomTariff } from "~/types/room";
-  import type { SelectedEntry } from "~/types/booking";
+<script setup lang="ts">
+import { useBookingStore } from "~/stores/booking";
+import { useNotificationToast } from "~/composables/useToast";
+import type { Room, RoomTariff } from "~/types/room";
+import type { SelectedEntry } from "~/types/booking";
+import { toPricePerNight, toStayTotal } from "~/utils/price";
+import { buildSelectedEntry } from "~/utils/selectedEntry";
+import { getSortedMultiRoomEntries } from "~/utils/multiBooking";
 
-  definePageMeta({
-    layout: "steps",
-  });
+definePageMeta({
+  layout: "steps",
+});
 
-  const router = useRouter();
-  const toast = useNotificationToast();
-  const bookingStore = useBookingStore();
-  const {
-    selectedRoomType,
-    selectedTariff: selectedTariffStore,
-    roomTariffs,
-    date,
-    selectedServices,
-    packages,
-    isServerRequest,
-    selectedMultiRooms,
-    guests,
-  } = storeToRefs(bookingStore);
+const router = useRouter();
+const toast = useNotificationToast();
+const bookingStore = useBookingStore();
+const {
+  selectedRoomType,
+  selectedTariff: selectedTariffStore,
+  roomTariffs,
+  date,
+  selectedServices,
+  packages,
+  isServerRequest,
+  selectedMultiRooms,
+  guests,
+} = storeToRefs(bookingStore);
 
-  const guestsCount = computed(() => {
-    const list = guests.value?.roomList ?? [];
-    return list.reduce((sum, room) => sum + (room?.adults ?? 0), 0) || 1;
-  });
+const guestsCount = computed(() => {
+  const list = guests.value?.roomList ?? [];
+  return list.reduce((sum, room) => sum + (room?.adults ?? 0), 0) || 1;
+});
 
-  // --- Баннеры ---
-  const { getBannersByVisibility } = useBanners();
-  const servicesBanners = computed(() => getBannersByVisibility("booking"));
+// --- Баннеры ---
+const { getBannersByVisibility } = useBanners();
+const servicesBanners = computed(() => getBannersByVisibility("booking"));
 
-  // --- Режим multi-rooms ---
-  const isMultiRoomsMode = computed(
-    () => Object.keys(selectedMultiRooms.value).length > 0,
+// --- Режим multi-rooms ---
+const isMultiRoomsMode = computed(
+  () => Object.keys(selectedMultiRooms.value).length > 0,
+);
+
+// --- Выбранный номер / тариф ---
+const selectedRoom = computed<Room | null>(() => {
+  if (isMultiRoomsMode.value) return null;
+  if (!roomTariffs.value?.length) return null;
+  return (
+    roomTariffs.value.find(
+      (room) => room.room_type_code === selectedRoomType.value,
+    ) ||
+    roomTariffs.value[0] ||
+    null
   );
+});
 
-  // --- Выбранный номер / тариф ---
-  const selectedRoom = computed<Room | null>(() => {
-    if (isMultiRoomsMode.value) return null;
-    if (!roomTariffs.value?.length) return null;
-    return (
-      roomTariffs.value.find(
-        (room) => room.room_type_code === selectedRoomType.value,
-      ) || roomTariffs.value[0] || null
-    );
+const selectedTariff = computed<RoomTariff | null>(() => {
+  if (isMultiRoomsMode.value) return null;
+  if (selectedTariffStore?.value) return selectedTariffStore.value;
+  if (!selectedRoom.value?.tariffs?.length) return null;
+  return selectedRoom.value.tariffs[0] || null;
+});
+
+// --- Ночи и итоговая стоимость ---
+const nights = useNights(date);
+
+// --- Выбранная запись для сводки ---
+const selectedEntry = computed<SelectedEntry | null>(() => {
+  if (isMultiRoomsMode.value) return null;
+  if (!selectedRoom.value || !selectedTariff.value) return null;
+  return buildSelectedEntry({
+    room: selectedRoom.value,
+    ratePlanCode: selectedTariff.value.rate_plan_code,
+    tariffTitle: selectedTariff.value.title || "",
+    pricePerNight: toPricePerNight(selectedTariff.value.price, nights.value),
   });
+});
 
-  const selectedTariff = computed<RoomTariff | null>(() => {
-    if (isMultiRoomsMode.value) return null;
-    if (selectedTariffStore?.value) return selectedTariffStore.value;
-    if (!selectedRoom.value?.tariffs?.length) return null;
-    return selectedRoom.value.tariffs[0] || null;
-  });
-
-  // --- Ночи и итоговая стоимость ---
-  const nights = useNights(date);
-
-  const bookingTotal = computed(() => {
-    if (isMultiRoomsMode.value) {
-      const roomsTotal = Object.values(selectedMultiRooms.value).reduce(
-        (sum, e) => sum + (e.price || 0) * nights.value,
-        0,
-      );
-      const roomIndices = Object.keys(selectedMultiRooms.value).map(Number);
-      const servicesTotal = roomIndices.reduce(
-        (sum, idx) =>
-          sum +
-          bookingStore.getSelectedServicesForRoom(idx).reduce(
-            (s, svc) => s + svc.price,
-            0,
-          ),
-        0,
-      );
-      return roomsTotal + servicesTotal;
-    }
-
-    const servicesTotal = selectedServices.value.reduce(
-      (sum, s) => sum + s.price,
+const bookingTotal = computed(() => {
+  if (isMultiRoomsMode.value) {
+    const roomsTotal = Object.values(selectedMultiRooms.value).reduce(
+      (sum, e) => sum + toStayTotal(e.price, nights.value),
       0,
     );
-    if (!selectedTariff.value?.price) return 0;
-    return selectedTariff.value.price * nights.value + servicesTotal;
-  });
+    const servicesTotal = Object.values(selectedMultiRooms.value).reduce(
+      (sum, entry) =>
+        sum +
+        bookingStore
+          .getSelectedServicesForRoom(entry.roomIdx)
+          .reduce((s, svc) => s + svc.price, 0),
+      0,
+    );
+    return roomsTotal + servicesTotal;
+  }
 
-  // --- Выбранная запись для сводки ---
-  const selectedEntry = computed<SelectedEntry | null>(() => {
-    if (isMultiRoomsMode.value) return null;
-    if (!selectedRoom.value || !selectedTariff.value) return null;
-    return {
-      roomIdx: 0,
-      roomCardIdx: 0,
-      roomTitle: selectedRoom.value.title || "",
-      room_type_code: selectedRoom.value.room_type_code,
-      ratePlanCode: selectedTariff.value.rate_plan_code,
-      price: selectedTariff.value.price,
-      title: selectedTariff.value.title || "",
-    };
-  });
-
-  const selectedByRoomIdx = computed<Record<string, SelectedEntry>>(() => {
-    if (isMultiRoomsMode.value) return selectedMultiRooms.value;
-    const entry = selectedEntry.value;
-    if (!entry) return {};
-    return { 0: entry };
-  });
-
-  // --- Преобразование пакетов в формат ServiceCard ---
-  const hashStringToNumber = (str: string): number => {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-      const char = str.charCodeAt(i);
-      hash = (hash << 5) - hash + char;
-      hash = hash & hash;
-    }
-    return Math.abs(hash);
-  };
-
-  const services = computed(() =>
-    packages.value.map((pkg) => ({
-      id: hashStringToNumber(pkg.package_code),
-      packageCode: pkg.package_code,
-      title: pkg.title,
-      price: Number(pkg.price) || 0,
-      description: pkg.description,
-      photos: pkg.photos,
-      calculationRateTitle: pkg.calculation_rate_title,
-    })),
+  const servicesTotal = selectedServices.value.reduce(
+    (sum, s) => sum + s.price,
+    0,
   );
+  if (!selectedEntry.value?.price) return 0;
+  return toStayTotal(selectedEntry.value.price, nights.value) + servicesTotal;
+});
 
-  // --- Popup текущего номера ---
-  const isPopupOpen = ref(false);
-  const expandedRoom = ref(false);
+const selectedByRoomIdx = computed<Record<string, SelectedEntry>>(() => {
+  if (isMultiRoomsMode.value) return selectedMultiRooms.value;
+  const entry = selectedEntry.value;
+  if (!entry) return {};
+  return { 0: entry };
+});
 
-  const openPopup = (event: MouseEvent) => {
-    event.stopPropagation();
-    isPopupOpen.value = true;
-  };
-  const closePopup = () => {
-    isPopupOpen.value = false;
-  };
-  const toggleExpand = () => {
-    expandedRoom.value = !expandedRoom.value;
-  };
+// --- Преобразование пакетов в формат ServiceCard ---
+const hashStringToNumber = (str: string): number => {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    const char = str.charCodeAt(i);
+    hash = (hash << 5) - hash + char;
+    hash = hash & hash;
+  }
+  return Math.abs(hash);
+};
 
-  // --- Upgrade-номер (composable) ---
-  const upgrade = useUpgradeRoom({ selectedRoom, selectedTariff, isMultiRoomsMode });
-  const {
-    upgradeRoomLoading,
-    isUpgradePopupOpen,
-    isCompareModalOpen,
-    expandedUpgradeRoom,
-    upgradeRooms,
-    upgradeAdditionalPerNight,
-    nights: upgradeNights,
-    setSelectedUpgradeBedId,
-    openUpgradePopup,
-    closeUpgradePopup,
-    closeCompareModal,
-    toggleUpgradeExpand,
-    onCompareRooms,
-    fetchUpgradeRoom,
-  } = upgrade;
-  // Реактивная ссылка без DeepReadonly (Vue template checker issue)
-  const upgradeRoom = computed<Room | null>(() => upgrade.upgradeRoom.value);
+const services = computed(() =>
+  packages.value.map((pkg) => ({
+    id: hashStringToNumber(pkg.package_code),
+    packageCode: pkg.package_code,
+    title: pkg.title,
+    price: Number(pkg.price) || 0,
+    description: pkg.description,
+    photos: pkg.photos,
+    calculationRateTitle: pkg.calculation_rate_title,
+    calculationRateUnit: pkg.calculation_rate_unit ?? undefined,
+    calculationRateIcon: pkg.calculation_rate_icon ?? undefined,
+  })),
+);
 
-  const upgradeSelectedTariffPrice = computed<number | null>(() => {
-    if (!upgradeRoom.value || !selectedTariff.value) return null;
+// --- Popup текущего номера ---
+const isPopupOpen = ref(false);
+const expandedRoom = ref(false);
 
-    const targetRatePlanCode = selectedTariff.value.rate_plan_code;
-    const tariff =
-      upgradeRoom.value.tariffs?.find(
-        (t) => t.rate_plan_code === targetRatePlanCode,
-      ) ?? upgradeRoom.value.tariffs?.[0];
+const openPopup = (event: MouseEvent) => {
+  event.stopPropagation();
+  isPopupOpen.value = true;
+};
+const closePopup = () => {
+  isPopupOpen.value = false;
+};
+const toggleExpand = () => {
+  expandedRoom.value = !expandedRoom.value;
+};
 
-    return tariff?.price ?? upgradeRoom.value.min_price ?? null;
-  });
+// --- Upgrade-номер (composable) ---
+const upgrade = useUpgradeRoom({
+  selectedRoom,
+  selectedTariff,
+  isMultiRoomsMode,
+});
+const {
+  upgradeRoomLoading,
+  isUpgradePopupOpen,
+  isCompareModalOpen,
+  expandedUpgradeRoom,
+  upgradeRooms,
+  upgradeAdditionalPerNight,
+  nights: upgradeNights,
+  setSelectedUpgradeBedId,
+  openUpgradePopup,
+  closeUpgradePopup,
+  closeCompareModal,
+  toggleUpgradeExpand,
+  onCompareRooms,
+  fetchUpgradeRoom,
+} = upgrade;
+// Реактивная ссылка без DeepReadonly (Vue template checker issue)
+const upgradeRoom = computed<Room | null>(() => upgrade.upgradeRoom.value);
 
-  // --- Табы номеров при мультибронировании ---
-  const multiRoomTabIndices = computed(() => {
-    const keys = Object.keys(selectedMultiRooms.value);
-    return keys.map((_, i) => i);
-  });
-  const activeRoomTab = ref(0);
-  watch(
-    () => multiRoomTabIndices.value.length,
-    (len, prevLen) => {
-      if (prevLen !== undefined && activeRoomTab.value >= len) {
-        activeRoomTab.value = Math.max(0, len - 1);
-      }
-    },
-  );
+const upgradeSelectedTariffPrice = computed<number | null>(() => {
+  if (!upgradeRoom.value || !selectedTariff.value) return null;
 
-  // При переключении вкладки номера — запрашиваем пакеты для этого номера
-  watch(activeRoomTab, async (tabIndex) => {
-    if (!isMultiRoomsMode.value) return;
-    try {
-      await bookingStore.searchPackages(tabIndex);
-    } catch (err: unknown) {
-      toast.add({
-        severity: "error",
-        summary: "Ошибка",
-        detail: (err as Error).message || "Не удалось загрузить услуги",
-        life: 5000,
-      });
+  const targetRatePlanCode = selectedTariff.value.rate_plan_code;
+  const tariff =
+    upgradeRoom.value.tariffs?.find(
+      (t) => t.rate_plan_code === targetRatePlanCode,
+    ) ?? upgradeRoom.value.tariffs?.[0];
+
+  return tariff?.price ?? upgradeRoom.value.min_price ?? null;
+});
+
+// --- Табы номеров при мультибронировании (используем логические roomIdx из SelectedEntry) ---
+const multiRoomEntriesSorted = computed(() =>
+  getSortedMultiRoomEntries(selectedMultiRooms.value),
+);
+const multiRoomTabIndices = computed(() =>
+  multiRoomEntriesSorted.value.map((_, i) => i),
+);
+const activeRoomTab = ref(0);
+watch(
+  () => multiRoomTabIndices.value.length,
+  (len, prevLen) => {
+    if (prevLen !== undefined && activeRoomTab.value >= len) {
+      activeRoomTab.value = Math.max(0, len - 1);
     }
-  });
+  },
+);
 
-  const onUpgradeRoom = () => {
-    if (!upgradeRoom.value) return;
-    bookingStore.applyUpgradeRoom(upgradeRoom.value);
+const currentActiveRoomIdx = computed<number>(() => {
+  return multiRoomEntriesSorted.value[activeRoomTab.value]?.roomIdx ?? 0;
+});
+
+// При переключении вкладки номера — запрашиваем пакеты для этого номера (по логическому roomIdx)
+watch(activeRoomTab, async (tabIndex) => {
+  if (!isMultiRoomsMode.value) return;
+  const roomIdx = multiRoomEntriesSorted.value[tabIndex]?.roomIdx ?? tabIndex;
+  try {
+    await bookingStore.searchPackages(roomIdx);
+  } catch (err: unknown) {
     toast.add({
-      severity: "success",
-      summary: "Номер улучшен",
-      detail: "Выбран номер повышенного комфорта.",
-      life: 3000,
+      severity: "error",
+      summary: "Ошибка",
+      detail: (err as Error).message || "Не удалось загрузить услуги",
+      life: 5000,
     });
-  };
+  }
+});
 
-  /** Показывать блок «Повысить комфорт» только пока выбран базовый номер (не улучшенный) */
-  const showUpgradeBlock = computed(
-    () =>
-      !isMultiRoomsMode.value &&
-      (upgradeRoomLoading.value || !!upgradeRoom.value) &&
-      selectedRoom.value?.room_type_code !== upgradeRoom.value?.room_type_code,
-  );
-
-  const handleContinue = () => {
-    router.push("/personal");
-  };
-
-  // --- Инициализация ---
-  onMounted(async () => {
-    if (isMultiRoomsMode.value) {
-      if (Object.keys(selectedMultiRooms.value).length === 0) {
-        toast.add({
-          severity: "warn",
-          summary: "Ошибка",
-          detail: "Номера не выбраны",
-          life: 3000,
-        });
-        await router.push("/multi-rooms");
-        return;
-      }
-    } else {
-      if (!selectedRoom.value) {
-        toast.add({
-          severity: "warn",
-          summary: "Ошибка",
-          detail: "Номер не выбран",
-          life: 3000,
-        });
-        await router.push("/rooms");
-        return;
-      }
-      if (!selectedTariff.value) {
-        toast.add({
-          severity: "warn",
-          summary: "Ошибка",
-          detail: "Тариф не выбран",
-          life: 3000,
-        });
-        await router.push("/rooms");
-        return;
-      }
-    }
-
-    // Загружаем услуги: при мультибронировании — только для первого номера
-    try {
-      await bookingStore.searchPackages(isMultiRoomsMode.value ? 0 : undefined);
-    } catch (err: unknown) {
-      toast.add({
-        severity: "error",
-        summary: "Ошибка",
-        detail: (err as Error).message || "Не удалось загрузить услуги",
-        life: 5000,
-      });
-    }
-
-    // Загружаем upgrade-номер (только для одного номера)
-    if (!isMultiRoomsMode.value && selectedRoom.value) {
-      await fetchUpgradeRoom();
-    }
+const onUpgradeRoom = () => {
+  if (!upgradeRoom.value) return;
+  bookingStore.applyUpgradeRoom(upgradeRoom.value);
+  toast.add({
+    severity: "success",
+    summary: "Номер улучшен",
+    detail: "Выбран номер повышенного комфорта.",
+    life: 3000,
   });
+};
+
+/** Показывать блок «Повысить комфорт» только пока выбран базовый номер (не улучшенный) */
+const showUpgradeBlock = computed(
+  () =>
+    !bookingStore.changeServicesUuid &&
+    !isMultiRoomsMode.value &&
+    (upgradeRoomLoading.value || !!upgradeRoom.value) &&
+    selectedRoom.value?.room_type_code !== upgradeRoom.value?.room_type_code,
+);
+
+const handleContinue = async () => {
+  if (bookingStore.changeServicesUuid) {
+    await router.push(`/confirmation?uuid=${bookingStore.changeServicesUuid}`);
+    return;
+  }
+
+  await router.push("/personal");
+};
+
+// --- Инициализация ---
+onMounted(async () => {
+  if (isMultiRoomsMode.value) {
+    if (Object.keys(selectedMultiRooms.value).length === 0) {
+      toast.add({
+        severity: "warn",
+        summary: "Ошибка",
+        detail: "Номера не выбраны",
+        life: 3000,
+      });
+      await router.push("/multi-rooms");
+      return;
+    }
+  } else {
+    if (!selectedRoom.value) {
+      toast.add({
+        severity: "warn",
+        summary: "Ошибка",
+        detail: "Номер не выбран",
+        life: 3000,
+      });
+      await router.push("/rooms");
+      return;
+    }
+    if (!selectedTariff.value) {
+      toast.add({
+        severity: "warn",
+        summary: "Ошибка",
+        detail: "Тариф не выбран",
+        life: 3000,
+      });
+      await router.push("/rooms");
+      return;
+    }
+  }
+
+  // Загружаем услуги: при мультибронировании — для первого выбранного номера (по его логическому roomIdx)
+  try {
+    const firstRoomIdx = isMultiRoomsMode.value
+      ? (multiRoomEntriesSorted.value[0]?.roomIdx ?? 0)
+      : undefined;
+    await bookingStore.searchPackages(firstRoomIdx);
+  } catch (err: unknown) {
+    toast.add({
+      severity: "error",
+      summary: "Ошибка",
+      detail: (err as Error).message || "Не удалось загрузить услуги",
+      life: 5000,
+    });
+  }
+
+  // Загружаем upgrade-номер (только для одного номера)
+  if (
+    !isMultiRoomsMode.value &&
+    selectedRoom.value &&
+    !bookingStore.changeServicesUuid
+  ) {
+    await fetchUpgradeRoom();
+  }
+});
 </script>
 
 <template>
@@ -365,7 +391,10 @@
                 :class="[$style.roomTab, activeRoomTab === tabIndex && $style.roomTabActive]"
                 @click="activeRoomTab = tabIndex"
               >
-                Номер {{ tabIndex + 1 }}
+                Номер
+                {{
+                  (multiRoomEntriesSorted[tabIndex]?.roomIdx ?? tabIndex) + 1
+                }}
               </button>
             </div>
             <h2 v-else :class="$style.servicesListTitle">Дополнительные услуги</h2>
@@ -375,17 +404,21 @@
             <div v-else-if="services.length === 0" :class="$style.noServices">
               Услуги не найдены
             </div>
-            <BookingServiceCard
-              v-for="service in services"
-              v-else
-              :id="service.id"
-              :key="service.packageCode"
-              :title="service.title"
-              :price="service.price"
-              :package-code="service.packageCode"
-              :photos="service.photos"
-              :room-index="isMultiRoomsMode ? activeRoomTab : 0"
-            />
+            <template v-else>
+              <BookingServiceCard
+                v-for="service in services"
+                :id="service.id"
+                :key="service.packageCode"
+                :title="service.title"
+                :price="service.price"
+                :package-code="service.packageCode"
+                :photos="service.photos"
+                :calculation-rate-title="service.calculationRateTitle"
+                :calculation-rate-unit="service.calculationRateUnit"
+                :calculation-rate-icon="service.calculationRateIcon"
+                :room-index="isMultiRoomsMode ? currentActiveRoomIdx : 0"
+              />
+            </template>
           </section>
         </div>
 

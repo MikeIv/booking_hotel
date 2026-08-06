@@ -8,6 +8,8 @@
     title?: string;
     price?: number;
     images?: string[];
+    calculationRateUnit?: string;
+    calculationRateIcon?: string;
     // Старый формат (для других компонентов)
     service?: PackageResource;
     isOpen: boolean;
@@ -21,8 +23,6 @@
   };
 
   const handleSelectService = () => {
-    // Логика выбора услуги
-    console.log("Выбрать услугу:", serviceTitle.value);
     closePopup();
   };
 
@@ -44,6 +44,20 @@
   const serviceImages = computed(() => {
     return props.images || props.service?.photos || [];
   });
+
+  const calculationRateUnit = computed(
+    () =>
+      props.calculationRateUnit ??
+      props.service?.calculation_rate_unit ??
+      "",
+  );
+
+  const rateIconName = computed(() =>
+    (props.calculationRateIcon ?? props.service?.calculation_rate_icon) ===
+    "vehicle"
+      ? "i-vehicle"
+      : "i-persons",
+  );
 
   const serviceDescriptionText = computed(() => {
     // Если есть описание из service, используем его
@@ -117,12 +131,12 @@
 
           <!-- Правая колонка - информация из карточки -->
           <div :class="$style.infoColumn">
-            <dl :class="$style.infoList">
+            <dl v-if="calculationRateUnit" :class="$style.infoList">
               <div :class="$style.item">
                 <dt :class="$style.itemTerm">
-                  <UIcon name="i-persons" :class="$style.icon" aria-hidden="true" />
+                  <UIcon :name="rateIconName" :class="$style.icon" aria-hidden="true" />
                 </dt>
-                <dd :class="$style.itemTitle">За всех гостей однократно</dd>
+                <dd :class="$style.itemTitle">{{ calculationRateUnit }}</dd>
               </div>
             </dl>
 
