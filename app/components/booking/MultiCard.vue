@@ -2,6 +2,11 @@
   import type { Room, RoomTariff, PackageResource } from "~/types/room";
   import { formatCount } from "~/utils/declension";
   import { useBookingStore } from "~/stores/booking";
+  import { toPricePerNight } from "~/utils/price";
+  import {
+    getTariffStayTotalForRoom,
+    getTariffRoomIndices,
+  } from "~/utils/multiBooking";
 
   interface Props {
     room: Room;
@@ -163,11 +168,12 @@
     return { adults: 0, children: 0, childrenAges: [] };
   };
 
-  const getTotalPrice = (pricePerNight: number | null | undefined): number => {
-    const price = pricePerNight || 0;
-    const nights = calculateNights();
-    return price * nights;
-  };
+  const getAveragePricePerNight = (
+    stayTotal: number | null | undefined,
+  ): number => toPricePerNight(stayTotal, calculateNights());
+
+  const getStayTotal = (stayTotal: number | null | undefined): number =>
+    stayTotal || 0;
 
   const checkInDate = computed(() => date.value?.[0] || null);
   const checkOutDate = computed(() => date.value?.[1] || null);
@@ -317,43 +323,45 @@
                 <span :class="$style.averagePriceLabel">Средняя стоимость за 1 ночь</span>
               </div>
               <div
-                v-for="idx in roomsCount"
-                :key="idx"
+                v-for="roomIndex in getTariffRoomIndices(tar, roomsCount)"
+                :key="roomIndex"
                 :class="$style.confirmItem"
               >
                 <div :class="$style.confirmLeft">
                   <div :class="$style.confirmText">
-                    <div :class="$style.confirmTitle">Номер {{ idx }}</div>
+                    <div :class="$style.confirmTitle">Номер {{ roomIndex + 1 }}</div>
                     <div :class="$style.confirmPriceWrapper">
                       <div :class="$style.confirmGuestsIcons">
                         <UIcon
-                          v-for="n in getRoomGuests(idx - 1).adults"
-                          :key="`adult-${idx}-${n}`"
+                          v-for="n in getRoomGuests(roomIndex).adults"
+                          :key="`adult-${roomIndex}-${n}`"
                           name="i-icon-man"
                           :class="$style.confirmGuestIconAdult"
                           aria-hidden="true"
                         />
                         <UIcon
-                          v-if="getRoomGuests(idx - 1).children > 0"
+                          v-if="getRoomGuests(roomIndex).children > 0"
                           name="i-icon-plus-person"
                           :class="$style.confirmGuestIconPlus"
                           aria-hidden="true"
                         />
                         <UIcon
-                          v-for="n in getRoomGuests(idx - 1).children"
-                          :key="`child-${idx}-${n}`"
+                          v-for="n in getRoomGuests(roomIndex).children"
+                          :key="`child-${roomIndex}-${n}`"
                           name="i-icon-child"
                           :class="$style.confirmGuestIconChild"
                           aria-hidden="true"
                         />
                       </div>
-                      <div :class="$style.confirmPrice">{{ tar.price?.toLocaleString("ru-RU") || 0 }} ₽</div>
+                      <div :class="$style.confirmPrice">
+                        {{ getAveragePricePerNight(getTariffStayTotalForRoom(tar, roomIndex)).toLocaleString("ru-RU") }} ₽
+                      </div>
                     </div>
                   </div>
                   <BookingInfoButtonWithPopover
-                    :popover-id="`${idx - 1}-${tar.rate_plan_code}`"
+                    :popover-id="`${roomIndex}-${tar.rate_plan_code}`"
                     size="small"
-                    :aria-label="`Детализация цены для номера ${idx}`"
+                    :aria-label="`Детализация цены для номера ${roomIndex + 1}`"
                     popover-class="pricePopover"
                     popover-padding="16px"
                   >
@@ -369,26 +377,26 @@
                       <div :class="$style.priceDetailsGuests">
                         <div :class="$style.guestDetailRow">
                           <div
-                            v-if="getRoomGuests(idx - 1).adults > 0"
+                            v-if="getRoomGuests(roomIndex).adults > 0"
                             :class="$style.guestDetailItem"
                           >
                             {{
                               formatCount(
-                                getRoomGuests(idx - 1).adults,
+                                getRoomGuests(roomIndex).adults,
                                 "person",
                               )
                             }}
                             на основном месте -
-                            {{ tar.price?.toLocaleString("ru-RU") || 0 }} ₽ за
+                            {{ getAveragePricePerNight(getTariffStayTotalForRoom(tar, roomIndex)).toLocaleString("ru-RU") }} ₽ за
                             ночь
                           </div>
                           <div
-                            v-if="getRoomGuests(idx - 1).children > 0"
+                            v-if="getRoomGuests(roomIndex).children > 0"
                             :class="$style.guestDetailItem"
                           >
                             {{
                               formatCount(
-                                getRoomGuests(idx - 1).children,
+                                getRoomGuests(roomIndex).children,
                                 "person",
                               )
                             }}
@@ -400,7 +408,7 @@
                       <div :class="$style.priceDetailsTotal">
                         <span>Стоимость номера за весь период проживания</span>
                         <span :class="$style.priceDetailsTotalAmount">
-                          {{ getTotalPrice(tar.price).toLocaleString("ru-RU") }}
+                          {{ getStayTotal(getTariffStayTotalForRoom(tar, roomIndex)).toLocaleString("ru-RU") }}
                           ₽
                         </span>
                       </div>
@@ -413,12 +421,12 @@
                     unstyled
                     :class="[
                       $style.selectButton,
-                      isSelected(idx - 1, tar) && $style.selectButtonActive,
-                      isButtonDisabled(idx - 1, tar) && $style.selectButtonDisabled,
+                      isSelected(roomIndex, tar) && $style.selectButtonActive,
+                      isButtonDisabled(roomIndex, tar) && $style.selectButtonDisabled,
                     ]"
-                    :disabled="isButtonDisabled(idx - 1, tar)"
-                    @click="onSelectTariff(idx - 1, tar)"
-                    >{{ isSelected(idx - 1, tar) ? "Выбрано" : "Выбрать" }}</Button
+                    :disabled="isButtonDisabled(roomIndex, tar)"
+                    @click="onSelectTariff(roomIndex, tar)"
+                    >{{ isSelected(roomIndex, tar) ? "Выбрано" : "Выбрать" }}</Button
                   >
                 </div>
               </div>

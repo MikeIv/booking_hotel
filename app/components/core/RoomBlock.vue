@@ -10,11 +10,14 @@ interface Props {
   maxAdults?: number;
   /** Максимум детей в номере */
   maxChildren?: number;
+  /** Номер недоступен для выбранных условий (мультибронирование) */
+  unavailable?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   maxAdults: undefined,
   maxChildren: undefined,
+  unavailable: false,
 });
 const emit = defineEmits<{
   "update:adults": [value: number];
@@ -42,8 +45,10 @@ const roomTitle = computed(() =>
 
 <template>
   <div :class="$style.roomGroup">
-    <div :class="$style.roomTitle">
-      <span>{{ roomTitle }}</span>
+    <div :class="[$style.roomTitle, unavailable && $style.roomTitleUnavailable]">
+      <span>
+        {{ roomTitle }}<template v-if="unavailable"> — номер отсутствует</template>
+      </span>
       <Button
         v-if="totalRooms > 1"
         type="button"
@@ -126,6 +131,11 @@ const roomTitle = computed(() =>
     margin: 0 rem(-24) rem(12) rem(-24);
     padding: rem(6) rem(30) rem(6) rem(24);
   }
+}
+
+.roomTitleUnavailable {
+  background-color: var(--a-banner-warning-bg);
+  color: var(--a-text-error);
 }
 
 .deleteRoomButton {

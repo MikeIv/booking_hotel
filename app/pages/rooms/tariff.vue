@@ -265,6 +265,7 @@
             <!--            />-->
             <BookingTariffsList
               :tariffs="room.tariffs || []"
+              :tariff-groups="searchResults?.tariffGroups"
               @book-tariff="handleTariff"
             />
             <BookingRoomPopup

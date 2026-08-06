@@ -1,9 +1,11 @@
 <script setup lang="ts">
   // @ts-nocheck - Vue автоматически преобразует kebab-case в camelCase в шаблонах
-  import type { RoomTariff } from "~/types/room";
+  import type { RoomTariff, TariffGroup } from "~/types/room";
+  import { toPricePerNight } from "~/utils/price";
 
   interface Props {
     tariffs: RoomTariff[];
+    tariffGroups?: TariffGroup[];
   }
 
   const props = defineProps<Props>();
@@ -14,15 +16,39 @@
   const isPackagesSectionEnabled = false;
 
   const allTariffsFilterValue = "all";
-  const basicFilterValue = "basic";
-  const prepaidFilterValue = "prepaid";
-
   const selectedFilter = ref<string>(allTariffsFilterValue);
-  const filterTabs = [
+
+  const availableGroups = computed<TariffGroup[]>(() => {
+    if (props.tariffGroups?.length) {
+      return props.tariffGroups;
+    }
+
+    const groups = new Map<number, TariffGroup>();
+    for (const tariff of props.tariffs) {
+      if (tariff.group) {
+        groups.set(tariff.group.id, tariff.group);
+      }
+    }
+    return Array.from(groups.values());
+  });
+
+  const filterTabs = computed(() => [
     { label: "Все тарифы", value: allTariffsFilterValue },
-    { label: "Базовый", value: basicFilterValue },
-    { label: "Предоплатный", value: prepaidFilterValue },
-  ];
+    ...availableGroups.value.map((group) => ({
+      label: group.title,
+      value: String(group.id),
+    })),
+  ]);
+
+  watch(availableGroups, (groups) => {
+    if (selectedFilter.value === allTariffsFilterValue) return;
+    const stillExists = groups.some(
+      (group) => String(group.id) === selectedFilter.value,
+    );
+    if (!stillExists) {
+      selectedFilter.value = allTariffsFilterValue;
+    }
+  });
 
   /**
    * Состояние открытия/закрытия информационных блоков для каждого тарифа
@@ -54,29 +80,25 @@
   };
 
   /**
-   * Определяет тип тарифа на основе его свойств
-   * Предоплатный тариф обычно имеет price_for_register
-   */
-  const getTariffType = (tariff: RoomTariff): "basic" | "prepaid" => {
-    // Если есть price_for_register, считаем тариф предоплатным
-    // В противном случае - базовым
-    return tariff.price_for_register !== undefined ? "prepaid" : "basic";
-  };
-
-  /**
-   * Отфильтрованные тарифы на основе выбранного фильтра
+   * Отфильтрованные тарифы на основе выбранной группы API
    */
   const filteredTariffs = computed(() => {
     if (selectedFilter.value === allTariffsFilterValue) {
       return props.tariffs;
     }
-    return props.tariffs.filter(
-      (tariff) => getTariffType(tariff) === selectedFilter.value,
-    );
+    const groupId = Number(selectedFilter.value);
+    return props.tariffs.filter((tariff) => tariff.group?.id === groupId);
   });
 
   const route = useRoute();
   const currentPath = ref(route.path);
+
+  const bookingStore = useBookingStore();
+  const { date } = storeToRefs(bookingStore);
+  const nights = useNights(date);
+
+  const averagePricePerNight = (tariff: RoomTariff): number =>
+    toPricePerNight(tariff.price, nights.value);
 
   const handleBook = async (tariff: RoomTariff) => {
     loadingTariffs.value[tariff.rate_plan_code] = true;
@@ -166,10 +188,10 @@
             <div :class="$style.tariffPriceBlock">
               <data
                 :class="$style.tariffPrice"
-                :value="tariff.price"
+                :value="averagePricePerNight(tariff)"
                 itemprop="price"
               >
-                {{ tariff.price }} руб.
+                {{ averagePricePerNight(tariff).toLocaleString("ru-RU") }} руб.
               </data>
               <span :class="$style.tariffPriceLabel"
                 >Средняя стоимость за 1 ночь
@@ -238,10 +260,10 @@
             <footer :class="$style.tariffBookingSection">
               <data
                 :class="$style.tariffPrice"
-                :value="tariff.price"
+                :value="averagePricePerNight(tariff)"
                 itemprop="price"
               >
-                {{ tariff.price }} руб.
+                {{ averagePricePerNight(tariff).toLocaleString("ru-RU") }} руб.
               </data>
               <span :class="$style.tariffPriceLabel"
                 >Средняя стоимость за 1 ночь

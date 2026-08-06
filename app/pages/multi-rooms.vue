@@ -1,9 +1,18 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
   import { useBookingStore } from "~/stores/booking";
   import type { PackageResource } from "~/types/room";
   import type { SelectedEntry } from "~/types/booking";
+  import { toPricePerNight, toStayTotal } from "~/utils/price";
+  import { buildSelectedEntry } from "~/utils/selectedEntry";
   import { useNotificationToast } from "~/composables/useToast";
+  import { useRoomFilters } from "~/composables/useRoomFilters";
   import { formatCount } from "~/utils/declension";
+  import {
+    getExpectedRoomCount,
+    getTariffStayTotalForRoom,
+    getUnavailableRoomIndices,
+    MULTI_BOOKING_UNAVAILABLE_TOAST,
+  } from "~/utils/multiBooking";
   import UIPopup from "~/components/ui/Popup.vue";
 
   definePageMeta({
@@ -21,9 +30,22 @@
   const isServicePopupOpen = ref(false);
   const selectedService = ref<PackageResource | null>(null);
   const isWarningPopupOpen = ref(false);
+  const roomsUnavailable = ref(false);
 
-  const selectedView = ref<number | undefined>(undefined);
-  const selectedBalcony = ref<number | undefined>(undefined);
+  const searchFilters = computed(() => searchResults.value?.filters);
+  const {
+    selectedView,
+    selectedBalcony,
+    viewOptions,
+    balconyOptions,
+    filterRoomListWithIndex,
+  } = useRoomFilters(searchFilters);
+
+  const filteredRoomCards = computed(() =>
+    filterRoomListWithIndex(roomTariffs.value),
+  );
+
+  const nights = useNights(date);
 
   const selectedByRoomIdx = ref<Record<string, SelectedEntry>>({});
   const isInitialLoad = ref(true);
@@ -42,11 +64,11 @@
       room.tariffs?.find((t) => t.rate_plan_code === ratePlanCode) || null;
 
     // Используем составной ключ для уникальной идентификации номера в конкретной карточке
-    const key = roomCardIdx !== undefined 
-      ? `${roomCardIdx}-${roomIdx}` 
+    const key = roomCardIdx !== undefined
+      ? `${roomCardIdx}-${roomIdx}`
       : `${roomIdx}`;
     const already = selectedByRoomIdx.value[key];
-    
+
     if (!ratePlanCode || (already && already.ratePlanCode === ratePlanCode)) {
       Reflect.deleteProperty(selectedByRoomIdx.value, key);
       return;
@@ -54,11 +76,11 @@
 
     // Проверяем, не выбран ли уже этот номер (roomIdx) в другой карточке
     // Если выбран, запрещаем выбор
-    const isRoomIdxAlreadySelected = selectedRoomIndices.value.has(roomIdx) && 
+    const isRoomIdxAlreadySelected = selectedRoomIndices.value.has(roomIdx) &&
       Object.values(selectedByRoomIdx.value).some(
         (entry) => entry.roomIdx === roomIdx && entry.roomCardIdx !== cardIdx
       );
-    
+
     if (isRoomIdxAlreadySelected) {
       toast.add({
         severity: "warn",
@@ -70,15 +92,17 @@
     }
 
     if (tar && room.room_type_code && room.room_type_code.trim() !== "") {
-      selectedByRoomIdx.value[key] = {
+      const stayTotal = getTariffStayTotalForRoom(tar, roomIdx);
+      if (stayTotal === null) return;
+
+      selectedByRoomIdx.value[key] = buildSelectedEntry({
+        room,
+        ratePlanCode: tar.rate_plan_code,
+        tariffTitle: tar.title,
+        pricePerNight: toPricePerNight(stayTotal, nights.value),
         roomIdx,
         roomCardIdx: cardIdx,
-        roomTitle: room.title,
-        room_type_code: room.room_type_code,
-        ratePlanCode: tar.rate_plan_code,
-        price: tar.price,
-        title: tar.title,
-      };
+      });
     }
   }
 
@@ -113,18 +137,15 @@
     return selectedRoomsCount.value >= requiredRoomsCount.value;
   });
 
-  const nights = useNights(date);
-
   const bookingTotal = computed(() => {
-    const roomsTotal = Object.values(selectedByRoomIdx.value).reduce((sum, e) => {
-      const perNight = e.price || 0;
-      return sum + perNight * nights.value;
-    }, 0);
-    const roomIndices = Object.keys(selectedByRoomIdx.value).map(Number);
-    const servicesTotal = roomIndices.reduce(
-      (sum, idx) =>
+    const roomsTotal = Object.values(selectedByRoomIdx.value).reduce(
+      (sum, e) => sum + toStayTotal(e.price, nights.value),
+      0,
+    );
+    const servicesTotal = Object.values(selectedByRoomIdx.value).reduce(
+      (sum, entry) =>
         sum +
-        bookingStore.getSelectedServicesForRoom(idx).reduce(
+        bookingStore.getSelectedServicesForRoom(entry.roomIdx).reduce(
           (s, svc) => s + svc.price,
           0,
         ),
@@ -134,22 +155,6 @@
   });
 
   const dateValue = computed(() => date.value);
-
-  const viewOptions = computed(() => {
-    return [
-      { id: 1, title: "Парк" },
-      { id: 2, title: "Город" },
-      { id: 3, title: "Море" },
-      { id: 4, title: "Внутренний двор" },
-    ];
-  });
-
-  const balconyOptions = computed(() => {
-    return [
-      { id: 1, title: "Есть балкон" },
-      { id: 2, title: "Нет балкона" },
-    ];
-  });
 
   const openServicePopup = (event: MouseEvent, service: PackageResource) => {
     event.stopPropagation();
@@ -196,14 +201,12 @@
     if (selectedMultiRooms.value && Object.keys(selectedMultiRooms.value).length > 0) {
       selectedByRoomIdx.value = { ...selectedMultiRooms.value };
     }
-    
+
     // После загрузки данных разрешаем синхронизацию
     await nextTick();
     isInitialLoad.value = false;
 
-    const roomsCount = guests.value?.roomList
-      ? guests.value.roomList.length
-      : guests.value?.rooms || 1;
+    const roomsCount = getExpectedRoomCount(guests.value);
 
     const totalAdults = guests.value?.roomList
       ? guests.value.roomList.reduce((sum, r) => sum + r.adults, 0)
@@ -227,7 +230,21 @@
 
     try {
       loading.value = true;
-      await bookingStore.search();
+      if (!roomTariffs.value.length) {
+        await bookingStore.search();
+      }
+
+      const unavailable = getUnavailableRoomIndices(
+        roomTariffs.value,
+        roomsCount,
+      );
+      if (unavailable.length > 0) {
+        bookingStore.setMultiBookingUnavailableRooms(unavailable);
+        roomsUnavailable.value = true;
+        toast.add(MULTI_BOOKING_UNAVAILABLE_TOAST);
+        return;
+      }
+      bookingStore.clearMultiBookingUnavailableRooms();
     } catch (err: unknown) {
       error.value = err as Error;
       toast.add({
@@ -282,15 +299,22 @@
         <p>Произошла ошибка при загрузке тарифов. Попробуйте позже.</p>
       </div>
 
+      <div v-else-if="roomsUnavailable" :class="$style.errorContainer">
+        <p>
+          Не все номера доступны для выбранного состава гостей. Измените параметры
+          в блоке «Гости» выше.
+        </p>
+      </div>
+
       <template v-else>
         <div v-if="roomTariffs?.length > 0">
-          <div :class="$style.twoCols">
+          <div v-if="filteredRoomCards.length > 0" :class="$style.twoCols">
             <div :class="$style.cards">
               <BookingMultiCard
-                v-for="(room, idx) in roomTariffs"
-                :key="idx"
+                v-for="{ room, cardIdx } in filteredRoomCards"
+                :key="room.room_type_code"
                 :room="room"
-                :room-card-idx="idx"
+                :room-card-idx="cardIdx"
                 :services="searchResults?.packages || []"
                 :selected-codes="selectedCodes"
                 :is-all-rooms-selected="isAllRoomsSelected"
@@ -341,6 +365,10 @@
                 @continue="handleContinue"
               />
             </div>
+          </div>
+
+          <div v-else :class="$style.noFilterResults">
+            Нет номеров с выбранными параметрами
           </div>
 
           <div :class="$style.summaryWrapperMobile">
@@ -500,6 +528,16 @@
       width: 66.6667%;
       margin-bottom: 0;
     }
+  }
+
+  .noFilterResults {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: rem(40);
+    font-size: var(--ds-typo-size-body-lg);
+    color: var(--a-text-accent);
+    text-align: center;
   }
 
   .noResults {
