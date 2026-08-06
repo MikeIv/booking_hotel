@@ -16,6 +16,9 @@ import BookingAdditionalFieldsSection from "~/components/booking/AdditionalField
 import BookingPaymentSection from "~/components/booking/PaymentSection.vue";
 
 import type { SelectedEntry, BookingData } from "~/types/booking";
+import { toPricePerNight, toStayTotal } from "~/utils/price";
+import { buildSelectedEntry } from "~/utils/selectedEntry";
+import { getSortedMultiRoomEntries } from "~/utils/multiBooking";
 
 definePageMeta({
   layout: "steps",
@@ -138,9 +141,7 @@ const initializeRoomGuests = () => {
 // Получаем список номеров для отображения
 const roomEntries = computed(() => {
   if (!isMultiRoomsMode.value) return [];
-  return Object.values(selectedMultiRooms.value).sort(
-    (a, b) => a.roomIdx - b.roomIdx,
-  );
+  return getSortedMultiRoomEntries(selectedMultiRooms.value);
 });
 
 // Получаем состав гостей для конкретного номера
@@ -260,8 +261,10 @@ const onFormSubmit = async () => {
     }
 
     const packagesPerRoom: Record<number, string[]> = {};
-    Object.keys(selectedMultiRooms.value).forEach((key) => {
-      const roomIdx = Number(key);
+    // Используем логические roomIdx из записей (а не ключи объекта selectedMultiRooms, которые могут быть композитными "card-roomIdx")
+    const sortedForPackages = getSortedMultiRoomEntries(selectedMultiRooms.value);
+    sortedForPackages.forEach((entry) => {
+      const roomIdx = entry.roomIdx;
       const codes = bookingStore
         .getSelectedServicesForRoom(roomIdx)
         .map((s) => s.packageCode)
@@ -407,15 +410,12 @@ const selectedEntry = computed<SelectedEntry | null>(() => {
     return null;
   }
   if (!selectedRoom.value || !selectedTariff.value) return null;
-  return {
-    roomIdx: 0,
-    roomCardIdx: 0,
-    roomTitle: selectedRoom.value.title || "",
-    room_type_code: selectedRoom.value.room_type_code,
+  return buildSelectedEntry({
+    room: selectedRoom.value,
     ratePlanCode: selectedTariff.value.rate_plan_code,
-    price: selectedTariff.value.price,
-    title: selectedTariff.value.title || "",
-  };
+    tariffTitle: selectedTariff.value.title || "",
+    pricePerNight: toPricePerNight(selectedTariff.value.price, nights.value),
+  });
 });
 
 // Преобразуем selectedEntry в формат для BookingSummary
@@ -431,17 +431,13 @@ const selectedByRoomIdx = computed<Record<string, SelectedEntry>>(() => {
 const bookingTotal = computed(() => {
   if (isMultiRoomsMode.value) {
     const roomsTotal = Object.values(selectedMultiRooms.value).reduce(
-      (sum, e) => {
-        const perNight = e.price || 0;
-        return sum + perNight * nights.value;
-      },
+      (sum, e) => sum + toStayTotal(e.price, nights.value),
       0,
     );
-    const roomIndices = Object.keys(selectedMultiRooms.value).map(Number);
-    const servicesTotal = roomIndices.reduce(
-      (sum, idx) =>
+    const servicesTotal = Object.values(selectedMultiRooms.value).reduce(
+      (sum, entry) =>
         sum +
-        bookingStore.getSelectedServicesForRoom(idx).reduce(
+        bookingStore.getSelectedServicesForRoom(entry.roomIdx).reduce(
           (s, svc) => s + svc.price,
           0,
         ),
@@ -449,10 +445,9 @@ const bookingTotal = computed(() => {
     );
     return roomsTotal + servicesTotal;
   }
-  if (!selectedTariff.value?.price) return 0;
-  const roomTotal = selectedTariff.value.price * nights.value;
+  if (!selectedEntry.value?.price) return 0;
   const servicesTotal = selectedServices.value.reduce((sum, s) => sum + s.price, 0);
-  return roomTotal + servicesTotal;
+  return toStayTotal(selectedEntry.value.price, nights.value) + servicesTotal;
 });
 
 const guestComposition = computed(() => {
