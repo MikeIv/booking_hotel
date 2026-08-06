@@ -1,129 +1,156 @@
-﻿<script setup lang="ts">
-  import { useBookingStore } from "~/stores/booking";
-  import { useAuthStore } from "~/stores/auth";
-  import { storeToRefs } from "pinia";
-  import type { SelectedEntry, BookingByUuidRoom } from "~/types/booking";
+<script setup lang="ts">
+import { useBookingStore, type SelectedService } from "~/stores/booking";
+import { useAuthStore } from "~/stores/auth";
+import { storeToRefs } from "pinia";
+import type { SelectedEntry, BookingByUuidRoom } from "~/types/booking";
+import { toPricePerNight, toStayTotal } from "~/utils/price";
+import { pickNumber } from "~/utils/pick";
+import { mapBookingRoomsServicesToByRoom } from "~/utils/mapBookingRoomServices";
+import { buildSelectedEntry } from "~/utils/selectedEntry";
+import { getBookingNumber } from "~/utils/bookingStatus";
 
-  definePageMeta({
-    layout: "steps",
-  });
+definePageMeta({
+  layout: "steps",
+});
 
-  const router = useRouter();
-  const route = useRoute();
-  const bookingStore = useBookingStore();
-  const authStore = useAuthStore();
-  const toast = useNotificationToast();
-  const {
-    selectedRoomType,
-    selectedTariff: selectedTariffStore,
-    roomTariffs,
-    date,
-    selectedServices,
-    loading,
-    isServerRequest,
-    createdBooking,
-    currentBookingUuid: currentBookingUuidStore,
-  } = storeToRefs(bookingStore);
+const router = useRouter();
+const route = useRoute();
+const bookingStore = useBookingStore();
+const authStore = useAuthStore();
+const toast = useNotificationToast();
+const { getErrorMessage } = useApiHelpers();
+const { handleBookingAccessDenied } = useBookingAccessDenied();
+const {
+  selectedRoomType,
+  selectedTariff: selectedTariffStore,
+  roomTariffs,
+  date,
+  selectedServices,
+  createdBooking,
+  currentBookingUuid: currentBookingUuidStore,
+} = storeToRefs(bookingStore);
 
-  const bookingDate = computed<[Date, Date] | null>(() => {
-    if (createdBooking.value?.order?.start_at && createdBooking.value?.order?.end_at) {
-      return [
-        new Date(createdBooking.value.order.start_at),
-        new Date(createdBooking.value.order.end_at),
-      ];
-    }
-    return date.value;
-  });
+const bookingDate = computed<[Date, Date] | null>(() => {
+  if (
+    createdBooking.value?.order?.start_at &&
+    createdBooking.value?.order?.end_at
+  ) {
+    return [
+      new Date(createdBooking.value.order.start_at),
+      new Date(createdBooking.value.order.end_at),
+    ];
+  }
+  return date.value;
+});
 
-  const nights = useNights(bookingDate);
+const nights = useNights(bookingDate);
 
-  const selectedRoom = computed(() => {
-    if (!roomTariffs.value?.length || !selectedRoomType.value) return null;
-    return roomTariffs.value.find((room) => room.room_type_code === selectedRoomType.value) || null;
-  });
-
-  const selectedTariff = computed(() => {
-    if (selectedTariffStore.value) return selectedTariffStore.value;
-    if (!selectedRoom.value?.tariffs?.length) return null;
-    return selectedRoom.value.tariffs[0] || null;
-  });
-
-  const isBookingCreated = computed(() => !!createdBooking.value);
-
-  const bookingNumber = computed(() => {
-    const booking = createdBooking.value;
-    if (!booking) return null;
-    if (booking.confirmation_number) return booking.confirmation_number;
-    if (booking.id !== undefined && booking.id !== null) return String(booking.id);
-    return null;
-  });
-
-  const confirmationEmail = computed(() => {
-    const order = createdBooking.value?.order as Record<string, unknown> | undefined;
-    const orderEmail = order?.email;
-    if (typeof orderEmail === "string" && orderEmail.trim() !== "") return orderEmail.trim();
-
-    const firstRoom = Array.isArray(createdBooking.value?.rooms)
-      ? (createdBooking.value.rooms[0] as Record<string, unknown> | undefined)
-      : undefined;
-    const guests = Array.isArray(firstRoom?.guests)
-      ? (firstRoom.guests as Array<Record<string, unknown>>)
-      : [];
-    const mainGuest = guests.find((guest) => guest.is_main === true) ?? guests[0] ?? null;
-    const guestEmail = typeof mainGuest?.email === "string" ? mainGuest.email.trim() : "";
-    if (guestEmail) return guestEmail;
-
-    const userEmail = authStore.user?.email;
-    return typeof userEmail === "string" ? userEmail.trim() : "";
-  });
-
-  const pdfUrl = computed(() => createdBooking.value?.order?.pdf || null);
-
-  type BookingAllowedAction =
-    | "edit-dates"
-    | "edit-number"
-    | "edit-packages"
-    | "edit-contacts"
-    | "cancel";
-
-  const allowedActions = computed<Set<BookingAllowedAction>>(() => {
-    const allowed = createdBooking.value?.allowed;
-    if (!Array.isArray(allowed)) return new Set<BookingAllowedAction>();
-    return new Set(
-      allowed.filter(
-        (action): action is BookingAllowedAction =>
-          action === "edit-dates" ||
-          action === "edit-number" ||
-          action === "edit-packages" ||
-          action === "edit-contacts" ||
-          action === "cancel",
-      ),
-    );
-  });
-
-  const canEditDates = computed(() => allowedActions.value.has("edit-dates"));
-  const canEditRoom = computed(() => allowedActions.value.has("edit-number"));
-  const canEditPackages = computed(() => allowedActions.value.has("edit-packages"));
-  const canEditContacts = computed(() => allowedActions.value.has("edit-contacts"));
-  const canCancelBooking = computed(() => allowedActions.value.has("cancel"));
-  const hasManagementActions = computed(
-    () => canEditDates.value || canEditRoom.value || canEditPackages.value || canEditContacts.value,
+const selectedRoom = computed(() => {
+  if (!roomTariffs.value?.length || !selectedRoomType.value) return null;
+  return (
+    roomTariffs.value.find(
+      (room) => room.room_type_code === selectedRoomType.value,
+    ) || null
   );
+});
 
-  const currentBookingUuid = computed<string | null>(() => {
-    if (currentBookingUuidStore.value?.trim()) return currentBookingUuidStore.value;
-    const fromStore = createdBooking.value?.uuid;
-    if (fromStore && String(fromStore).trim() !== "") return String(fromStore);
-    const fromQuery = route.query.uuid;
-    if (typeof fromQuery === "string" && fromQuery.trim() !== "") return fromQuery;
-    return null;
-  });
+const selectedTariff = computed(() => {
+  if (selectedTariffStore.value) return selectedTariffStore.value;
+  if (!selectedRoom.value?.tariffs?.length) return null;
+  return selectedRoom.value.tariffs[0] || null;
+});
 
-  const selectedByRoomIdx = computed<Record<string, SelectedEntry>>(() => {
-    if (createdBooking.value?.rooms && Array.isArray(createdBooking.value.rooms)) {
-      const entries: Record<string, SelectedEntry> = {};
-      (createdBooking.value.rooms as BookingByUuidRoom[]).forEach((room, index) => {
-        const pricePerNight = nights.value > 0 ? room.total / nights.value : room.total;
+const isBookingCreated = computed(() => !!createdBooking.value);
+
+const bookingNumber = computed(() => getBookingNumber(createdBooking.value));
+
+const confirmationEmail = computed(() => {
+  const order = createdBooking.value?.order as
+    | Record<string, unknown>
+    | undefined;
+  const orderEmail = order?.email;
+  if (typeof orderEmail === "string" && orderEmail.trim() !== "")
+    return orderEmail.trim();
+
+  const firstRoom = Array.isArray(createdBooking.value?.rooms)
+    ? (createdBooking.value.rooms[0] as Record<string, unknown> | undefined)
+    : undefined;
+  const guests = Array.isArray(firstRoom?.guests)
+    ? (firstRoom.guests as Array<Record<string, unknown>>)
+    : [];
+  const mainGuest =
+    guests.find((guest) => guest.is_main === true) ?? guests[0] ?? null;
+  const guestEmail =
+    typeof mainGuest?.email === "string" ? mainGuest.email.trim() : "";
+  if (guestEmail) return guestEmail;
+
+  const userEmail = authStore.user?.email;
+  return typeof userEmail === "string" ? userEmail.trim() : "";
+});
+
+const pdfUrl = computed(() => createdBooking.value?.order?.pdf || null);
+
+const {
+  canEditDates,
+  canEditRoom,
+  canEditPackages,
+  canEditContacts,
+  canCancelBooking,
+  hasManagementActions,
+} = useBookingAllowedActions(() => createdBooking.value?.allowed);
+
+const currentBookingUuid = computed<string | null>(() => {
+  if (currentBookingUuidStore.value?.trim())
+    return currentBookingUuidStore.value;
+  const fromStore = createdBooking.value?.uuid;
+  if (fromStore && String(fromStore).trim() !== "") return String(fromStore);
+  const fromQuery = route.query.uuid;
+  if (typeof fromQuery === "string" && fromQuery.trim() !== "")
+    return fromQuery;
+  return null;
+});
+
+const confirmationServicesByRoom = computed<
+  Record<number, SelectedService[]> | undefined
+>(() => {
+  const rooms = createdBooking.value?.rooms;
+  if (!Array.isArray(rooms) || rooms.length === 0) return undefined;
+
+  const bookingRooms = rooms as BookingByUuidRoom[];
+  const fromApi = mapBookingRoomsServicesToByRoom(bookingRooms);
+
+  if (Object.keys(fromApi).length > 0) {
+    return Object.fromEntries(
+      bookingRooms.map((_, index) => [index, fromApi[index] ?? []]),
+    );
+  }
+
+  const fromStore = Object.fromEntries(
+    bookingRooms
+      .map(
+        (_, index) =>
+          [index, bookingStore.getSelectedServicesForRoom(index)] as const,
+      )
+      .filter(([, services]) => services.length > 0),
+  );
+  return Object.keys(fromStore).length > 0 ? fromStore : undefined;
+});
+
+const selectedByRoomIdx = computed<Record<string, SelectedEntry>>(() => {
+  if (
+    createdBooking.value?.rooms &&
+    Array.isArray(createdBooking.value.rooms)
+  ) {
+    const entries: Record<string, SelectedEntry> = {};
+    (createdBooking.value.rooms as BookingByUuidRoom[]).forEach(
+      (room, index) => {
+        const tariffTotal = pickNumber(room.tariff?.price);
+        const pricePerNight =
+          tariffTotal != null
+            ? toPricePerNight(tariffTotal, nights.value)
+            : nights.value > 0
+              ? room.total / nights.value
+              : room.total;
         entries[index.toString()] = {
           roomIdx: index,
           roomCardIdx: index,
@@ -132,259 +159,308 @@
           ratePlanCode: "",
           price: pricePerNight,
           title: room.tariff.title || "",
+          square: room.square,
         };
-      });
-      return entries;
-    }
-
-    if (!selectedRoom.value || !selectedTariff.value) return {};
-
-    return {
-      "0": {
-        roomIdx: 0,
-        roomCardIdx: 0,
-        roomTitle: selectedRoom.value.title || "",
-        room_type_code: selectedRoom.value.room_type_code,
-        ratePlanCode: selectedTariff.value.rate_plan_code,
-        price: selectedTariff.value.price,
-        title: selectedTariff.value.title || "",
       },
-    };
-  });
-
-  const bookingTotal = computed(() => {
-    if (createdBooking.value && "total_price" in createdBooking.value) {
-      return (createdBooking.value.total_price as number) || 0;
-    }
-    const tariffPrice = selectedTariff.value?.price;
-    if (!tariffPrice || nights.value === 0) return 0;
-    const servicesTotal = selectedServices.value.reduce(
-      (sum, service) => sum + (service.price || 0),
-      0,
     );
-    return tariffPrice * nights.value + servicesTotal;
+    return entries;
+  }
+
+  if (!selectedRoom.value || !selectedTariff.value) return {};
+
+  return {
+    "0": buildSelectedEntry({
+      room: selectedRoom.value,
+      ratePlanCode: selectedTariff.value.rate_plan_code,
+      tariffTitle: selectedTariff.value.title || "",
+      pricePerNight: toPricePerNight(selectedTariff.value.price, nights.value),
+    }),
+  };
+});
+
+const bookingTotal = computed(() => {
+  if (createdBooking.value && "total_price" in createdBooking.value) {
+    return (createdBooking.value.total_price as number) || 0;
+  }
+  const tariffPrice = selectedTariff.value?.price;
+  if (!tariffPrice || nights.value === 0) return 0;
+  const servicesTotal = selectedServices.value.reduce(
+    (sum, service) => sum + (service.price || 0),
+    0,
+  );
+  return (
+    toStayTotal(toPricePerNight(tariffPrice, nights.value), nights.value) +
+    servicesTotal
+  );
+});
+
+// --- Composables ---
+const {
+  isCancelBookingPopupOpen,
+  isCancellingBooking,
+  cancelBookingError,
+  openCancelBookingPopup,
+  closeCancelBookingPopup,
+  confirmCancelBooking,
+} = useBookingCancel(currentBookingUuid, bookingNumber, confirmationEmail);
+
+const {
+  isChangeContactsPopupOpen,
+  isChangingContacts,
+  changeContactsError,
+  changeContactsSuccess,
+  contactForm,
+  canSubmitContactChange,
+  openChangeContactsPopup,
+  closeChangeContactsPopup,
+  confirmChangeContacts,
+} = useBookingChangeContacts(currentBookingUuid);
+
+const {
+  isChangeDatesPopupOpen,
+  isChangingDates,
+  changeDatesError,
+  changeDatesSuccess,
+  newDates,
+  isChangeDatesCalendarOpen,
+  canSubmitDateChange,
+  openChangeDatesPopup,
+  closeChangeDatesPopup,
+  confirmChangeDates,
+} = useBookingChangeDates(currentBookingUuid, bookingDate);
+
+const {
+  isChangeRoomPopupOpen,
+  isChangingRoom,
+  changeRoomError,
+  changeRoomSuccess,
+  openChangeRoomPopup,
+  closeChangeRoomPopup,
+  confirmChangeRoom,
+} = useBookingChangeRoom(currentBookingUuid);
+
+const {
+  isChangeServicesPopupOpen,
+  isChangingServices,
+  changeServicesError,
+  changeServicesSuccess,
+  startChangeServicesFlow,
+  openChangeServicesPopup,
+  closeChangeServicesPopup,
+  confirmChangeServices,
+} = useBookingChangeServices(currentBookingUuid);
+
+const openChangeRoomPopupIfNeeded = () => {
+  if (
+    bookingStore.changeRoomUuid &&
+    bookingStore.changeRoomUuid === currentBookingUuid.value &&
+    bookingStore.selectedRoomType
+  ) {
+    openChangeRoomPopup();
+  }
+};
+
+const openChangeServicesPopupIfNeeded = () => {
+  if (
+    bookingStore.changeServicesUuid &&
+    bookingStore.changeServicesUuid === currentBookingUuid.value
+  ) {
+    openChangeServicesPopup();
+  }
+};
+
+const openManagementPopupsIfNeeded = () => {
+  openChangeRoomPopupIfNeeded();
+  openChangeServicesPopupIfNeeded();
+};
+
+const { isBookingConfirmed, isBookingFailed, showConfirmationContent } =
+  useBookingStatusPolling(currentBookingUuid, {
+    onAccessDenied: handleBookingAccessDenied,
+    onLoadError: (error) => {
+      toast.add({
+        severity: "error",
+        summary: "Не удалось загрузить данные бронирования",
+        detail:
+          getErrorMessage(error).trim() ||
+          bookingStore.error ||
+          "Проверьте ссылку или попробуйте позже.",
+        life: 5000,
+      });
+    },
+    onConfirmed: openManagementPopupsIfNeeded,
   });
 
-  // --- Composables ---
-  const { qrCanvas } = useConfirmationQR(pdfUrl);
+const { qrCanvas } = useConfirmationQR(pdfUrl, showConfirmationContent);
 
-  const {
-    isCancelBookingPopupOpen,
-    isCancellingBooking,
-    cancelBookingError,
-    openCancelBookingPopup,
-    closeCancelBookingPopup,
-    confirmCancelBooking,
-  } = useBookingCancel(currentBookingUuid, bookingNumber, confirmationEmail);
-
-  const {
-    isChangeContactsPopupOpen,
-    isChangingContacts,
-    changeContactsError,
-    changeContactsSuccess,
-    contactForm,
-    canSubmitContactChange,
-    openChangeContactsPopup,
-    closeChangeContactsPopup,
-    confirmChangeContacts,
-  } = useBookingChangeContacts(currentBookingUuid);
-
-  const {
-    isChangeDatesPopupOpen,
-    isChangingDates,
-    changeDatesError,
-    changeDatesSuccess,
-    newDates,
-    isChangeDatesCalendarOpen,
-    canSubmitDateChange,
-    openChangeDatesPopup,
-    closeChangeDatesPopup,
-    confirmChangeDates,
-  } = useBookingChangeDates(currentBookingUuid, bookingDate);
-
-  const {
-    isChangeRoomPopupOpen,
-    isChangingRoom,
-    changeRoomError,
-    changeRoomSuccess,
-    openChangeRoomPopup,
-    closeChangeRoomPopup,
-    confirmChangeRoom,
-  } = useBookingChangeRoom(currentBookingUuid);
-
-  const {
-    isChangeServicesPopupOpen,
-    isLoadingPackages,
-    isChangingServices,
-    changeServicesError,
-    changeServicesSuccess,
-    availablePackages,
-    selectedPackageCodes,
-    openChangeServicesPopup,
-    closeChangeServicesPopup,
-    togglePackage,
-    confirmChangeServices,
-  } = useBookingChangeServices(currentBookingUuid);
-
-  // --- Watchers ---
-  watch(
-    () => createdBooking.value,
-    (booking) => {
-      if (booking?.rooms && Array.isArray(booking.rooms)) {
-        const rooms = booking.rooms as Array<{ adults?: number; children?: number }>;
-        bookingStore.setGuests({
-          rooms: rooms.length,
-          roomList: rooms.map((room) => ({
-            adults: room.adults || 0,
-            children: room.children || 0,
-            childrenAges: [] as number[],
-          })),
-        });
-      }
-    },
-    { immediate: true },
-  );
-
-  watch(
-    () => isBookingCreated.value,
-    (isCreated) => {
-      if (isCreated && !authStore.isAuthenticated && typeof window !== "undefined") {
-        sessionStorage.setItem("hasUnauthenticatedBooking", "true");
-      }
-    },
-    { immediate: true },
-  );
-
-  onMounted(async () => {
-    if (loading.value && isServerRequest.value) {
-      bookingStore.setLoading(false);
-      bookingStore.setServerRequest(false);
+// --- Watchers ---
+watch(
+  () => createdBooking.value,
+  (booking) => {
+    if (booking?.rooms && Array.isArray(booking.rooms)) {
+      const rooms = booking.rooms as Array<{
+        adults?: number;
+        children?: number;
+      }>;
+      bookingStore.setGuests({
+        rooms: rooms.length,
+        roomList: rooms.map((room) => ({
+          adults: room.adults || 0,
+          children: room.children || 0,
+          childrenAges: [] as number[],
+        })),
+      });
     }
+  },
+  { immediate: true },
+);
 
-    const queryUuid = route.query.uuid;
-    const effectiveBookingUuid =
-      typeof queryUuid === "string" && queryUuid.trim() !== ""
-        ? queryUuid
-        : currentBookingUuid.value;
-
-    if (effectiveBookingUuid) {
-      try {
-        const cachedBooking = bookingStore.getSessionBookingByUuid(effectiveBookingUuid);
-        if (cachedBooking) {
-          bookingStore.setBookingByUuid(cachedBooking);
-        } else {
-          await bookingStore.getBookingByUuid(effectiveBookingUuid);
-        }
-      } catch {
-        toast.add({
-          severity: "error",
-          summary: "Не удалось загрузить данные бронирования",
-          detail: bookingStore.error ?? "Проверьте ссылку или попробуйте позже.",
-          life: 5000,
-        });
-      }
-    }
-
+watch(
+  () => isBookingCreated.value,
+  (isCreated) => {
     if (
-      bookingStore.changeRoomUuid &&
-      bookingStore.changeRoomUuid === effectiveBookingUuid &&
-      bookingStore.selectedRoomType
+      isCreated &&
+      !authStore.isAuthenticated &&
+      typeof window !== "undefined"
     ) {
-      openChangeRoomPopup();
+      sessionStorage.setItem("hasUnauthenticatedBooking", "true");
     }
-  });
+  },
+  { immediate: true },
+);
 
-  const handleDownload = async () => {
-    const url = pdfUrl.value;
-    if (!url) {
+const handleDownload = async () => {
+  const url = pdfUrl.value;
+  if (!url) {
+    toast.add({
+      severity: "warn",
+      summary: "PDF недоступен",
+      detail: "Ссылка на подтверждение бронирования отсутствует.",
+      life: 4000,
+    });
+    return;
+  }
+
+  try {
+    const headers: HeadersInit = authStore.token
+      ? { Authorization: `Bearer ${authStore.token}` }
+      : {};
+    const response = await fetch(url, { headers });
+    if (!response.ok)
+      throw new Error(`Ошибка загрузки PDF: ${response.statusText}`);
+    const blob = await response.blob();
+    const blobUrl = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = blobUrl;
+    link.download = `booking-confirmation-${bookingNumber.value || "document"}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(blobUrl);
+  } catch {
+    window.open(url, "_blank");
+  }
+};
+
+const handlePrint = () => {
+  const url = pdfUrl.value;
+  if (!url) {
+    toast.add({
+      severity: "warn",
+      summary: "PDF недоступен",
+      detail: "Ссылка на подтверждение бронирования отсутствует.",
+      life: 4000,
+    });
+    return;
+  }
+
+  if (typeof window === "undefined") return;
+
+  try {
+    const printWindow = window.open(url, "_blank");
+    if (!printWindow) {
       toast.add({
         severity: "warn",
-        summary: "PDF недоступен",
-        detail: "Ссылка на подтверждение бронирования отсутствует.",
+        summary: "Окно печати",
+        detail: "Не удалось открыть окно печати. Проверьте настройки браузера.",
         life: 4000,
       });
       return;
     }
+    if (typeof printWindow.print === "function") printWindow.print();
+  } catch {
+    window.open(url, "_blank");
+  }
+};
 
-    try {
-      const headers: HeadersInit = authStore.token
-        ? { Authorization: `Bearer ${authStore.token}` }
-        : {};
-      const response = await fetch(url, { headers });
-      if (!response.ok) throw new Error(`Ошибка загрузки PDF: ${response.statusText}`);
-      const blob = await response.blob();
-      const blobUrl = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = blobUrl;
-      link.download = `booking-confirmation-${bookingNumber.value || "document"}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(blobUrl);
-    } catch {
-      window.open(url, "_blank");
-    }
-  };
+const handleChangeRoom = () => {
+  if (bookingDate.value) {
+    bookingStore.setDate([...bookingDate.value] as [Date, Date]);
+  }
+  bookingStore.setSearchResults(null);
+  bookingStore.setSelectedRoomType(null);
+  bookingStore.setSelectedTariff(null);
+  bookingStore.setChangeRoomUuid(currentBookingUuid.value);
+  router.push("/rooms");
+};
 
-  const handlePrint = () => {
-    const url = pdfUrl.value;
-    if (!url) {
-      toast.add({
-        severity: "warn",
-        summary: "PDF недоступен",
-        detail: "Ссылка на подтверждение бронирования отсутствует.",
-        life: 4000,
-      });
-      return;
-    }
+const handleChangeServices = () => {
+  const flowError = startChangeServicesFlow();
+  if (flowError) {
+    toast.add({
+      severity: "error",
+      summary: "Не удалось изменить услуги",
+      detail: flowError,
+      life: 5000,
+    });
+    return;
+  }
+  router.push("/services");
+};
 
-    if (typeof window === "undefined") return;
-
-    try {
-      const printWindow = window.open(url, "_blank");
-      if (!printWindow) {
-        toast.add({
-          severity: "warn",
-          summary: "Окно печати",
-          detail: "Не удалось открыть окно печати. Проверьте настройки браузера.",
-          life: 4000,
-        });
-        return;
-      }
-      if (typeof printWindow.print === "function") printWindow.print();
-    } catch {
-      window.open(url, "_blank");
-    }
-  };
-
-  const handleChangeRoom = () => {
-    if (bookingDate.value) {
-      bookingStore.setDate([...bookingDate.value] as [Date, Date]);
-    }
-    bookingStore.setSearchResults(null);
-    bookingStore.setSelectedRoomType(null);
-    bookingStore.setSelectedTariff(null);
-    bookingStore.setChangeRoomUuid(currentBookingUuid.value);
-    router.push("/rooms");
-  };
-
-  const handleNewBooking = () => {
-    bookingStore.forceReset();
-    router.push("/");
-  };
+const handleNewBooking = () => {
+  bookingStore.forceReset();
+  router.push("/");
+};
 </script>
 
 <template>
   <main :class="$style.container">
-    <h1 :class="$style.header" data-breadcrumb="Ваше бронирование">Ваше бронирование подтверждено!</h1>
-    <section :class="$style.contentBlock">
-      <div :class="$style.contentWrapper">
-        <div :class="$style.mainContent">
-          <div :class="$style.section">
+    <template v-if="isBookingFailed">
+      <h1 :class="$style.header" data-breadcrumb="Ошибка бронирования">
+        Не удалось забронировать
+      </h1>
+      <section :class="$style.contentBlock">
+        <p :class="$style.failedMessage">
+          Не удалось забронировать, попробуйте попытку позже.
+        </p>
+        <Button
+          label="Новое бронирование"
+          class="btn__bs danger"
+          unstyled
+          @click="handleNewBooking"
+        />
+      </section>
+    </template>
+
+    <template v-else-if="showConfirmationContent">
+      <h1 :class="$style.header" data-breadcrumb="Ваше бронирование">
+        <template v-if="isBookingConfirmed"
+          >Ваше бронирование подтверждено!</template
+        >
+        <template v-else>Ваше бронирование</template>
+      </h1>
+      <section :class="$style.contentBlock">
+        <div :class="$style.contentWrapper">
+          <div :class="$style.mainContent">
+            <div :class="$style.section">
               <h2 :class="$style.sectionTitle">Номер Вашего бронирования:</h2>
               <div :class="$style.bookingInfo">
                 <div :class="$style.bookingLeft">
-                  <div v-if="isBookingCreated && bookingNumber" :class="$style.bookingNumber">
+                  <div
+                    v-if="isBookingCreated && bookingNumber"
+                    :class="$style.bookingNumber"
+                  >
                     № {{ bookingNumber }}
                   </div>
                   <div v-else :class="$style.bookingMessage">
@@ -418,28 +494,30 @@
               <p :class="$style.confirmationText">
                 Подтверждение о бронировании отправлено на указанную Вами
                 электронную почту:
-                <br v-if="confirmationEmail">
+                <br v-if="confirmationEmail" />
                 <span v-if="confirmationEmail">
                   <strong>{{ confirmationEmail }}</strong>
                 </span>
               </p>
             </div>
 
-            <div :class="$style.divider" />
+            <template v-if="hasManagementActions">
+              <div :class="$style.divider" />
 
-            <BookingConfirmationManagement
-              :has-management-actions="hasManagementActions"
-              :can-edit-dates="canEditDates"
-              :can-edit-room="canEditRoom"
-              :can-edit-packages="canEditPackages"
-              :can-edit-contacts="canEditContacts"
-              @change-dates="openChangeDatesPopup"
-              @change-room="handleChangeRoom"
-              @change-services="openChangeServicesPopup"
-              @change-contacts="openChangeContactsPopup"
-            />
+              <BookingConfirmationManagement
+                :has-management-actions="hasManagementActions"
+                :can-edit-dates="canEditDates"
+                :can-edit-room="canEditRoom"
+                :can-edit-packages="canEditPackages"
+                :can-edit-contacts="canEditContacts"
+                @change-dates="openChangeDatesPopup"
+                @change-room="handleChangeRoom"
+                @change-services="handleChangeServices"
+                @change-contacts="openChangeContactsPopup"
+              />
 
-            <div v-if="hasManagementActions" :class="$style.divider" />
+              <div :class="$style.divider" />
+            </template>
 
             <div :class="$style.section">
               <div :class="$style.finalButtons">
@@ -461,70 +539,69 @@
                 />
               </div>
             </div>
+          </div>
+          <div :class="$style.summaryWrapper">
+            <BookingSummary
+              :selected-entries="selectedByRoomIdx"
+              :date="bookingDate"
+              :nights="nights"
+              :booking-total="bookingTotal"
+              :services-by-room-override="confirmationServicesByRoom"
+              :editable-services="false"
+              :show-continue="false"
+            />
+          </div>
         </div>
-        <div :class="$style.summaryWrapper">
-          <BookingSummary
-            :selected-entries="selectedByRoomIdx"
-            :date="bookingDate"
-            :nights="nights"
-            :booking-total="bookingTotal"
-            :show-continue="false"
-          />
-        </div>
-      </div>
-    </section>
+      </section>
 
-    <BookingConfirmationCancelPopup
-      :is-open="isCancelBookingPopupOpen"
-      :is-cancelling-booking="isCancellingBooking"
-      :cancel-booking-error="cancelBookingError"
-      @close="closeCancelBookingPopup"
-      @confirm="confirmCancelBooking"
-    />
+      <BookingConfirmationCancelPopup
+        :is-open="isCancelBookingPopupOpen"
+        :is-cancelling-booking="isCancellingBooking"
+        :cancel-booking-error="cancelBookingError"
+        @close="closeCancelBookingPopup"
+        @confirm="confirmCancelBooking"
+      />
 
-    <BookingConfirmationChangeDatesPopup
-      v-model="newDates"
-      :is-open="isChangeDatesPopupOpen"
-      :is-calendar-open="isChangeDatesCalendarOpen"
-      :can-submit-date-change="canSubmitDateChange"
-      :is-changing-dates="isChangingDates"
-      :change-dates-success="changeDatesSuccess"
-      :change-dates-error="changeDatesError"
-      @close="closeChangeDatesPopup"
-      @confirm="confirmChangeDates"
-      @update:is-calendar-open="isChangeDatesCalendarOpen = $event"
-    />
-    <BookingConfirmationChangeContactsPopup
-      :is-open="isChangeContactsPopupOpen"
-      :form="contactForm"
-      :can-submit-contact-change="canSubmitContactChange"
-      :is-changing-contacts="isChangingContacts"
-      :change-contacts-success="changeContactsSuccess"
-      :change-contacts-error="changeContactsError"
-      @close="closeChangeContactsPopup"
-      @confirm="confirmChangeContacts"
-      @update:form="contactForm = $event"
-    />
-    <BookingConfirmationChangeRoomPopup
-      :is-open="isChangeRoomPopupOpen"
-      :is-changing-room="isChangingRoom"
-      :change-room-success="changeRoomSuccess"
-      :change-room-error="changeRoomError"
-      @close="closeChangeRoomPopup"
-      @confirm="confirmChangeRoom"
-    />
-    <BookingConfirmationChangeServicesPopup
-      :is-open="isChangeServicesPopupOpen"
-      :is-loading-packages="isLoadingPackages"
-      :is-changing-services="isChangingServices"
-      :available-packages="availablePackages"
-      :selected-package-codes="selectedPackageCodes"
-      :change-services-success="changeServicesSuccess"
-      :change-services-error="changeServicesError"
-      @close="closeChangeServicesPopup"
-      @confirm="confirmChangeServices"
-      @toggle-package="togglePackage"
-    />
+      <BookingConfirmationChangeDatesPopup
+        v-model="newDates"
+        :is-open="isChangeDatesPopupOpen"
+        :is-calendar-open="isChangeDatesCalendarOpen"
+        :can-submit-date-change="canSubmitDateChange"
+        :is-changing-dates="isChangingDates"
+        :change-dates-success="changeDatesSuccess"
+        :change-dates-error="changeDatesError"
+        @close="closeChangeDatesPopup"
+        @confirm="confirmChangeDates"
+        @update:is-calendar-open="isChangeDatesCalendarOpen = $event"
+      />
+      <BookingConfirmationChangeContactsPopup
+        :is-open="isChangeContactsPopupOpen"
+        :form="contactForm"
+        :can-submit-contact-change="canSubmitContactChange"
+        :is-changing-contacts="isChangingContacts"
+        :change-contacts-success="changeContactsSuccess"
+        :change-contacts-error="changeContactsError"
+        @close="closeChangeContactsPopup"
+        @confirm="confirmChangeContacts"
+        @update:form="contactForm = $event"
+      />
+      <BookingConfirmationChangeRoomPopup
+        :is-open="isChangeRoomPopupOpen"
+        :is-changing-room="isChangingRoom"
+        :change-room-success="changeRoomSuccess"
+        :change-room-error="changeRoomError"
+        @close="closeChangeRoomPopup"
+        @confirm="confirmChangeRoom"
+      />
+      <BookingConfirmationChangeServicesPopup
+        :is-open="isChangeServicesPopupOpen"
+        :is-changing-services="isChangingServices"
+        :change-services-success="changeServicesSuccess"
+        :change-services-error="changeServicesError"
+        @close="closeChangeServicesPopup"
+        @confirm="confirmChangeServices"
+      />
+    </template>
   </main>
 </template>
 
@@ -780,5 +857,12 @@
     height: rem(1);
     background-color: var(--a-black);
   }
-</style>
 
+  .failedMessage {
+    margin: 0 0 rem(24);
+    font-family: var(--a-font-body);
+    font-size: var(--ds-typo-size-body-lg);
+    color: var(--a-text-dark);
+    text-align: center;
+  }
+</style>

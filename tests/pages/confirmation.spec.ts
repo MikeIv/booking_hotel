@@ -21,7 +21,8 @@ type TestOrder = {
 type TestBooking = {
   id: number;
   uuid?: string;
-  confirmation_number: string | null;
+  number: string;
+  confirmation_number?: string | null;
   status: string;
   allowed?: string[];
   order: TestOrder;
@@ -103,8 +104,48 @@ vi.stubGlobal("useNotificationToast", () => ({
   add: mockNotificationToastAdd,
 }));
 
+vi.stubGlobal("useBookingAccessDenied", () => ({
+  handleBookingAccessDenied: vi.fn().mockResolvedValue(undefined),
+  handleBookingAccessDeniedIfNeeded: vi.fn().mockResolvedValue(false),
+}));
+
+vi.stubGlobal("useBookingAllowedActions", () => {
+  const allowed = computed(() => {
+    const list = createdBookingRef.value?.allowed ?? [];
+    return new Set(Array.isArray(list) ? list : []);
+  });
+  return {
+    canEditDates: computed(() => allowed.value.has("edit-dates")),
+    canEditRoom: computed(() => allowed.value.has("edit-number")),
+    canEditPackages: computed(() => allowed.value.has("edit-packages")),
+    canEditContacts: computed(() => allowed.value.has("edit-contacts")),
+    canCancelBooking: computed(() => allowed.value.has("cancel")),
+    hasManagementActions: computed(
+      () =>
+        allowed.value.has("edit-dates") ||
+        allowed.value.has("edit-number") ||
+        allowed.value.has("edit-packages") ||
+        allowed.value.has("edit-contacts"),
+    ),
+  };
+});
+
 // Стабы для проектных composables, используемых как авто-импорты в confirmation.vue
 vi.stubGlobal("useConfirmationQR", () => ({ qrCanvas: ref(null) }));
+
+const mockIsBookingConfirmed = ref(true);
+const mockIsBookingFailed = ref(false);
+const mockIsAwaitingConfirmation = ref(false);
+
+vi.stubGlobal("useBookingStatusPolling", () => ({
+  pageStatus: ref("confirmed"),
+  isAwaitingConfirmation: mockIsAwaitingConfirmation,
+  isBookingConfirmed: mockIsBookingConfirmed,
+  isBookingFailed: mockIsBookingFailed,
+  showConfirmationContent: computed(
+    () => !mockIsAwaitingConfirmation.value && !mockIsBookingFailed.value,
+  ),
+}));
 
 vi.stubGlobal("useBookingCancel", () => ({
   isCancelBookingPopupOpen: ref(false),
@@ -159,15 +200,12 @@ vi.stubGlobal("useBookingChangeRoom", () => ({
 
 vi.stubGlobal("useBookingChangeServices", () => ({
   isChangeServicesPopupOpen: ref(false),
-  isLoadingPackages: ref(false),
   isChangingServices: ref(false),
   changeServicesError: ref<string | null>(null),
   changeServicesSuccess: ref<string | null>(null),
-  availablePackages: ref([]),
-  selectedPackageCodes: ref<string[]>([]),
+  startChangeServicesFlow: vi.fn(),
   openChangeServicesPopup: vi.fn(),
   closeChangeServicesPopup: vi.fn(),
-  togglePackage: vi.fn(),
   confirmChangeServices: vi.fn(),
 }));
 
@@ -212,6 +250,9 @@ describe("pages/confirmation.vue", () => {
     mockNotificationToastAdd.mockReset();
     mockBookingStore.getSessionBookingByUuid.mockReturnValue(null);
     mockBookingStore.getBookingByUuid.mockResolvedValue(undefined);
+    mockIsBookingConfirmed.value = true;
+    mockIsBookingFailed.value = false;
+    mockIsAwaitingConfirmation.value = false;
 
     (globalThis as { fetch?: unknown }).fetch = undefined;
   });
@@ -238,6 +279,7 @@ describe("pages/confirmation.vue", () => {
     const { order, ...rest } = overrides ?? {};
     return {
       id: 179,
+      number: "BW-2026-06-05-179",
       confirmation_number: null,
       status: "confirmed",
       order: { ...defaultOrder, ...order },
@@ -261,7 +303,7 @@ describe("pages/confirmation.vue", () => {
 
       const bookingNumber = wrapper.find("[class*='bookingNumber']");
       expect(bookingNumber.exists()).toBe(true);
-      expect(bookingNumber.text()).toContain("№ 179");
+      expect(bookingNumber.text()).toContain("№ BW-2026-06-05-179");
 
       const downloadButton = wrapper.find("button.btn__bs.danger");
       const printButton = wrapper.find("button.btn__bs.dark");
@@ -285,16 +327,29 @@ describe("pages/confirmation.vue", () => {
       expect(downloadBtn).toBeUndefined();
     });
 
-    it("должен показывать confirmation_number если он задан", async () => {
+    it("не должен показывать id если number отсутствует", async () => {
       createdBookingRef.value = createBookingPayload({
-        confirmation_number: "CONF-9999",
+        number: "",
+        id: 144,
+      });
+
+      const wrapper = createWrapper();
+      await nextTick();
+
+      expect(wrapper.find("[class*='bookingNumber']").exists()).toBe(false);
+    });
+
+    it("должен показывать number из payload", async () => {
+      createdBookingRef.value = createBookingPayload({
+        number: "BW-2026-06-05-144",
+        id: 144,
       });
 
       const wrapper = createWrapper();
       await nextTick();
 
       expect(wrapper.find("[class*='bookingNumber']").text()).toContain(
-        "CONF-9999",
+        "BW-2026-06-05-144",
       );
     });
 
@@ -345,6 +400,33 @@ describe("pages/confirmation.vue", () => {
       expect(cancelBtn).toBeUndefined();
     });
 
+    it("кнопки управления видны только для разрешённых действий из allowed", async () => {
+      createdBookingRef.value = createBookingPayload({
+        allowed: ["edit-dates", "edit-contacts"],
+      });
+
+      const wrapper = createWrapper();
+      await nextTick();
+      const buttonLabels = wrapper.findAll("button").map((btn) => btn.text());
+
+      expect(buttonLabels).toContain("Изменить даты");
+      expect(buttonLabels).toContain("Изменить контакты");
+      expect(buttonLabels).not.toContain("Изменить номер");
+      expect(buttonLabels).not.toContain("Изменить услуги");
+    });
+
+    it("блок управления скрыт, если allowed не содержит edit-*", async () => {
+      createdBookingRef.value = createBookingPayload({ allowed: ["cancel"] });
+
+      const wrapper = createWrapper();
+      await nextTick();
+
+      expect(wrapper.text()).not.toContain("Управление бронированием");
+      expect(
+        wrapper.findAll("button").find((btn) => btn.text() === "Изменить даты"),
+      ).toBeUndefined();
+    });
+
     it("кнопка 'Новое бронирование' всегда отображается", async () => {
       createdBookingRef.value = null;
 
@@ -375,31 +457,30 @@ describe("pages/confirmation.vue", () => {
     });
   });
 
-  describe("Загрузка бронирования по UUID", () => {
-    it("должен загружать бронирование по uuid из query при монтировании", async () => {
-      mockRoute.query = { uuid: "query-uuid-123" };
-      mockBookingStore.getSessionBookingByUuid.mockReturnValue(null);
+  describe("Статус бронирования после оплаты", () => {
+    it("должен показывать сообщение об ошибке при failed", async () => {
+      mockIsBookingConfirmed.value = false;
+      mockIsBookingFailed.value = true;
 
-      createWrapper();
+      const wrapper = createWrapper();
       await nextTick();
 
-      expect(mockBookingStore.getBookingByUuid).toHaveBeenCalledWith(
-        "query-uuid-123",
-      );
+      expect(wrapper.text()).toContain("Не удалось забронировать");
+      expect(wrapper.text()).toContain("попробуйте попытку позже");
+      expect(wrapper.text()).not.toContain("Ваше бронирование подтверждено");
     });
 
-    it("должен использовать кэш если бронирование закэшировано", async () => {
-      mockRoute.query = { uuid: "cached-uuid" };
-      const cachedBooking = createBookingPayload();
-      mockBookingStore.getSessionBookingByUuid.mockReturnValue(cachedBooking);
+    it("не должен показывать контент подтверждения во время processing", async () => {
+      mockIsBookingConfirmed.value = false;
+      mockIsBookingFailed.value = false;
+      mockIsAwaitingConfirmation.value = true;
+      createdBookingRef.value = createBookingPayload({ status: "processing" });
 
-      createWrapper();
+      const wrapper = createWrapper();
       await nextTick();
 
-      expect(mockBookingStore.setBookingByUuid).toHaveBeenCalledWith(
-        cachedBooking,
-      );
-      expect(mockBookingStore.getBookingByUuid).not.toHaveBeenCalled();
+      expect(wrapper.text()).not.toContain("Ваше бронирование подтверждено");
+      expect(wrapper.find("[class*='bookingNumber']").exists()).toBe(false);
     });
   });
 
