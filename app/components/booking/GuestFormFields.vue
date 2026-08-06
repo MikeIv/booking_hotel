@@ -1,5 +1,13 @@
 <script setup lang="ts">
-  import type { GuestData, FormField } from "~/composables/usePersonalForm";
+  import {
+    validateGuestField,
+    type GuestData,
+    type FormField,
+  } from "~/composables/usePersonalForm";
+  import {
+    additionalGuestFieldsRules,
+    guestFieldsRules,
+  } from "~/composables/useFormValidation";
   import { countriesRu } from "~/utils/countries";
   import { usePhoneMask } from "~/composables/usePhoneMask";
 
@@ -9,6 +17,7 @@
     errors?: Partial<GuestData>;
     guestTitle?: string;
     showRemove?: boolean;
+    optionalContactFields?: boolean;
   }
 
   interface Emits {
@@ -20,9 +29,29 @@
     errors: () => ({}),
     guestTitle: "Основной гость",
     showRemove: false,
+    optionalContactFields: false,
   });
 
   const emit = defineEmits<Emits>();
+
+  const emailBlurError = ref<string | null>(null);
+
+  const displayErrors = computed(() => ({
+    ...(emailBlurError.value ? { email: emailBlurError.value } : {}),
+    ...props.errors,
+  }));
+
+  const guestValidationRules = computed(() =>
+    props.optionalContactFields ? additionalGuestFieldsRules : guestFieldsRules,
+  );
+
+  const validateEmail = (guest: GuestData) => {
+    emailBlurError.value = validateGuestField(
+      guest,
+      "email",
+      guestValidationRules.value,
+    );
+  };
 
   const {
     handlePhoneInput,
@@ -34,7 +63,18 @@
   } = usePhoneMask();
 
   const updateField = (key: keyof GuestData, value: string | undefined) => {
-    emit("update:guest", { ...props.guest, [key]: value ?? "" });
+    const nextGuest = { ...props.guest, [key]: value ?? "" };
+    emit("update:guest", nextGuest);
+
+    if (key === "email" && emailBlurError.value !== null) {
+      validateEmail(nextGuest);
+    }
+  };
+
+  const onFieldBlur = (field: FormField) => {
+    if (field.key === "email") {
+      validateEmail(props.guest);
+    }
   };
 
   // Универсальный обработчик обновления телефона
@@ -64,7 +104,6 @@
   const onPhoneBlur = (event: Event) => {
     handlePhoneBlur(event, props.guest.phone || "", updatePhone);
   };
-
 </script>
 
 <template>
@@ -90,9 +129,11 @@
         :model-value="guest[field.key] ?? ''"
         :options="countriesRu"
         :placeholder="field.placeholder"
-        :invalid="Boolean(errors[field.key])"
+        :invalid="Boolean(displayErrors[field.key])"
         :aria-label="field.placeholder"
         variant="personal"
+        searchable
+        search-placeholder="Поиск страны..."
         @update:model-value="updateField(field.key, $event)"
       />
       <UiInput
@@ -101,8 +142,9 @@
         :type="field.type"
         :placeholder="field.placeholder"
         variant="personal"
-        :invalid="Boolean(errors[field.key])"
+        :invalid="Boolean(displayErrors[field.key])"
         @update:model-value="updateField(field.key, $event)"
+        @blur="onFieldBlur(field)"
       />
       <UiInput
         v-else
@@ -112,7 +154,7 @@
         autocomplete="tel"
         :placeholder="field.placeholder"
         variant="personal"
-        :invalid="Boolean(errors[field.key])"
+        :invalid="Boolean(displayErrors[field.key])"
         @update:model-value="updatePhone"
         @before-input="onPhoneBeforeInput"
         @keydown="onPhoneKeydown"
@@ -121,14 +163,14 @@
         @blur="onPhoneBlur"
       />
       <Message
-        v-if="errors[field.key]"
+        v-if="displayErrors[field.key]"
         severity="error"
         size="small"
         variant="simple"
         unstyled
         :class="$style.errorMessage"
       >
-        {{ errors[field.key] }}
+        {{ displayErrors[field.key] }}
       </Message>
     </div>
   </div>
