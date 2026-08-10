@@ -758,7 +758,15 @@ export const useBookingStore = defineStore(
         const signal =
           typeof AbortSignal.any === "function"
             ? AbortSignal.any([abortController.signal, timeoutSignal])
-            : abortController.signal;
+            : (() => {
+                // Fallback: линкуем timeout вручную, если any() недоступен
+                timeoutSignal.addEventListener(
+                  "abort",
+                  () => abortController.abort(timeoutSignal.reason),
+                  { once: true },
+                );
+                return abortController.signal;
+              })();
 
         const response = await post<ApiSearchPayload>(
           "/v1/search",
@@ -767,7 +775,9 @@ export const useBookingStore = defineStore(
         );
 
         if (requestId !== searchRequestSeq) {
-          throw Object.assign(new Error("Aborted"), { name: "AbortError" });
+          const stale = new Error("Aborted");
+          stale.name = "AbortError";
+          throw stale;
         }
 
         if (response.success) {
@@ -784,10 +794,9 @@ export const useBookingStore = defineStore(
       } catch (err: unknown) {
         // Заменённый запрос: не затираем error актуального поиска
         if (requestId !== searchRequestSeq) {
-          throw Object.assign(
-            err instanceof Error ? err : new Error("Aborted"),
-            { name: "AbortError" },
-          );
+          const stale = new Error("Aborted");
+          stale.name = "AbortError";
+          throw stale;
         }
 
         error.value = (err as Error).message || "Произошла ошибка при поиске";

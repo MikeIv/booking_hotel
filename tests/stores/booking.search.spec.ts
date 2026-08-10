@@ -50,6 +50,37 @@ function seedSearchableStore() {
   return store;
 }
 
+function createGate() {
+  let release!: () => void;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  return { gate, release: () => release() };
+}
+
+function abortIfNeeded(signal?: AbortSignal) {
+  if (signal?.aborted) {
+    const err = new Error("Aborted");
+    err.name = "AbortError";
+    throw err;
+  }
+}
+
+/** mock post, который ждёт gate и уважает AbortSignal */
+function mockGatedSearch(
+  gate: Promise<void>,
+  roomCode: string,
+  onEnter?: (signal?: AbortSignal) => void,
+) {
+  mockPost.mockImplementationOnce(async (_url, _body, opts) => {
+    const signal = opts?.signal as AbortSignal | undefined;
+    onEnter?.(signal);
+    await gate;
+    abortIfNeeded(signal);
+    return searchPayload(roomCode);
+  });
+}
+
 describe("bookingStore.search races", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -57,42 +88,25 @@ describe("bookingStore.search races", () => {
 
   it("при двух search() в searchResults остаётся ответ последнего", async () => {
     const store = seedSearchableStore();
+    const first = createGate();
+    const second = createGate();
 
-    let releaseFirst!: (value: unknown) => void;
-    let releaseSecond!: (value: unknown) => void;
-    const firstGate = new Promise((resolve) => {
-      releaseFirst = resolve;
+    let firstEntered = false;
+    mockGatedSearch(first.gate, "FIRST", () => {
+      firstEntered = true;
     });
-    const secondGate = new Promise((resolve) => {
-      releaseSecond = resolve;
-    });
-
-    mockPost.mockImplementationOnce(async (_url, _body, opts) => {
-      const signal = opts?.signal as AbortSignal | undefined;
-      await firstGate;
-      if (signal?.aborted) {
-        throw Object.assign(new Error("Aborted"), { name: "AbortError" });
-      }
-      return searchPayload("FIRST");
-    });
-    mockPost.mockImplementationOnce(async (_url, _body, opts) => {
-      const signal = opts?.signal as AbortSignal | undefined;
-      await secondGate;
-      if (signal?.aborted) {
-        throw Object.assign(new Error("Aborted"), { name: "AbortError" });
-      }
-      return searchPayload("SECOND");
-    });
+    mockGatedSearch(second.gate, "SECOND");
 
     const firstPromise = store.search();
+    await vi.waitFor(() => expect(firstEntered).toBe(true));
     const secondPromise = store.search();
 
-    releaseSecond(undefined);
+    second.release();
     await expect(secondPromise).resolves.toMatchObject({
       rooms: [expect.objectContaining({ room_type_code: "SECOND" })],
     });
 
-    releaseFirst(undefined);
+    first.release();
     await expect(firstPromise).rejects.toMatchObject({ name: "AbortError" });
 
     expect(store.searchResults?.rooms[0]?.room_type_code).toBe("SECOND");
@@ -100,20 +114,11 @@ describe("bookingStore.search races", () => {
 
   it("новый search() абортит предыдущий запрос", async () => {
     const store = seedSearchableStore();
+    const first = createGate();
 
     let firstSignal: AbortSignal | undefined;
-    let releaseFirst!: () => void;
-    const firstGate = new Promise<void>((resolve) => {
-      releaseFirst = resolve;
-    });
-
-    mockPost.mockImplementationOnce(async (_url, _body, opts) => {
-      firstSignal = opts?.signal as AbortSignal | undefined;
-      await firstGate;
-      if (firstSignal?.aborted) {
-        throw Object.assign(new Error("Aborted"), { name: "AbortError" });
-      }
-      return searchPayload("FIRST");
+    mockGatedSearch(first.gate, "FIRST", (signal) => {
+      firstSignal = signal;
     });
     mockPost.mockImplementationOnce(async () => searchPayload("SECOND"));
 
@@ -123,39 +128,21 @@ describe("bookingStore.search races", () => {
     const secondPromise = store.search();
     expect(firstSignal?.aborted).toBe(true);
 
-    releaseFirst();
+    first.release();
     await expect(firstPromise).rejects.toMatchObject({ name: "AbortError" });
     await expect(secondPromise).resolves.toBeTruthy();
   });
 
   it("устаревший search не гасит loading активного запроса", async () => {
     const store = seedSearchableStore();
+    const first = createGate();
+    const second = createGate();
 
     let firstEntered = false;
-    let releaseFirst!: () => void;
-    let releaseSecond!: () => void;
-    const firstGate = new Promise<void>((resolve) => {
-      releaseFirst = resolve;
-    });
-    const secondGate = new Promise<void>((resolve) => {
-      releaseSecond = resolve;
-    });
-
-    mockPost.mockImplementationOnce(async (_url, _body, opts) => {
+    mockGatedSearch(first.gate, "FIRST", () => {
       firstEntered = true;
-      await firstGate;
-      if ((opts?.signal as AbortSignal | undefined)?.aborted) {
-        throw Object.assign(new Error("Aborted"), { name: "AbortError" });
-      }
-      return searchPayload("FIRST");
     });
-    mockPost.mockImplementationOnce(async (_url, _body, opts) => {
-      await secondGate;
-      if ((opts?.signal as AbortSignal | undefined)?.aborted) {
-        throw Object.assign(new Error("Aborted"), { name: "AbortError" });
-      }
-      return searchPayload("SECOND");
-    });
+    mockGatedSearch(second.gate, "SECOND");
 
     const firstPromise = store.search();
     await vi.waitFor(() => expect(firstEntered).toBe(true));
@@ -163,12 +150,11 @@ describe("bookingStore.search races", () => {
     const secondPromise = store.search();
     expect(store.loading).toBe(true);
 
-    // Первый завершается как aborted, пока второй ещё в полёте
-    releaseFirst();
+    first.release();
     await expect(firstPromise).rejects.toMatchObject({ name: "AbortError" });
     expect(store.loading).toBe(true);
 
-    releaseSecond();
+    second.release();
     await secondPromise;
     expect(store.loading).toBe(false);
   });
