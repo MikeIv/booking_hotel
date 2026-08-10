@@ -180,13 +180,13 @@ export function mountComponent<T extends Component>(
           <button v-if="canEditContacts" @click="$emit('change-contacts')">Изменить контакты</button>
         </div>
       `,
-      props: [
-        "hasManagementActions",
-        "canEditDates",
-        "canEditRoom",
-        "canEditPackages",
-        "canEditContacts",
-      ],
+      props: {
+        hasManagementActions: { type: Boolean, default: true },
+        canEditDates: Boolean,
+        canEditRoom: Boolean,
+        canEditPackages: Boolean,
+        canEditContacts: Boolean,
+      },
       emits: [
         "change-dates",
         "change-room",

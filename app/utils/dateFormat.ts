@@ -2,6 +2,12 @@
  * Единые форматтеры дат (локальный календарный день, без UTC-сдвига).
  */
 
+function parseDateString(dateString: string | undefined): Date | null {
+  if (!dateString) return null;
+  const date = new Date(dateString);
+  return isNaN(date.getTime()) ? null : date;
+}
+
 /** API / ключи календаря: YYYY-MM-DD в локальном часовом поясе */
 export function formatDateApi(value: Date | string): string {
   if (typeof value === "string") return value;
@@ -55,10 +61,8 @@ export function formatDateStringNumeric(
   dateString: string | undefined,
   empty = "—",
 ): string {
-  if (!dateString) return empty;
-  const date = new Date(dateString);
-  if (isNaN(date.getTime())) return empty;
-  return formatDateNumeric(date, empty);
+  const date = parseDateString(dateString);
+  return date ? formatDateNumeric(date, empty) : empty;
 }
 
 /** Парсинг строки → formatDateLong */
@@ -67,10 +71,8 @@ export function formatDateStringLong(
   locale = "ru-RU",
   empty = "—",
 ): string {
-  if (!dateString) return empty;
-  const date = new Date(dateString);
-  if (isNaN(date.getTime())) return empty;
-  return formatDateLong(date, locale, empty);
+  const date = parseDateString(dateString);
+  return date ? formatDateLong(date, locale, empty) : empty;
 }
 
 /** Парсинг строки → formatWeekdayLong */
@@ -79,8 +81,6 @@ export function formatWeekdayStringLong(
   locale = "ru-RU",
   empty = "",
 ): string {
-  if (!dateString) return empty;
-  const date = new Date(dateString);
-  if (isNaN(date.getTime())) return empty;
-  return formatWeekdayLong(date, locale, empty);
+  const date = parseDateString(dateString);
+  return date ? formatWeekdayLong(date, locale, empty) : empty;
 }

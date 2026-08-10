@@ -26,7 +26,7 @@ const optionalPhoneFieldRule = {
   maxLength: 32,
   custom: (value: unknown) => {
     if (isRequiredValueEmpty(value)) return null;
-    if (typeof value !== "string" || !PHONE_PATTERN.test(value)) {
+    if (typeof value !== "string" || !isValidPhone(value)) {
       return PHONE_PATTERN_MESSAGE;
     }
     return null;

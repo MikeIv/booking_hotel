@@ -505,7 +505,6 @@ const handleNewBooking = () => {
               <div :class="$style.divider" />
 
               <BookingDetailsManagement
-                :has-management-actions="hasManagementActions"
                 :can-edit-dates="canEditDates"
                 :can-edit-room="canEditRoom"
                 :can-edit-packages="canEditPackages"

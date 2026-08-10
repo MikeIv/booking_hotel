@@ -84,11 +84,6 @@
     return "";
   });
 
-  // Мемоизированная функция форматирования даты для datetime атрибута
-  const formatDateForDateTime = useMemoize((date: Date): string => {
-    return formatDateApi(date);
-  });
-
   const currentMonthYearLabel = computed(() => {
     return `${monthNames.value[currentMonth.value - 1]} ${currentYear.value}`;
   });
@@ -346,7 +341,7 @@
           :current-month-year-label="currentMonthYearLabel"
           :prices-loading="pricesLoading"
           :format-price="formatPrice"
-          :format-date-for-date-time="formatDateForDateTime"
+          :format-date-for-date-time="formatDateApi"
           :get-month-name="getMonthName"
           @day-click="handleDateClick"
         />
