@@ -1,7 +1,6 @@
 <script setup lang="ts">
   import Logo from "~/assets/images/logo.svg";
   import BurgerButton from "~/components/ui/BurgerButton.vue";
-  import { useI18n } from "vue-i18n";
 
   const { locale, t, setLocale } = useI18n();
   const router = useRouter();

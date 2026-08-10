@@ -1,6 +1,4 @@
 <script setup lang="ts">
-  import { useI18n } from "vue-i18n";
-
   const props = defineProps<{
     modelValue: [Date, Date] | null;
   }>();
@@ -57,7 +55,7 @@
   const loadPricesForVisibleMonths = async () => {
     const [prevMonth, prevYear] = getPrevMonth(currentMonth.value, currentYear.value);
     const [nextMonth, nextYear] = getNextMonth(currentMonth.value, currentYear.value);
-    
+
     await Promise.all([
       fetchCalendarPrices(currentMonth.value, currentYear.value),
       fetchCalendarPrices(prevMonth, prevYear),
@@ -218,7 +216,7 @@
       selectedStartDate.value = clickedDate;
       selectedEndDate.value = null;
       value.value = null;
-    } 
+    }
     // Если есть только начальная дата
     else if (selectedStartDate.value && !selectedEndDate.value) {
       if (clickedDate < selectedStartDate.value) {
@@ -229,7 +227,7 @@
         // Завершение диапазона
         selectedEndDate.value = clickedDate;
       }
-      
+
       // Обновляем значение через emit
       if (selectedStartDate.value && selectedEndDate.value) {
         value.value = [selectedStartDate.value, selectedEndDate.value];
@@ -242,13 +240,13 @@
     const todayDate = new Date();
     const currentMonthNum = todayDate.getMonth() + 1;
     const currentYearNum = todayDate.getFullYear();
-    
+
     return !(currentMonth.value === currentMonthNum && currentYear.value === currentYearNum);
   });
 
   const prevMonth = () => {
     if (!canGoToPrevMonth.value) return;
-    
+
     if (currentMonth.value === 1) {
       currentMonth.value = 12;
       currentYear.value--;

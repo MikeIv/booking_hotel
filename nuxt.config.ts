@@ -275,6 +275,9 @@ export default defineNuxtConfig({
     langDir: "locales",
     strategy: "no_prefix",
     defaultLocale: "ru",
+    // Не подставлять язык браузера: продукт по умолчанию на русском.
+    // Иначе EN-браузер получает Check-in/Select dates при defaultLocale: "ru".
+    detectBrowserLanguage: false,
     locales: [
       {
         code: "ru",
@@ -289,10 +292,6 @@ export default defineNuxtConfig({
         name: "English",
       },
     ],
-    detectBrowserLanguage: {
-      useCookie: true,
-      cookieKey: "i18n_redirected",
-    },
   },
 
   image: {
