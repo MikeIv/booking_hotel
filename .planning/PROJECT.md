@@ -46,7 +46,7 @@ yarn test
 
 ## Текущий фокус
 
-Audit remediation: **Волна 4 done** → пауза. Handoff в `.planning/state.md`. Next: Волна 5 только после явного «да».
+Audit remediation: **Волна 6** (расслоение booking.ts). Handoff в `.planning/state.md`. План: `booking_audit_remediation_cabffe27.plan.md`. W1–W5 + polish done (`0eb12d4`).
 
 ## Ограничения для агента
 
