@@ -9,16 +9,19 @@ export const isApiError = (error: unknown): error is ApiError => {
   );
 };
 
-export const getErrorMessage = (error: unknown): string => {
-  if (isApiError(error)) {
+export const getErrorMessage = (
+  error: unknown,
+  defaultMessage?: string,
+): string => {
+  if (isApiError(error) && error.message) {
     return error.message;
   }
 
-  if (error instanceof Error) {
+  if (error instanceof Error && error.message) {
     return error.message;
   }
 
-  return "Произошла неизвестная ошибка";
+  return defaultMessage ?? "Произошла неизвестная ошибка";
 };
 
 export const BOOKING_ACCESS_DENIED_MESSAGE = "Доступ к бронированию запрещено";

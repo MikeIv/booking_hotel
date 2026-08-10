@@ -9,6 +9,7 @@
   } from "~/stores/booking";
   import type { SelectedEntry } from "~/types/booking";
   import { toStayTotal } from "~/utils/price";
+  import { formatDateLong, formatWeekdayLong } from "~/utils/dateFormat";
 
   interface Props {
     selectedEntries: Record<string, SelectedEntry>;
@@ -38,36 +39,20 @@
   const { date, nights, selectedEntries, bookingTotal } = toRefs(props);
   const isContinueVisible = computed(() => props.showContinue);
 
-  const formatDate = (date: Date | null | undefined): string => {
-    if (!date) return "";
-    return date.toLocaleDateString("ru-RU", {
-      day: "numeric",
-      month: "long",
-    });
-  };
-
   const formatNights = (nights: number): string => {
     if (nights === 1) return "ночь";
     if (nights >= 2 && nights <= 4) return "ночи";
     return "ночей";
   };
 
-  const formatWeekday = (date: Date | null | undefined): string => {
-    if (!date) return "";
-    const weekday = date.toLocaleDateString("ru-RU", {
-      weekday: "long",
-    });
-    return weekday.charAt(0).toUpperCase() + weekday.slice(1);
-  };
-
   const checkInDate = computed(() => date.value?.[0] ?? null);
   const checkOutDate = computed(() => date.value?.[1] ?? null);
 
-  const checkInFormatted = computed(() => formatDate(checkInDate.value));
-  const checkOutFormatted = computed(() => formatDate(checkOutDate.value));
+  const checkInFormatted = computed(() => formatDateLong(checkInDate.value));
+  const checkOutFormatted = computed(() => formatDateLong(checkOutDate.value));
 
-  const checkInWeekday = computed(() => formatWeekday(checkInDate.value));
-  const checkOutWeekday = computed(() => formatWeekday(checkOutDate.value));
+  const checkInWeekday = computed(() => formatWeekdayLong(checkInDate.value));
+  const checkOutWeekday = computed(() => formatWeekdayLong(checkOutDate.value));
 
   const isDatesDetailsOpen = ref(false);
 
@@ -198,13 +183,13 @@
         </div>
       </div>
       <div v-if="!isDatesDetailsOpen" :class="$style.pageSummaryDatesMobile">
-        {{ formatDate(date?.[0] || null) }} -
-        {{ formatDate(date?.[1] || null) }}, {{ nights }}
+        {{ formatDateLong(date?.[0] || null) }} -
+        {{ formatDateLong(date?.[1] || null) }}, {{ nights }}
         {{ formatNights(nights) }}
       </div>
       <div :class="$style.pageSummaryDates">
-        {{ formatDate(date?.[0] || null) }} -
-        {{ formatDate(date?.[1] || null) }}, {{ nights }}
+        {{ formatDateLong(date?.[0] || null) }} -
+        {{ formatDateLong(date?.[1] || null) }}, {{ nights }}
         {{ formatNights(nights) }}
       </div>
       <div

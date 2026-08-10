@@ -504,7 +504,7 @@ const handleNewBooking = () => {
             <template v-if="hasManagementActions">
               <div :class="$style.divider" />
 
-              <BookingConfirmationManagement
+              <BookingDetailsManagement
                 :has-management-actions="hasManagementActions"
                 :can-edit-dates="canEditDates"
                 :can-edit-room="canEditRoom"

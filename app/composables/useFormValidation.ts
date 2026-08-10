@@ -5,8 +5,11 @@ const REQUIRED_FIELD_MESSAGE = "Обязательное поле";
 
 const requiredTextField = { required: true, maxLength: 255 } as const;
 
-const PHONE_PATTERN = /^[+]?[0-9\s\-()]{10,}$/;
+export const PHONE_PATTERN = /^[+]?[0-9\s\-()]{10,}$/;
 const PHONE_PATTERN_MESSAGE = "Введите корректный телефон";
+
+export const isValidPhone = (value: string): boolean =>
+  PHONE_PATTERN.test(value.trim());
 
 const isRequiredValueEmpty = (value: unknown): boolean =>
   value == null || (typeof value === "string" && !value.trim());

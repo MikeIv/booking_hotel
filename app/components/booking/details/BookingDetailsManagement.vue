@@ -1,10 +1,16 @@
 ﻿<script setup lang="ts">
-defineProps<{
-  canEditDates: boolean;
-  canEditRoom: boolean;
-  canEditPackages: boolean;
-  canEditContacts: boolean;
-}>();
+withDefaults(
+  defineProps<{
+    hasManagementActions?: boolean;
+    canEditDates: boolean;
+    canEditRoom: boolean;
+    canEditPackages: boolean;
+    canEditContacts: boolean;
+  }>(),
+  {
+    hasManagementActions: true,
+  },
+);
 
 const emit = defineEmits<{
   "change-dates": [];
@@ -15,7 +21,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <section :class="$style.section">
+  <section v-if="hasManagementActions" :class="$style.section">
     <h2 :class="$style.sectionTitle">Управление бронированием</h2>
     <p :class="$style.managementText">
       Если это не противоречит условиям Вашего тарифа, Вы можете:
@@ -103,22 +109,22 @@ const emit = defineEmits<{
   }
 
   .managementButtons {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr;
     gap: rem(12);
 
     @media (min-width: #{size.$tablet}) {
+      grid-template-columns: repeat(2, 1fr);
       gap: rem(16);
     }
 
     @media (min-width: #{size.$desktopMin}) {
-      flex-direction: row;
-      gap: rem(16);
+      grid-template-columns: repeat(4, 1fr);
+    }
 
-      :global(.btn__bs) {
-        flex: 1;
-        min-width: 0;
-      }
+    :global(.btn__bs) {
+      white-space: nowrap;
+      min-width: 0;
     }
   }
 </style>

@@ -8,6 +8,9 @@ import {
   buildContactUpdateGuest,
   mapBookingUpdateRooms,
 } from "~/utils/bookingChangeRequest";
+import { isValidEmail } from "~/utils/email";
+import { isValidPhone } from "~/composables/useFormValidation";
+import { buildBookingContactFallback } from "~/utils/bookingFallback";
 
 type ChangeBookingResponse = {
   success: boolean;
@@ -48,10 +51,7 @@ export const useBookingChangeContacts = (
     ) {
       return false;
     }
-    return (
-      /^\S+@\S+\.\S+$/.test(f.email.trim()) &&
-      /^[+]?[0-9\s\-()]{10,}$/.test(f.phone.trim())
-    );
+    return isValidEmail(f.email) && isValidPhone(f.phone);
   });
 
   const openChangeContactsPopup = () => {

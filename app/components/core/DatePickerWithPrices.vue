@@ -1,4 +1,6 @@
 <script setup lang="ts">
+  import { formatDateApi } from "~/utils/dateFormat";
+
   const props = defineProps<{
     modelValue: [Date, Date] | null;
   }>();
@@ -84,8 +86,7 @@
 
   // Мемоизированная функция форматирования даты для datetime атрибута
   const formatDateForDateTime = useMemoize((date: Date): string => {
-    const iso = date.toISOString().split('T')[0];
-    return iso || '';
+    return formatDateApi(date);
   });
 
   const currentMonthYearLabel = computed(() => {

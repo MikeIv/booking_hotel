@@ -170,8 +170,8 @@ export function mountComponent<T extends Component>(
         "showContinue",
       ],
     },
-    // Заглушки для компонентов страницы confirmation
-    BookingConfirmationManagement: {
+    // Заглушки для управления бронированием (confirmation / details)
+    BookingDetailsManagement: {
       template: `
         <div v-if="hasManagementActions" data-testid="booking-management">
           <button v-if="canEditDates" @click="$emit('change-dates')">Изменить даты</button>

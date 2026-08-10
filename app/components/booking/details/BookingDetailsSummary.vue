@@ -3,6 +3,10 @@ import type { BookingDetailsRoom } from "~/types/booking-details";
 import { formatCount } from "~/utils/declension";
 import { formatPrice } from "~/utils/price";
 import { useDateLocale } from "~/composables/useDateLocale";
+import {
+  formatDateStringLong,
+  formatWeekdayStringLong,
+} from "~/utils/dateFormat";
 
 interface Props {
   startDate?: string;
@@ -26,37 +30,19 @@ const isRoomExpanded = (roomIdx: number) => {
   return !!expandedRooms.value[roomIdx];
 };
 
-const formatDate = (dateString: string | undefined): string => {
-  if (!dateString) return "—";
-  try {
-    const date = new Date(dateString);
-    return date.toLocaleDateString(dateLocale.value, {
-      day: "numeric",
-      month: "long",
-    });
-  } catch {
-    return "—";
-  }
-};
+const checkInWeekday = computed(() =>
+  formatWeekdayStringLong(props.startDate, dateLocale.value),
+);
+const checkOutWeekday = computed(() =>
+  formatWeekdayStringLong(props.endDate, dateLocale.value),
+);
 
-const formatWeekday = (dateString: string | undefined): string => {
-  if (!dateString) return "";
-  try {
-    const date = new Date(dateString);
-    const weekday = date.toLocaleDateString("ru-RU", {
-      weekday: "long",
-    });
-    return weekday.charAt(0).toUpperCase() + weekday.slice(1);
-  } catch {
-    return "";
-  }
-};
-
-const checkInWeekday = computed(() => formatWeekday(props.startDate));
-const checkOutWeekday = computed(() => formatWeekday(props.endDate));
-
-const formattedStartDate = computed(() => formatDate(props.startDate));
-const formattedEndDate = computed(() => formatDate(props.endDate));
+const formattedStartDate = computed(() =>
+  formatDateStringLong(props.startDate, dateLocale.value),
+);
+const formattedEndDate = computed(() =>
+  formatDateStringLong(props.endDate, dateLocale.value),
+);
 const formattedTotalPrice = computed(() => formatPrice(props.totalPrice));
 </script>
 

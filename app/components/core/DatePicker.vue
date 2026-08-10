@@ -2,6 +2,7 @@
   import { computed, ref, watch } from "vue";
   import VueDatePicker from "@vuepic/vue-datepicker";
   import "@vuepic/vue-datepicker/dist/main.css";
+  import { formatDateNumeric } from "~/utils/dateFormat";
 
   const props = defineProps<{
     modelValue: [Date, Date] | null;
@@ -35,20 +36,9 @@
     { immediate: true },
   );
 
-  const formatDate = (date: Date | null): string => {
-    if (!date) return "--.--.----";
-    return date
-      .toLocaleDateString("ru-RU", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      })
-      .replace(/\//g, ".");
-  };
-
   const formatDisplayValue = (dates: Date[] | null): string => {
     if (!dates || dates.length !== 2) return "";
-    return `${formatDate(dates[0])} - ${formatDate(dates[1])}`;
+    return `${formatDateNumeric(dates[0])} - ${formatDateNumeric(dates[1])}`;
   };
 </script>
 

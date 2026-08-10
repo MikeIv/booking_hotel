@@ -1,3 +1,5 @@
+import { formatDateApi } from "~/utils/dateFormat";
+
 export interface PriceCalendarResource {
   date_at: string;
   min_price: number;
@@ -106,7 +108,7 @@ export const useCalendarPrices = () => {
   };
 
   const getPriceForDate = (date: Date): number | null => {
-    const dateStr = date.toISOString().split("T")[0] as string;
+    const dateStr = formatDateApi(date);
     const price = prices.value.get(dateStr);
     return price ?? null;
   };

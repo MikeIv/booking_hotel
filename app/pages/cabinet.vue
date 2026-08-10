@@ -3,6 +3,7 @@
   import { useBookingStore } from "~/stores/booking";
   import { useNotificationToast } from "~/composables/useToast";
   import { useApi } from "~/composables/useApi";
+  import { getErrorMessage } from "~/composables/useApiHelpers";
   import { useUserProfile } from "~/composables/useUserProfile";
   import { useBookingHistory } from "~/composables/useBookingHistory";
   import CabinetNavigation from "~/components/cabinet/CabinetNavigation.vue";
@@ -40,15 +41,18 @@
     handleLoadMoreClick,
   } = useBookingHistory();
 
-  const handleError = (err: unknown, defaultMessage: string, summary = "Ошибка") => {
+  const handleError = (
+    err: unknown,
+    defaultMessage: string,
+    summary = "Ошибка",
+  ) => {
     if (import.meta.dev) {
       console.error("💥 Ошибка:", err);
     }
-    const message = (err as { message?: string })?.message || defaultMessage;
     toast.add({
       severity: "error",
       summary,
-      detail: message,
+      detail: getErrorMessage(err, defaultMessage),
       life: 5000,
     });
   };

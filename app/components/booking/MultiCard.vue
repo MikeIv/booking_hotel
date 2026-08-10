@@ -7,6 +7,7 @@
     getTariffStayTotalForRoom,
     getTariffRoomIndices,
   } from "~/utils/multiBooking";
+  import { formatDateLong } from "~/utils/dateFormat";
 
   interface Props {
     room: Room;
@@ -129,11 +130,6 @@
 
     return false;
   }
-
-  const formatDateDisplay = (date: Date | null): string => {
-    if (!date) return "";
-    return date.toLocaleDateString("ru-RU", { day: "numeric", month: "long" });
-  };
 
   const nights = useNights(date);
   const calculateNights = (): number => nights.value;
@@ -353,8 +349,8 @@
                         Детализация цены, ₽
                       </div>
                       <div :class="$style.priceDetailsDates">
-                        {{ formatDateDisplay(checkInDate) }} -
-                        {{ formatDateDisplay(checkOutDate) }},
+                        {{ formatDateLong(checkInDate) }} -
+                        {{ formatDateLong(checkOutDate) }},
                         {{ formatCount(calculateNights(), "night") }}
                       </div>
                       <div :class="$style.priceDetailsGuests">

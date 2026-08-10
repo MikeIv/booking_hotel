@@ -1,3 +1,5 @@
+import { formatDateNumeric } from "~/utils/dateFormat";
+
 /**
  * Composable для работы с локализованными названиями месяцев и дней недели
  * Использует vue-i18n для поддержки смены языка
@@ -63,19 +65,14 @@ export const useDateLocale = () => {
     date: Date | null,
     options?: Intl.DateTimeFormatOptions,
   ): string => {
-    if (!date) return "--.--.----";
-
     if (options) {
+      if (!date) return "--.--.----";
       return date
         .toLocaleDateString(dateLocale.value, options)
         .replace(/\//g, ".");
     }
 
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0");
-    const year = String(date.getFullYear());
-
-    return `${day}.${month}.${year}`;
+    return formatDateNumeric(date);
   };
 
   return {

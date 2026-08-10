@@ -4,6 +4,7 @@
     getBookingDisplayNumber,
     getBookingStatusLabel,
   } from "~/utils/bookingStatus";
+  import { formatDateStringNumeric } from "~/utils/dateFormat";
 
   interface Props {
     booking: BookingHistoryItem;
@@ -20,19 +21,6 @@
   const bookingStatusLabel = computed(() =>
     getBookingStatusLabel(props.booking.status),
   );
-
-  const formatDate = (dateString: string | undefined): string => {
-    if (!dateString) return "—";
-    try {
-      return new Date(dateString).toLocaleDateString("ru-RU", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      });
-    } catch {
-      return "—";
-    }
-  };
 
   const handleViewDetails = () => {
     const bookingUuid = props.booking.uuid ?? props.booking.id;
@@ -56,9 +44,9 @@
       v-if="booking.order?.start_at || booking.order?.end_at"
       :class="$style.bookingDates"
     >
-      <time :datetime="booking.order?.start_at">{{ formatDate(booking.order?.start_at) }}</time>
+      <time :datetime="booking.order?.start_at">{{ formatDateStringNumeric(booking.order?.start_at) }}</time>
       <span :class="$style.dateSeparator">-</span>
-      <time :datetime="booking.order?.end_at">{{ formatDate(booking.order?.end_at) }}</time>
+      <time :datetime="booking.order?.end_at">{{ formatDateStringNumeric(booking.order?.end_at) }}</time>
     </div>
 
     <footer :class="$style.bookingFooter">

@@ -31,6 +31,7 @@ import {
 } from "~/utils/mapBookingShowToHistoryItem";
 import { toBookingAllowedActionsArray } from "~/utils/bookingAllowedActions";
 import { createStaleSearchError } from "~/utils/staleSearchError";
+import { formatDateApi } from "~/utils/dateFormat";
 
 export interface SelectedService {
   id: number;
@@ -211,17 +212,7 @@ export const useBookingStore = defineStore(
       }
     };
 
-    const formatDate = (value: Date | string): string => {
-      if (typeof value === "string") return value;
-      if (!(value instanceof Date) || isNaN(value.getTime())) {
-        throw new Error(`Неверный формат даты: ${String(value)}`);
-      }
-      // Форматируем дату в локальном часовом поясе, чтобы избежать смещения на день
-      const year = value.getFullYear();
-      const month = String(value.getMonth() + 1).padStart(2, "0");
-      const day = String(value.getDate()).padStart(2, "0");
-      return `${year}-${month}-${day}`;
-    };
+    const formatDate = formatDateApi;
 
     function validateSearchParams() {
       if (!date.value) {
@@ -882,65 +873,18 @@ export const useBookingStore = defineStore(
     }
 
     /**
-     * Детали брони из ЛК. GET /v1/booking/{uuid} (booking.show).
-     * bookingId — uuid заказа из истории (поле id в BookingResource).
-     */
-    async function getBookingDetails(bookingId: string | number) {
-      const { get } = useApi();
-      const bookingUuid = String(bookingId).trim();
-
-      if (!bookingUuid) {
-        throw new Error("Не указан идентификатор бронирования");
-      }
-
-      setLoading(true, "Загружаем детали брони...");
-
-      let apiError: Error | null = null;
-
-      try {
-        isServerRequest.value = true;
-        const response = await get<BookingByUuidPayload>(
-          `/v1/booking/${bookingUuid}`,
-          {},
-          {
-            signal: AbortSignal.timeout(10000),
-          },
-        );
-
-        if (response.success && response.payload) {
-          const normalized = normalizeBookingByUuidPayload(response.payload);
-          const bookingDetails = mapBookingShowToHistoryItem(response.payload);
-          setBookingByUuid(normalized);
-          setCurrentBookingDetails(bookingDetails);
-          return bookingDetails;
-        }
-
-        apiError = new Error(
-          response.message || "Ошибка при получении данных брони",
-        );
-      } catch (err: unknown) {
-        error.value =
-          (err as Error).message || "Произошла ошибка при загрузке данных";
-        throw err;
-      } finally {
-        isServerRequest.value = false;
-        setLoading(false);
-      }
-
-      error.value = apiError!.message;
-      throw apiError!;
-    }
-
-    /**
-     * Загрузка бронирования по uuid (страница подтверждения после редиректа с оплаты).
+     * Загрузка бронирования по uuid (confirmation / детали из ЛК).
      * GET /v1/booking/{uuid}
+     * При `updateDetails: true` также мапит payload в BookingHistoryItem
+     * и пишет в currentBookingDetails.
      */
     async function getBookingByUuid(
       uuid: string,
-      options?: { silent?: boolean },
+      options?: { silent?: boolean; updateDetails?: boolean },
     ): Promise<BookingResponse> {
       const { get } = useApi();
       const silent = options?.silent ?? false;
+      const updateDetails = options?.updateDetails ?? false;
 
       if (!silent) {
         setLoading(true, "Загружаем данные бронирования...");
@@ -961,6 +905,11 @@ export const useBookingStore = defineStore(
         if (response.success && response.payload) {
           const normalized = normalizeBookingByUuidPayload(response.payload);
           setBookingByUuid(normalized);
+          if (updateDetails) {
+            setCurrentBookingDetails(
+              mapBookingShowToHistoryItem(response.payload),
+            );
+          }
           return normalized;
         }
 
@@ -981,6 +930,27 @@ export const useBookingStore = defineStore(
 
       error.value = apiError!.message;
       throw apiError!;
+    }
+
+    /**
+     * Детали брони из ЛК. GET /v1/booking/{uuid} (booking.show).
+     * bookingId — uuid заказа из истории (поле id в BookingResource).
+     */
+    async function getBookingDetails(
+      bookingId: string | number,
+    ): Promise<BookingHistoryItem> {
+      const uuid = String(bookingId).trim();
+      if (!uuid) {
+        throw new Error("Не указан идентификатор бронирования");
+      }
+
+      await getBookingByUuid(uuid, { updateDetails: true });
+
+      const details = currentBookingDetails.value;
+      if (!details) {
+        throw new Error("Ошибка при получении данных брони");
+      }
+      return details;
     }
 
     async function searchPackages(

@@ -6,6 +6,7 @@ import type {
 import { useAuthStore } from "~/stores/auth";
 import { useNotificationToast } from "~/composables/useToast";
 import { useApi } from "~/composables/useApi";
+import { getErrorMessage } from "~/composables/useApiHelpers";
 
 export const useBookingHistory = () => {
   const authStore = useAuthStore();
@@ -25,11 +26,10 @@ export const useBookingHistory = () => {
     if (import.meta.dev) {
       console.error("💥 Ошибка:", err);
     }
-    const message = (err as { message?: string })?.message || defaultMessage;
     toast.add({
       severity: "error",
       summary: "Ошибка",
-      detail: message,
+      detail: getErrorMessage(err, defaultMessage),
       life: 5000,
     });
   };
