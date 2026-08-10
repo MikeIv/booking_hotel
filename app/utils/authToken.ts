@@ -67,3 +67,36 @@ export async function fetchRefreshedAccessToken(
 
   return accessToken;
 }
+
+/** Минимальный контракт auth-стора для тихого restore при старте SPA. */
+export interface AuthSessionStore {
+  user: unknown;
+  token: string | null;
+  setToken: (token: string) => void;
+  logout: () => void;
+}
+
+/**
+ * Восстанавливает access-токен через refresh cookie.
+ * Logout только при 401/403 / isRefreshError; сетевые сбои сессию не трогают.
+ */
+export async function restoreClientAuthSession(
+  authStore: AuthSessionStore,
+  apiBase: string,
+): Promise<void> {
+  if (!authStore.user) return;
+
+  const baseURL = normalizeApiBaseUrl(apiBase);
+
+  try {
+    const accessToken = await fetchRefreshedAccessToken(
+      baseURL,
+      authStore.token,
+    );
+    authStore.setToken(accessToken);
+  } catch (err: unknown) {
+    if (shouldLogoutOnRefreshError(err)) {
+      authStore.logout();
+    }
+  }
+}
