@@ -1,31 +1,13 @@
-<template>
-  <div :class="$style.layout">
-    <LayoutHeader />
-    <div
-      :class="$style.wrapper"
-      :style="{
-        marginTop: `${headerHeight}px`,
-        '--header-height': `${headerHeight}px`,
-      }"
-    >
-      <CoreBreadcrumbs />
-      <slot />
-    </div>
-    <LayoutFooter />
-    <CoreSessionTimeoutHandler />
-  </div>
-</template>
-
 <script setup lang="ts">
   const headerHeight = ref(94);
   let resizeObserver: ResizeObserver | null = null;
 
   const updateHeaderHeight = () => {
     if (typeof window === "undefined") return;
-    
+
     const headerSection = document.querySelector("section[class*='section']");
     const headerElement = headerSection?.querySelector("aside");
-    
+
     if (headerElement) {
       const height = headerElement.offsetHeight;
       if (height > 0) {
@@ -37,14 +19,14 @@
   onMounted(() => {
     nextTick(() => {
       updateHeaderHeight();
-      
+
       resizeObserver = new ResizeObserver(() => {
         updateHeaderHeight();
       });
 
       const headerSection = document.querySelector("section[class*='section']");
       const headerElement = headerSection?.querySelector("aside");
-      
+
       if (headerElement) {
         resizeObserver.observe(headerElement);
       }
@@ -62,6 +44,24 @@
     }
   });
 </script>
+
+<template>
+  <div :class="$style.layout">
+    <LayoutHeader />
+    <div
+      :class="$style.wrapper"
+      :style="{
+        marginTop: `${headerHeight}px`,
+        '--header-height': `${headerHeight}px`,
+      }"
+    >
+      <CoreBreadcrumbs />
+      <slot />
+    </div>
+    <LayoutFooter />
+    <CoreSessionTimeoutHandler />
+  </div>
+</template>
 
 <style module lang="scss">
   .layout {

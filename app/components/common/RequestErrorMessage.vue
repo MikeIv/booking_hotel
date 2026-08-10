@@ -1,6 +1,4 @@
 ﻿<script lang="ts">
-  import { computed, defineComponent } from "vue";
-
   export interface RequestErrorContent {
     summary: string;
     detail: string;
@@ -100,46 +98,38 @@
       detail: fallbackDetail,
     };
   };
+</script>
 
-  export default defineComponent({
-    name: "RequestErrorMessage",
-    props: {
-      status: {
-        type: Number,
-        required: false,
-        default: null,
-      },
-      serverMessage: {
-        type: String,
-        required: false,
-        default: "",
-      },
+<script setup lang="ts">
+  const props = withDefaults(
+    defineProps<{
+      status?: number | null;
+      serverMessage?: string;
+    }>(),
+    {
+      status: null,
+      serverMessage: "",
     },
-    setup(props) {
-      const message = computed(() =>
-        getRequestErrorContent(props.status, props.serverMessage),
-      );
+  );
 
-      return {
-        message,
-      };
-    },
-  });
+  const message = computed(() =>
+    getRequestErrorContent(props.status ?? undefined, props.serverMessage),
+  );
 </script>
 
 <template>
-  <div class="request-error-message" role="alert">
-    <p class="request-error-message__summary">
+  <div :class="$style.root" role="alert">
+    <p :class="$style.summary">
       {{ message.summary }}
     </p>
-    <p v-if="message.detail" class="request-error-message__detail">
+    <p v-if="message.detail" :class="$style.detail">
       {{ message.detail }}
     </p>
   </div>
 </template>
 
-<style scoped lang="scss">
-  .request-error-message {
+<style module lang="scss">
+  .root {
     display: flex;
     flex-direction: column;
     gap: rem(4);
@@ -147,14 +137,14 @@
     color: var(--color-text, #1b1b1b);
   }
 
-  .request-error-message__summary {
+  .summary {
     margin: 0;
     font-weight: 600;
     font-size: rem(15);
     line-height: 1.35;
   }
 
-  .request-error-message__detail {
+  .detail {
     margin: 0;
     font-weight: 400;
     font-size: rem(14);

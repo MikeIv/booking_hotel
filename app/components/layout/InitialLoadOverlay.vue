@@ -105,13 +105,12 @@
       transform: rotate(360deg);
     }
   }
-</style>
 
-<style scoped>
-  .initial-loader-fade-leave-active {
+  :global(.initial-loader-fade-leave-active) {
     transition: opacity 0.25s ease-out;
   }
-  .initial-loader-fade-leave-to {
+
+  :global(.initial-loader-fade-leave-to) {
     opacity: 0;
   }
 </style>

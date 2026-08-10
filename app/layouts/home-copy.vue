@@ -1,10 +1,3 @@
-<template>
-  <div :class="$style.layout">
-    <slot />
-    <LayoutFooter />
-  </div>
-</template>
-
 <script setup lang="ts">
   onMounted(() => {
     document.body.classList.add("home-copy-body");
@@ -14,6 +7,13 @@
     document.body.classList.remove("home-copy-body");
   });
 </script>
+
+<template>
+  <div :class="$style.layout">
+    <slot />
+    <LayoutFooter />
+  </div>
+</template>
 
 <style module lang="scss">
   .layout {

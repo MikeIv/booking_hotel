@@ -1,20 +1,3 @@
-<template>
-  <div :class="$style.layout">
-    <LayoutHeader />
-    <div
-      :class="$style.wrapper"
-      :style="{
-        marginTop: `${headerHeight}px`,
-        '--header-height': `${headerHeight}px`,
-      }"
-    >
-      <CoreBreadcrumbs />
-      <slot />
-    </div>
-    <LayoutFooter />
-  </div>
-</template>
-
 <script setup lang="ts">
   const headerHeight = ref(94);
   let resizeObserver: ResizeObserver | null = null;
@@ -59,6 +42,23 @@
     }
   });
 </script>
+
+<template>
+  <div :class="$style.layout">
+    <LayoutHeader />
+    <div
+      :class="$style.wrapper"
+      :style="{
+        marginTop: `${headerHeight}px`,
+        '--header-height': `${headerHeight}px`,
+      }"
+    >
+      <CoreBreadcrumbs />
+      <slot />
+    </div>
+    <LayoutFooter />
+  </div>
+</template>
 
 <style module lang="scss">
   .layout {

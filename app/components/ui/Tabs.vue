@@ -1,5 +1,40 @@
+<script setup lang="ts">
+  interface UiTabsItem {
+    label: string;
+    value: string;
+    disabled?: boolean;
+  }
+
+  interface Props {
+    items: UiTabsItem[];
+    modelValue: string;
+    ariaLabel: string;
+    mode?: "tariff" | "personal";
+    buttonType?: "button" | "submit" | "reset";
+  }
+
+  interface Emits {
+    (e: "update:modelValue", value: string): void;
+  }
+
+  withDefaults(defineProps<Props>(), {
+    mode: "tariff",
+    buttonType: "button",
+  });
+
+  const emit = defineEmits<Emits>();
+
+  const handleSelect = (value: string) => {
+    emit("update:modelValue", value);
+  };
+</script>
+
 <template>
-  <nav :class="[$style.tabs, $style[`tabs_${mode}`]]" role="group" :aria-label="ariaLabel">
+  <nav
+    :class="[$style.tabs, $style[`tabs_${mode}`]]"
+    role="group"
+    :aria-label="ariaLabel"
+  >
     <button
       v-for="item in items"
       :key="item.value"
@@ -17,37 +52,6 @@
     </button>
   </nav>
 </template>
-
-<script setup lang="ts">
-interface UiTabsItem {
-  label: string;
-  value: string;
-  disabled?: boolean;
-}
-
-interface Props {
-  items: UiTabsItem[];
-  modelValue: string;
-  ariaLabel: string;
-  mode?: "tariff" | "personal";
-  buttonType?: "button" | "submit" | "reset";
-}
-
-interface Emits {
-  (e: "update:modelValue", value: string): void;
-}
-
-withDefaults(defineProps<Props>(), {
-  mode: "tariff",
-  buttonType: "button",
-});
-
-const emit = defineEmits<Emits>();
-
-const handleSelect = (value: string) => {
-  emit("update:modelValue", value);
-};
-</script>
 
 <style module lang="scss">
   @use "~/assets/styles/variables/resolutions" as size;
