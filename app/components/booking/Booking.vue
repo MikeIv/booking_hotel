@@ -8,6 +8,7 @@
     getUnavailableRoomIndices,
     MULTI_BOOKING_UNAVAILABLE_TOAST,
   } from "~/utils/multiBooking";
+  import { isStaleSearchError } from "~/utils/staleSearchError";
 
   type BookingMode = "home" | "inner";
 
@@ -108,9 +109,11 @@
     bookingStore.setLoading(true, "Загружаем данные о номерах...");
     bookingStore.setServerRequest(true);
 
+    let skipOverlayReset = false;
+
     try {
       const result = await bookingStore.search({ skipReset: true });
-      
+
       // Проверяем, что сервер вернул данные о номерах
       if (!result || !result.rooms || result.rooms.length === 0) {
         toast.add({
@@ -146,6 +149,12 @@
       bookingStore.setLoading(false);
       bookingStore.setServerRequest(false);
     } catch (error: unknown) {
+      // Устаревший search: активный запрос ещё идёт — не тостим и не гасим overlay
+      if (isStaleSearchError(error)) {
+        skipOverlayReset = true;
+        return;
+      }
+
       const { status, message } = (error || {}) as ApiError;
       const { summary, detail } = getRequestErrorContent(status, message);
 
@@ -158,9 +167,10 @@
       bookingStore.setLoading(false);
       bookingStore.setServerRequest(false);
     } finally {
-      // Дополнительная защита: гарантируем сброс состояния даже при неожиданных ошибках
-      bookingStore.setLoading(false);
-      bookingStore.setServerRequest(false);
+      if (!skipOverlayReset) {
+        bookingStore.setLoading(false);
+        bookingStore.setServerRequest(false);
+      }
     }
   };
 

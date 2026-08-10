@@ -84,8 +84,8 @@
   function onSelectTariff(index: number, tariff: RoomTariff | null) {
     if (!tariff) return;
     // Используем составной ключ для уникальной идентификации номера в конкретной карточке
-    const key = props.roomCardIdx !== undefined 
-      ? `${props.roomCardIdx}-${index}` 
+    const key = props.roomCardIdx !== undefined
+      ? `${props.roomCardIdx}-${index}`
       : `${index}`;
     const alreadySelectedCode =
       props.selectedCodes?.[key] ??
@@ -103,8 +103,8 @@
   function isSelected(index: number, tariff: RoomTariff | null) {
     if (!tariff) return false;
     // Используем составной ключ для уникальной идентификации номера в конкретной карточке
-    const key = props.roomCardIdx !== undefined 
-      ? `${props.roomCardIdx}-${index}` 
+    const key = props.roomCardIdx !== undefined
+      ? `${props.roomCardIdx}-${index}`
       : `${index}`;
     const externalCode = props.selectedCodes?.[key];
     if (externalCode) return externalCode === tariff.rate_plan_code;
@@ -116,17 +116,17 @@
 
   function isButtonDisabled(index: number, tariff: RoomTariff | null) {
     if (!tariff) return true;
-    
+
     // Если номер уже выбран в другой карточке, блокируем кнопку
     if (props.disabledRoomIndices?.has(index) && !isSelected(index, tariff)) {
       return true;
     }
-    
+
     // Если все номера выбраны и текущий номер не выбран, блокируем кнопку
     if (props.isAllRoomsSelected && !isSelected(index, tariff)) {
       return true;
     }
-    
+
     return false;
   }
 

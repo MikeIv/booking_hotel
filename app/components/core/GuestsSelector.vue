@@ -10,6 +10,7 @@ import {
   getUnavailableRoomIndices,
   MULTI_BOOKING_UNAVAILABLE_TOAST,
 } from "~/utils/multiBooking";
+import { isStaleSearchError } from "~/utils/staleSearchError";
 
 export interface RoomGuests {
   adults: number;
@@ -227,6 +228,8 @@ const MAX_ROOMS = 5;
     isApplying.value = true;
     clearUnavailableHighlight();
 
+    let skipOverlayReset = false;
+
     try {
       bookingStore.setGuests({ ...guests.value });
       await nextTick();
@@ -258,6 +261,10 @@ const MAX_ROOMS = 5;
         await router.push("/multi-rooms");
       }
     } catch (error: unknown) {
+      if (isStaleSearchError(error)) {
+        skipOverlayReset = true;
+        return;
+      }
       const { status, message } = (error || {}) as ApiError;
       const { summary, detail } = getRequestErrorContent(status, message);
       toast.add({
@@ -268,9 +275,12 @@ const MAX_ROOMS = 5;
       });
     } finally {
       isApplying.value = false;
-      // search({ skipReset: true }) не гасит overlay — сбрасываем здесь
-      bookingStore.setLoading(false);
-      bookingStore.setServerRequest(false);
+      // search({ skipReset: true }) не гасит overlay — сбрасываем здесь,
+      // кроме устаревшего search (активный запрос ещё идёт)
+      if (!skipOverlayReset) {
+        bookingStore.setLoading(false);
+        bookingStore.setServerRequest(false);
+      }
     }
   }
 

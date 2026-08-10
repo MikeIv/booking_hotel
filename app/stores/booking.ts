@@ -30,6 +30,7 @@ import {
   normalizeBookingByUuidPayload,
 } from "~/utils/mapBookingShowToHistoryItem";
 import { toBookingAllowedActionsArray } from "~/utils/bookingAllowedActions";
+import { createStaleSearchError } from "~/utils/staleSearchError";
 
 export interface SelectedService {
   id: number;
@@ -758,9 +759,7 @@ export const useBookingStore = defineStore(
         );
 
         if (requestId !== searchRequestSeq) {
-          const stale = new Error("Aborted");
-          stale.name = "AbortError";
-          throw stale;
+          throw createStaleSearchError();
         }
 
         if (response.success) {
@@ -777,9 +776,7 @@ export const useBookingStore = defineStore(
       } catch (err: unknown) {
         // Заменённый запрос: не затираем error актуального поиска
         if (requestId !== searchRequestSeq) {
-          const stale = new Error("Aborted");
-          stale.name = "AbortError";
-          throw stale;
+          throw createStaleSearchError();
         }
 
         error.value = (err as Error).message || "Произошла ошибка при поиске";

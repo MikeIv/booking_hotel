@@ -2,6 +2,7 @@
   import { useBookingStore } from "~/stores/booking";
   import { useNotificationToast } from "~/composables/useToast";
   import { useRoomFilters } from "~/composables/useRoomFilters";
+  import { isStaleSearchError } from "~/utils/staleSearchError";
 
   definePageMeta({
     layout: "steps",
@@ -50,6 +51,9 @@
       try {
         await bookingStore.search();
       } catch (error: unknown) {
+        if (isStaleSearchError(error)) {
+          return;
+        }
         if (import.meta.dev) {
           console.error("Ошибка при загрузке сохраненного поиска:", error);
         }

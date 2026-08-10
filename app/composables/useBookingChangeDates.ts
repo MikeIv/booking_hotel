@@ -8,6 +8,7 @@ import {
   pickRoomPackageCodes,
   pickRoomRatePlanCode,
 } from "~/utils/bookingChangeRequest";
+import { isStaleSearchError } from "~/utils/staleSearchError";
 
 type ChangeBookingDatesResponse = {
   success: boolean;
@@ -212,6 +213,9 @@ export const useBookingChangeDates = (
       await bookingStore.getBookingByUuid(uuid);
       changeDatesSuccess.value = "Ваша дата изменена и подтверждена.";
     } catch (error: unknown) {
+      if (isStaleSearchError(error)) {
+        return;
+      }
       changeDatesError.value = getErrorMessage(error);
       setSelectedTariff(prevSelectedTariff);
       setDate(prevDate);

@@ -8,26 +8,19 @@ alwaysApply: false
 
 ## 1. Не персистить объёмные данные в localStorage
 
-`persist.paths` должен содержать **только** небольшие пользовательские данные ввода. Кэшируемые ответы сервера (списки номеров, тарифы, фото) — **не персистить**: они могут превысить лимит 5 МБ и вызвать `QuotaExceededError`.
+В `pinia-plugin-persistedstate@4+` поддерживаются только `pick` / `omit`. Опция `paths` **игнорируется** — не использовать.
+
+`persist.pick` должен содержать **только** небольшие пользовательские данные ввода. Кэшируемые ответы сервера (списки номеров, тарифы, фото) — **не персистить**: они могут превысить лимит 5 МБ и вызвать `QuotaExceededError`.
 
 ```typescript
-// ❌ ПЛОХО — большие объекты в persist
+// ❌ ПЛОХО — paths не работает в v4; большие объекты в persist
 paths: ["searchResults", "roomTariffs", "packages"]
 
-// ✅ ХОРОШО — только пользовательский ввод
-paths: ["date", "guests", "promoCode", "selectedRoomType"]
+// ✅ ХОРОШО — только пользовательский ввод через pick
+pick: ["date", "guests", "promoCode", "selectedRoomType"]
 ```
 
-Добавляй `try/catch` в `serialize`, чтобы квота не крашила приложение:
-```typescript
-serialize: (state) => {
-  try {
-    return JSON.stringify(state);
-  } catch {
-    return JSON.stringify({ date: state.date, guests: state.guests });
-  }
-}
-```
+При необходимости сериализуй даты явно в `serializer` (как в `booking` store). Не оборачивай весь `serialize` в try/catch «на квоту» вместо правильного `pick`.
 
 ---
 

@@ -14,6 +14,7 @@
     MULTI_BOOKING_UNAVAILABLE_TOAST,
   } from "~/utils/multiBooking";
   import UIPopup from "~/components/ui/Popup.vue";
+  import { isStaleSearchError } from "~/utils/staleSearchError";
 
   definePageMeta({
     layout: "steps",
@@ -246,6 +247,9 @@
       }
       bookingStore.clearMultiBookingUnavailableRooms();
     } catch (err: unknown) {
+      if (isStaleSearchError(err)) {
+        return;
+      }
       error.value = err as Error;
       toast.add({
         severity: "error",

@@ -107,7 +107,10 @@ describe("bookingStore.search races", () => {
     });
 
     first.release();
-    await expect(firstPromise).rejects.toMatchObject({ name: "AbortError" });
+    await expect(firstPromise).rejects.toMatchObject({
+      name: "AbortError",
+      isStaleSearch: true,
+    });
 
     expect(store.searchResults?.rooms[0]?.room_type_code).toBe("SECOND");
   });
@@ -129,7 +132,10 @@ describe("bookingStore.search races", () => {
     expect(firstSignal?.aborted).toBe(true);
 
     first.release();
-    await expect(firstPromise).rejects.toMatchObject({ name: "AbortError" });
+    await expect(firstPromise).rejects.toMatchObject({
+      name: "AbortError",
+      isStaleSearch: true,
+    });
     await expect(secondPromise).resolves.toBeTruthy();
   });
 
@@ -151,7 +157,10 @@ describe("bookingStore.search races", () => {
     expect(store.loading).toBe(true);
 
     first.release();
-    await expect(firstPromise).rejects.toMatchObject({ name: "AbortError" });
+    await expect(firstPromise).rejects.toMatchObject({
+      name: "AbortError",
+      isStaleSearch: true,
+    });
     expect(store.loading).toBe(true);
 
     second.release();

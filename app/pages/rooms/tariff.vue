@@ -2,6 +2,7 @@
   import { useBookingStore } from "~/stores/booking";
   import type { RoomTariff } from "~/types/room";
   import { useNotificationToast } from "~/composables/useToast";
+  import { isStaleSearchError } from "~/utils/staleSearchError";
 
   definePageMeta({
     layout: "steps",
@@ -35,17 +36,17 @@
     if (!selectedRoomType.value || !roomTariffs.value?.length) {
       return roomTariffs.value || [];
     }
-    
+
     // Фильтруем номера по выбранному типу
     const filtered = roomTariffs.value.filter(
       (room) => room.room_type_code === selectedRoomType.value,
     );
-    
+
     // Если нашли номера с тарифами, возвращаем их
     if (filtered.length > 0) {
       return filtered;
     }
-    
+
     // Если не нашли, возвращаем все номера (на случай, если код не совпадает)
     return roomTariffs.value;
   });
@@ -139,6 +140,9 @@
       await bookingStore.search({ roomTypeCode: selectedRoomType.value });
       await nextTick();
     } catch (err: unknown) {
+      if (isStaleSearchError(err)) {
+        return;
+      }
       error.value = err as Error;
       toast.add({
         severity: "error",

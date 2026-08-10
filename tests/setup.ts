@@ -163,6 +163,20 @@ vi.stubGlobal("useDateLocale", () => ({
   }),
 }));
 
+// @nuxtjs/i18n auto-imports useI18n; Vitest has no Nuxt auto-imports
+vi.stubGlobal("useI18n", () => ({
+  t: (key: string) => {
+    const messages: Record<string, string> = {
+      "datepicker.checkInOut": "Заезд — выезд",
+      "datepicker.selectDates": "Выберите даты",
+      "datepicker.cancel": "Отмена",
+      "datepicker.select": "Выбрать",
+    };
+    return messages[key] ?? key;
+  },
+  locale: Vue.ref("ru"),
+}));
+
 // Делаем Vue composables доступными глобально (как в Nuxt auto-imports)
 vi.stubGlobal("ref", Vue.ref);
 vi.stubGlobal("shallowRef", Vue.shallowRef);
