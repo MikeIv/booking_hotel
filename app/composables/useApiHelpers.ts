@@ -1,4 +1,5 @@
 import type { ApiError } from "~/composables/useApi";
+import { useNotificationToast } from "~/composables/useToast";
 
 export const isApiError = (error: unknown): error is ApiError => {
   return (
@@ -24,6 +25,24 @@ export const getErrorMessage = (
   return defaultMessage ?? "Произошла неизвестная ошибка";
 };
 
+/** Toast + getErrorMessage — общая обёртка вместо локальных handleError */
+export const notifyError = (
+  error: unknown,
+  defaultMessage: string,
+  summary = "Ошибка",
+): void => {
+  if (import.meta.dev) {
+    console.error("💥 Ошибка:", error);
+  }
+  const toast = useNotificationToast();
+  toast.add({
+    severity: "error",
+    summary,
+    detail: getErrorMessage(error, defaultMessage),
+    life: 5000,
+  });
+};
+
 export const BOOKING_ACCESS_DENIED_MESSAGE = "Доступ к бронированию запрещено";
 
 export const getErrorStatus = (error: unknown): number | undefined =>
@@ -36,5 +55,6 @@ export const useApiHelpers = () => {
   return {
     isApiError,
     getErrorMessage,
+    notifyError,
   };
 };

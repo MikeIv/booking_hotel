@@ -173,20 +173,19 @@ export function mountComponent<T extends Component>(
     // Заглушки для управления бронированием (confirmation / details)
     BookingDetailsManagement: {
       template: `
-        <div v-if="hasManagementActions" data-testid="booking-management">
+        <div data-testid="booking-management">
           <button v-if="canEditDates" @click="$emit('change-dates')">Изменить даты</button>
           <button v-if="canEditRoom" @click="$emit('change-room')">Изменить номер</button>
           <button v-if="canEditPackages" @click="$emit('change-services')">Изменить услуги</button>
           <button v-if="canEditContacts" @click="$emit('change-contacts')">Изменить контакты</button>
         </div>
       `,
-      props: {
-        hasManagementActions: { type: Boolean, default: true },
-        canEditDates: Boolean,
-        canEditRoom: Boolean,
-        canEditPackages: Boolean,
-        canEditContacts: Boolean,
-      },
+      props: [
+        "canEditDates",
+        "canEditRoom",
+        "canEditPackages",
+        "canEditContacts",
+      ],
       emits: [
         "change-dates",
         "change-room",

@@ -7,7 +7,7 @@ import type {
 import { useAuthStore } from "~/stores/auth";
 import { useNotificationToast } from "~/composables/useToast";
 import { useApi } from "~/composables/useApi";
-import { getErrorMessage } from "~/composables/useApiHelpers";
+import { notifyError } from "~/composables/useApiHelpers";
 
 export const useUserProfile = () => {
   const authStore = useAuthStore();
@@ -34,22 +34,6 @@ export const useUserProfile = () => {
   const isLoadingProfile = ref(false);
   const isSaving = ref(false);
   const hasChanges = ref(false);
-
-  const handleError = (
-    err: unknown,
-    defaultMessage: string,
-    summary = "Ошибка",
-  ) => {
-    if (import.meta.dev) {
-      console.error("💥 Ошибка:", err);
-    }
-    toast.add({
-      severity: "error",
-      summary,
-      detail: getErrorMessage(err, defaultMessage),
-      life: 5000,
-    });
-  };
 
   // Отслеживаем изменения пользователя в authStore
   watch(
@@ -226,7 +210,7 @@ export const useUserProfile = () => {
         });
       }
     } catch (err: unknown) {
-      handleError(err, "Не удалось обновить данные профиля");
+      notifyError(err, "Не удалось обновить данные профиля");
     } finally {
       isSaving.value = false;
     }
@@ -314,7 +298,7 @@ export const useUserProfile = () => {
       }
 
       // Для других ошибок показываем сообщение
-      handleError(err, "Не удалось загрузить данные профиля");
+      notifyError(err, "Не удалось загрузить данные профиля");
     } finally {
       isLoadingProfile.value = false;
     }

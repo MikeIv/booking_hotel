@@ -6,7 +6,7 @@ import type {
 import { useAuthStore } from "~/stores/auth";
 import { useNotificationToast } from "~/composables/useToast";
 import { useApi } from "~/composables/useApi";
-import { getErrorMessage } from "~/composables/useApiHelpers";
+import { notifyError } from "~/composables/useApiHelpers";
 
 export const useBookingHistory = () => {
   const authStore = useAuthStore();
@@ -21,18 +21,6 @@ export const useBookingHistory = () => {
   const hasMoreBookings = ref(true);
   const allBookingsLoaded = ref(false);
   const isCollapsed = ref(false);
-
-  const handleError = (err: unknown, defaultMessage: string) => {
-    if (import.meta.dev) {
-      console.error("💥 Ошибка:", err);
-    }
-    toast.add({
-      severity: "error",
-      summary: "Ошибка",
-      detail: getErrorMessage(err, defaultMessage),
-      life: 5000,
-    });
-  };
 
   const fetchBookingHistory = async (resetPage = false) => {
     if (!authStore.user) {
@@ -115,7 +103,7 @@ export const useBookingHistory = () => {
         });
       }
     } catch (err: unknown) {
-      handleError(err, "Не удалось загрузить историю бронирований");
+      notifyError(err, "Не удалось загрузить историю бронирований");
     } finally {
       isLoadingBookings.value = false;
     }

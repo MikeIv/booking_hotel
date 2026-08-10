@@ -3,7 +3,7 @@
   import { useBookingStore } from "~/stores/booking";
   import { useNotificationToast } from "~/composables/useToast";
   import { useApi } from "~/composables/useApi";
-  import { getErrorMessage } from "~/composables/useApiHelpers";
+  import { notifyError } from "~/composables/useApiHelpers";
   import { useUserProfile } from "~/composables/useUserProfile";
   import { useBookingHistory } from "~/composables/useBookingHistory";
   import CabinetNavigation from "~/components/cabinet/CabinetNavigation.vue";
@@ -40,22 +40,6 @@
     fetchBookingHistory,
     handleLoadMoreClick,
   } = useBookingHistory();
-
-  const handleError = (
-    err: unknown,
-    defaultMessage: string,
-    summary = "Ошибка",
-  ) => {
-    if (import.meta.dev) {
-      console.error("💥 Ошибка:", err);
-    }
-    toast.add({
-      severity: "error",
-      summary,
-      detail: getErrorMessage(err, defaultMessage),
-      life: 5000,
-    });
-  };
 
   const handleNewBooking = async () => {
     await router.push("/");
@@ -116,7 +100,11 @@
       }
     } catch (err: unknown) {
       authStore.logout();
-      handleError(err, "Не удалось выполнить выход. Попробуйте позже.", "Ошибка выхода");
+      notifyError(
+        err,
+        "Не удалось выполнить выход. Попробуйте позже.",
+        "Ошибка выхода",
+      );
       await router.push("/");
     } finally {
       authStore.setLoading(false);

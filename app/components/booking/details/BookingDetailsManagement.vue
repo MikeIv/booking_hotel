@@ -1,16 +1,10 @@
 ﻿<script setup lang="ts">
-withDefaults(
-  defineProps<{
-    hasManagementActions?: boolean;
-    canEditDates: boolean;
-    canEditRoom: boolean;
-    canEditPackages: boolean;
-    canEditContacts: boolean;
-  }>(),
-  {
-    hasManagementActions: true,
-  },
-);
+defineProps<{
+  canEditDates: boolean;
+  canEditRoom: boolean;
+  canEditPackages: boolean;
+  canEditContacts: boolean;
+}>();
 
 const emit = defineEmits<{
   "change-dates": [];
@@ -21,7 +15,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <section v-if="hasManagementActions" :class="$style.section">
+  <section :class="$style.section">
     <h2 :class="$style.sectionTitle">Управление бронированием</h2>
     <p :class="$style.managementText">
       Если это не противоречит условиям Вашего тарифа, Вы можете:

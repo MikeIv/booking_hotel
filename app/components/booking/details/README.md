@@ -28,8 +28,9 @@
 Общий блок управления бронированием для `booking-details` и `confirmation`.
 
 **Props:**
-- `hasManagementActions` - показывать секцию (boolean, optional, default: `true`); при `false` ничего не рендерит
 - `canEditDates` / `canEditRoom` / `canEditPackages` / `canEditContacts` - видимость кнопок
+
+Видимость всей секции контролирует родитель через `v-if` (`hasManagementActions` из `useBookingAllowedActions`).
 
 **Events:**
 - `change-dates` - изменить даты
