@@ -122,8 +122,6 @@
           detail: "Временные неполадки. Повторите запрос немного позже",
           life: 5000,
         });
-        bookingStore.setLoading(false);
-        bookingStore.setServerRequest(false);
         return;
       }
 
@@ -134,8 +132,6 @@
         if (unavailable.length > 0) {
           bookingStore.setMultiBookingUnavailableRooms(unavailable);
           toast.add(MULTI_BOOKING_UNAVAILABLE_TOAST);
-          bookingStore.setLoading(false);
-          bookingStore.setServerRequest(false);
           return;
         }
         bookingStore.clearMultiBookingUnavailableRooms();
@@ -146,8 +142,6 @@
         await router.push(target);
         await nextTick();
       }
-      bookingStore.setLoading(false);
-      bookingStore.setServerRequest(false);
     } catch (error: unknown) {
       // Устаревший search: активный запрос ещё идёт — не тостим и не гасим overlay
       if (isStaleSearchError(error)) {
@@ -164,8 +158,6 @@
         detail,
         life: 3000,
       });
-      bookingStore.setLoading(false);
-      bookingStore.setServerRequest(false);
     } finally {
       if (!skipOverlayReset) {
         bookingStore.setLoading(false);

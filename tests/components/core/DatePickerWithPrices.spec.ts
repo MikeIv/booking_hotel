@@ -1,24 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { nextTick } from "vue";
-import { createI18n } from "vue-i18n";
 import DatePickerWithPrices from "~/components/core/DatePickerWithPrices.vue";
 import { setupPinia, mountComponent } from "../../utils/test-utils";
-
-// Создаем экземпляр i18n для тестов
-const i18n = createI18n({
-  legacy: false,
-  locale: "ru",
-  messages: {
-    ru: {
-      datepicker: {
-        checkInOut: "Заезд — выезд",
-        selectDates: "Выберите даты",
-        cancel: "Отмена",
-        select: "Выбрать",
-      },
-    },
-  },
-});
 
 // Моки для composables
 const mockFetchCalendarPrices = vi.fn().mockResolvedValue(undefined);
@@ -76,9 +59,6 @@ describe("DatePickerWithPrices.vue", () => {
   const mountDatePicker = (props?: { modelValue?: [Date, Date] | null }) => {
     return mountComponent(DatePickerWithPrices, {
       props: props || { modelValue: null },
-      global: {
-        plugins: [i18n],
-      },
     });
   };
 
