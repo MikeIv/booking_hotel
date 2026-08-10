@@ -186,7 +186,9 @@
       <CoreGuestsSelector
         :model-value="guests"
         :class="$style.guestsField"
-        @update:model-value="bookingStore.setGuests"
+        @update:model-value="
+          (value, hints) => bookingStore.setGuests(value, hints)
+        "
       />
       <CorePromoCodeInput
         :model-value="promoCode"

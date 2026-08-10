@@ -108,15 +108,49 @@ describe("booking store selections sync", () => {
     expect(store.selectedServicesByRoom).toEqual({});
   });
 
-  it("setGuests shrink multi (3→2) сбрасывает multi-выбор (сдвиг индексов)", () => {
+  it("setGuests shrink multi (4→2) bulk хвост: prune без wipe", () => {
     const store = useBookingStore();
+    const slot = { adults: 1, children: 0, childrenAges: [] };
+    store.setGuests({
+      rooms: 4,
+      roomList: [slot, slot, slot, slot],
+    });
+    store.setSelectedMultiRooms({
+      "0-0": {
+        roomIdx: 0,
+        roomCardIdx: 0,
+        roomTitle: "A",
+        room_type_code: "A",
+        ratePlanCode: "BAR",
+        price: 1000,
+        title: "BAR",
+      },
+      "3-3": {
+        roomIdx: 3,
+        roomCardIdx: 3,
+        roomTitle: "D",
+        room_type_code: "D",
+        ratePlanCode: "BAR",
+        price: 4000,
+        title: "BAR",
+      },
+    });
+
+    store.setGuests({
+      rooms: 2,
+      roomList: [slot, slot],
+    });
+
+    expect(Object.keys(store.selectedMultiRooms)).toEqual(["0-0"]);
+    expect(store.selectedMultiRooms["0-0"]?.roomIdx).toBe(0);
+  });
+
+  it("setGuests shrink multi (3→2) без hint → wipe при одинаковых слотах", () => {
+    const store = useBookingStore();
+    const slot = { adults: 1, children: 0, childrenAges: [] };
     store.setGuests({
       rooms: 3,
-      roomList: [
-        { adults: 1, children: 0, childrenAges: [] },
-        { adults: 1, children: 0, childrenAges: [] },
-        { adults: 1, children: 0, childrenAges: [] },
-      ],
+      roomList: [slot, slot, slot],
     });
     store.setSelectedMultiRooms({
       "0-0": {
@@ -132,13 +166,150 @@ describe("booking store selections sync", () => {
 
     store.setGuests({
       rooms: 2,
-      roomList: [
-        { adults: 1, children: 0, childrenAges: [] },
-        { adults: 1, children: 0, childrenAges: [] },
-      ],
+      roomList: [slot, slot],
     });
 
     expect(store.selectedMultiRooms).toEqual({});
+  });
+
+  it("setGuests shrink multi: hint removedRoomIdx → remap при одинаковых слотах", () => {
+    const store = useBookingStore();
+    const slot = { adults: 1, children: 0, childrenAges: [] };
+    store.setGuests({
+      rooms: 3,
+      roomList: [slot, slot, slot],
+    });
+    store.setSelectedMultiRooms({
+      "0-0": {
+        roomIdx: 0,
+        roomCardIdx: 0,
+        roomTitle: "A",
+        room_type_code: "A",
+        ratePlanCode: "BAR",
+        price: 1000,
+        title: "BAR",
+      },
+      "2-2": {
+        roomIdx: 2,
+        roomCardIdx: 2,
+        roomTitle: "C",
+        room_type_code: "C",
+        ratePlanCode: "BAR",
+        price: 3000,
+        title: "BAR",
+      },
+    });
+
+    store.setGuests(
+      {
+        rooms: 2,
+        roomList: [slot, slot],
+      },
+      { removedRoomIdx: 1 },
+    );
+
+    expect(store.selectedMultiRooms["0-0"]?.roomTitle).toBe("A");
+    expect(store.selectedMultiRooms["2-1"]?.roomTitle).toBe("C");
+    expect(store.selectedMultiRooms["2-1"]?.roomIdx).toBe(1);
+  });
+
+  it("setGuests shrink multi: hint trailingShrink → prune 3→2", () => {
+    const store = useBookingStore();
+    const slot = { adults: 1, children: 0, childrenAges: [] };
+    store.setGuests({
+      rooms: 3,
+      roomList: [slot, slot, slot],
+    });
+    store.setSelectedMultiRooms({
+      "0-0": {
+        roomIdx: 0,
+        roomCardIdx: 0,
+        roomTitle: "A",
+        room_type_code: "A",
+        ratePlanCode: "BAR",
+        price: 1000,
+        title: "BAR",
+      },
+      "2-2": {
+        roomIdx: 2,
+        roomCardIdx: 2,
+        roomTitle: "C",
+        room_type_code: "C",
+        ratePlanCode: "BAR",
+        price: 3000,
+        title: "BAR",
+      },
+    });
+
+    store.setGuests(
+      {
+        rooms: 2,
+        roomList: [slot, slot],
+      },
+      { trailingShrink: true },
+    );
+
+    expect(Object.keys(store.selectedMultiRooms)).toEqual(["0-0"]);
+  });
+
+  it("setGuests shrink multi: remap при однозначном deleteRoom (середина)", () => {
+    const store = useBookingStore();
+    store.setGuests({
+      rooms: 3,
+      roomList: [
+        { adults: 1, children: 0, childrenAges: [] },
+        { adults: 2, children: 0, childrenAges: [] },
+        { adults: 1, children: 1, childrenAges: [5] },
+      ],
+    });
+    store.setSelectedMultiRooms({
+      "0-0": {
+        roomIdx: 0,
+        roomCardIdx: 0,
+        roomTitle: "A",
+        room_type_code: "A",
+        ratePlanCode: "BAR",
+        price: 1000,
+        title: "BAR",
+      },
+      "1-1": {
+        roomIdx: 1,
+        roomCardIdx: 1,
+        roomTitle: "B",
+        room_type_code: "B",
+        ratePlanCode: "BAR",
+        price: 2000,
+        title: "BAR",
+      },
+      "2-2": {
+        roomIdx: 2,
+        roomCardIdx: 2,
+        roomTitle: "C",
+        room_type_code: "C",
+        ratePlanCode: "BAR",
+        price: 3000,
+        title: "BAR",
+      },
+    });
+    store.addService({ id: 1, title: "SPA", price: 500 }, 2);
+
+    // deleteRoom(1): убрали средний уникальный слот
+    store.setGuests({
+      rooms: 2,
+      roomList: [
+        { adults: 1, children: 0, childrenAges: [] },
+        { adults: 1, children: 1, childrenAges: [5] },
+      ],
+    });
+
+    expect(store.selectedMultiRooms["0-0"]?.roomIdx).toBe(0);
+    expect(store.selectedMultiRooms["2-1"]?.roomIdx).toBe(1);
+    expect(store.selectedMultiRooms["2-1"]?.roomTitle).toBe("C");
+    expect(store.selectedMultiRooms["1-1"]).toBeUndefined();
+    expect(store.selectedServicesByRoom["1"]).toEqual([
+      { id: 1, title: "SPA", price: 500 },
+    ]);
+    expect(store.selectedServicesByRoom["2"]).toBeUndefined();
   });
 
   it("search() при 1 номере очищает leftover selectedMultiRooms", async () => {

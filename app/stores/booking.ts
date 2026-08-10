@@ -28,7 +28,9 @@ import {
 import {
   pruneSelectedMultiRooms,
   pruneSelectedServicesByRoom,
+  shrinkMultiSelections,
   slimTariffForPersist,
+  type ShrinkMultiHints,
 } from "~/utils/bookingPersist";
 
 export interface SelectedService {
@@ -176,22 +178,37 @@ export const useBookingStore = defineStore(
       );
     }
 
-    function setGuests(value: {
-      rooms: number;
-      roomList: { adults: number; children: number; childrenAges: number[] }[];
-    }) {
+    function setGuests(
+      value: {
+        rooms: number;
+        roomList: {
+          adults: number;
+          children: number;
+          childrenAges: number[];
+        }[];
+      },
+      hints?: ShrinkMultiHints,
+    ) {
       const prevCount = getExpectedRoomCount(guests.value);
       const nextCount = getExpectedRoomCount(value);
+      const prevList = guests.value.roomList ?? [];
       guests.value = value;
 
-      // shrink: deleteRoom/updateRooms переиндексируют roomList — старые roomIdx невалидны.
+      // shrink: deleteRoom сдвигает индексы; updateRooms режет хвост.
       if (nextCount < prevCount) {
         if (nextCount <= 1) {
           syncSelectionsWithGuestCount(1);
-        } else {
-          selectedMultiRooms.value = {};
-          selectedServicesByRoom.value = {};
+          return;
         }
+        const shrunk = shrinkMultiSelections(
+          selectedMultiRooms.value,
+          selectedServicesByRoom.value,
+          prevList,
+          value.roomList ?? [],
+          hints,
+        );
+        selectedMultiRooms.value = shrunk.selectedMultiRooms;
+        selectedServicesByRoom.value = shrunk.selectedServicesByRoom;
         return;
       }
 

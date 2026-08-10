@@ -17,6 +17,7 @@ import BookingPaymentSection from "~/components/booking/PaymentSection.vue";
 
 import type { BookingData } from "~/types/booking";
 import { getSortedMultiRoomEntries } from "~/utils/multiBooking";
+import { armPaymentRedirectOverlayCleanup } from "~/utils/paymentRedirectOverlay";
 
 definePageMeta({
   layout: "steps",
@@ -69,6 +70,11 @@ const validateForm = (): boolean => {
   return validatePersonalForm(formData, errors, isMultiRoomsMode.value);
 };
 
+function hideBookingOverlay() {
+  bookingStore.setLoading(false);
+  bookingStore.setServerRequest(false);
+}
+
 /** Отправка бронирования: оверлей уже показан; при успехе — редирект на оплату или /confirmation */
 async function submitBookingAndRedirect(bookingData: BookingData) {
   try {
@@ -77,6 +83,8 @@ async function submitBookingAndRedirect(bookingData: BookingData) {
     if (payload?.redirect_url) {
       bookingStore.setLoading(true, "Перенаправление на страницу оплаты...");
       bookingStore.setServerRequest(true);
+      // createBooking оставляет loading=true при redirect_url — гасим на leave/Back
+      armPaymentRedirectOverlayCleanup(hideBookingOverlay);
       window.location.href = payload.redirect_url;
       return;
     }
@@ -96,6 +104,7 @@ async function submitBookingAndRedirect(bookingData: BookingData) {
     if (import.meta.dev) {
       console.error("Ошибка при создании бронирования:", error);
     }
+    hideBookingOverlay();
     toast.add({
       severity: "error",
       summary: "Ошибка при создании бронирования.",
@@ -103,11 +112,6 @@ async function submitBookingAndRedirect(bookingData: BookingData) {
       life: 5000,
     });
   }
-}
-
-function hideBookingOverlay() {
-  bookingStore.setLoading(false);
-  bookingStore.setServerRequest(false);
 }
 
 // Состояние для отслеживания раскрытых номеров

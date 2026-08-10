@@ -12,6 +12,7 @@ import {
 } from "~/utils/multiBooking";
 import { isStaleSearchError } from "~/utils/staleSearchError";
 import { MAX_GUESTS_PER_ROOM } from "~/utils/bookingSearch";
+import type { ShrinkMultiHints } from "~/utils/bookingPersist";
 
 export interface RoomGuests {
   adults: number;
@@ -37,7 +38,12 @@ const MAX_ROOMS = 5;
       | GuestsValue
       | { rooms: number; adults: number; children: number };
   }>();
-  const emit = defineEmits(["update:modelValue"]);
+  const emit = defineEmits<{
+    "update:modelValue": [value: GuestsValue, hints?: ShrinkMultiHints];
+  }>();
+
+  /** Shrink-подсказки для store (сбрасываются при apply). */
+  let pendingShrinkHints: ShrinkMultiHints | undefined;
 
   const bookingStore = useBookingStore();
   const router = useRouter();
@@ -132,11 +138,25 @@ const MAX_ROOMS = 5;
     overlayRef.value?.toggle(event);
   }
 
+  function takeShrinkHints(): ShrinkMultiHints | undefined {
+    const hints = pendingShrinkHints;
+    pendingShrinkHints = undefined;
+    return hints;
+  }
+
   function updateRooms(value: number) {
     const nextRooms = Math.max(1, Math.min(MAX_ROOMS, value));
     if (nextRooms === guests.value.rooms) return;
 
     clearUnavailableHighlight();
+
+    if (nextRooms < guests.value.rooms) {
+      // Хвост срезан — prune; несколько правок shrink в одной сессии → без hint
+      pendingShrinkHints =
+        pendingShrinkHints === undefined
+          ? { trailingShrink: true }
+          : undefined;
+    }
 
     const roomList = guests.value.roomList.slice(0, nextRooms);
     for (let i = roomList.length; i < nextRooms; i++) {
@@ -148,6 +168,11 @@ const MAX_ROOMS = 5;
   function deleteRoom(roomIdx: number) {
     if (guests.value.rooms <= 1) return;
     clearUnavailableHighlight();
+    // Один deleteRoom за сессию overlay → явный remap; иначе эвристика/wipe
+    pendingShrinkHints =
+      pendingShrinkHints === undefined
+        ? { removedRoomIdx: roomIdx }
+        : undefined;
     const roomList = guests.value.roomList.filter((_, idx) => idx !== roomIdx);
     guests.value = { rooms: guests.value.rooms - 1, roomList };
   }
@@ -204,7 +229,8 @@ const MAX_ROOMS = 5;
   });
 
   async function applyChanges(event: Event) {
-    emit("update:modelValue", guests.value);
+    const shrinkHints = takeShrinkHints();
+    emit("update:modelValue", guests.value, shrinkHints);
 
     if (!isMultiBooking.value) {
       clearUnavailableHighlight();
@@ -229,7 +255,8 @@ const MAX_ROOMS = 5;
     let skipOverlayReset = false;
 
     try {
-      bookingStore.setGuests({ ...guests.value });
+      // Повтор с теми же hints: после emit count уже новый → shrink no-op, search видит актуальный store
+      bookingStore.setGuests({ ...guests.value }, shrinkHints);
       await nextTick();
       const result = await bookingStore.search({ skipReset: true });
 

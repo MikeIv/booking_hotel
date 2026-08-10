@@ -150,6 +150,7 @@ const updateCheckbox = (roomIdx: number, key: string, value: boolean) => {
           :errors="errors[entry.roomIdx]?.additionalGuests[index] || {}"
           :guest-title="`Гость ${index + 2}`"
           :show-remove="true"
+          optional-contact-fields
           @update:guest="updateAdditionalGuest(entry.roomIdx, index, $event)"
           @remove="removeAdditionalGuest(entry.roomIdx, index)"
         />

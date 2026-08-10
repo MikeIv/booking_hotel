@@ -237,7 +237,7 @@ export const usePersonalForm = () => {
         }
 
         roomData.additionalGuests.forEach((guest, index) => {
-          const guestErrors = validateGuest(guest);
+          const guestErrors = validateGuest(guest, additionalGuestFieldsRules);
           if (Object.keys(guestErrors).length > 0) {
             if (!roomErrors.additionalGuests[index]) {
               roomErrors.additionalGuests[index] = {};
