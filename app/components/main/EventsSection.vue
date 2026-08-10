@@ -129,7 +129,7 @@
   .eventsSection {
     width: 100%;
     padding: 100px 0;
-    background: #efefef;
+    background: var(--a-landing-surface-muted);
   }
 
   .container {
@@ -144,7 +144,7 @@
     font-family: GothaProBol, Arial, Helvetica, sans-serif;
     font-size: 34px;
     line-height: 1.1;
-    color: #0b0f1b;
+    color: var(--a-landing-ink);
   }
 
   .sliderWrap {
@@ -217,7 +217,7 @@
     border: 0;
     border-radius: 50%;
     background: transparent;
-    color: #8f2727;
+    color: var(--a-landing-accent);
     font-size: 34px;
     line-height: 1;
     cursor: pointer;

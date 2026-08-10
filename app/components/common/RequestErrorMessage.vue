@@ -134,7 +134,7 @@
     flex-direction: column;
     gap: rem(4);
     font-family: var(--a-font-body);
-    color: var(--color-text, #1b1b1b);
+    color: var(--a-text-dark);
   }
 
   .summary {
@@ -149,6 +149,6 @@
     font-weight: 400;
     font-size: rem(14);
     line-height: 1.4;
-    color: rgba(27, 27, 27, 0.8);
+    color: color-mix(in srgb, var(--a-text-dark) 80%, transparent);
   }
 </style>

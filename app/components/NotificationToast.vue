@@ -92,38 +92,35 @@
     info: $style.iconInfo,
   };
 
+  const positionClassMap: Record<
+    NonNullable<NotificationToastProps["position"]>,
+    string
+  > = {
+    "top-right": $style.containerTopRight,
+    "top-left": $style.containerTopLeft,
+    "bottom-right": $style.containerBottomRight,
+    "bottom-left": $style.containerBottomLeft,
+    "top-center": $style.containerTopCenter,
+    "bottom-center": $style.containerBottomCenter,
+  };
+
   const getNotificationClasses = (notification: Notification): string[] => {
-    const classes = [$style.item, $style.toast, typeClassMap[notification.type]];
+    const classes = [
+      $style.item,
+      $style.toast,
+      typeClassMap[notification.type],
+    ];
     if (notification.customClass) {
       classes.push(notification.customClass);
     }
     return classes;
   };
 
-  const getIconClasses = (type: NotificationType): string => {
-    return iconClassMap[type];
-  };
-
-  const getPositionClasses = computed(() => {
-    const positions: Record<
-      NonNullable<NotificationToastProps["position"]>,
-      string
-    > = {
-      "top-right": $style.containerTopRight,
-      "top-left": $style.containerTopLeft,
-      "bottom-right": $style.containerBottomRight,
-      "bottom-left": $style.containerBottomLeft,
-      "top-center": $style.containerTopCenter,
-      "bottom-center": $style.containerBottomCenter,
-    };
-    return positions[props.position];
-  });
-
   const getAriaLive = (type: NotificationType): "polite" | "assertive" => {
     return type === "error" ? "assertive" : "polite";
   };
 
-  const getAnimationClass = computed(() => {
+  const animationClass = computed(() => {
     if (props.position === "top-center") {
       return $style.animateSlideInCenterTop;
     }
@@ -167,7 +164,7 @@
 <template>
   <Teleport :to="props.teleportTo">
     <div
-      :class="[$style.container, getPositionClasses]"
+      :class="[$style.container, positionClassMap[props.position]]"
       :data-position="props.position"
       :style="{ zIndex: props.zIndex }"
       role="region"
@@ -175,18 +172,11 @@
       aria-live="polite"
       aria-atomic="false"
     >
-      <TransitionGroup
-        name="notification"
-        tag="div"
-        :class="$style.list"
-      >
+      <TransitionGroup name="notification" tag="div" :class="$style.list">
         <article
           v-for="notification in props.notifications"
           :key="notification.id"
-          :class="[
-            getNotificationClasses(notification),
-            getAnimationClass,
-          ]"
+          :class="[getNotificationClasses(notification), animationClass]"
           :style="{
             minWidth: props.minWidth,
             maxWidth: props.maxWidth,
@@ -199,7 +189,7 @@
           <div :class="$style.content">
             <!-- Иконка типа уведомления -->
             <div
-              :class="[getIconClasses(notification.type), $style.iconWrapper]"
+              :class="[iconClassMap[notification.type], $style.iconWrapper]"
               aria-hidden="true"
             >
               <component
@@ -521,12 +511,6 @@
     outline: none;
   }
 
-  .closeButton:focus-visible {
-    outline: 2px solid
-      var(--notification-close-focus-ring, rgb(255 255 255 / 50%));
-    outline-offset: 2px;
-  }
-
   .closeIcon {
     width: var(--notification-close-icon-size, 1.25rem);
     height: var(--notification-close-icon-size, 1.25rem);
@@ -632,10 +616,14 @@
     animation: slide-in-center-bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  /* Улучшенная доступность для фокуса */
-  .actionButton:focus-visible,
-  .closeButton:focus-visible {
+  .actionButton:focus-visible {
     outline: 2px solid currentcolor;
+    outline-offset: 2px;
+  }
+
+  .closeButton:focus-visible {
+    outline: 2px solid
+      var(--notification-close-focus-ring, rgb(255 255 255 / 50%));
     outline-offset: 2px;
   }
 </style>

@@ -68,7 +68,7 @@
     font-family: GothaProBol, Arial, Helvetica, sans-serif;
     font-size: 34px;
     line-height: 1.1;
-    color: #0b0f1b;
+    color: var(--a-landing-ink);
   }
 
   .grid {
@@ -107,7 +107,7 @@
   .cardTitle {
     margin: 0 0 25px;
     padding: 0;
-    color: #0b0f1b;
+    color: var(--a-landing-ink);
     font-family: GothaProBol, Arial, Helvetica, sans-serif;
     font-size: 18px;
     font-weight: 600;

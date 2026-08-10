@@ -86,7 +86,7 @@
     font-family: GothaProBol, Arial, Helvetica, sans-serif;
     font-size: 34px;
     line-height: 1.1;
-    color: #0b0f1b;
+    color: var(--a-landing-ink);
   }
 
   .grid {
@@ -148,7 +148,7 @@
 
     &:hover {
       background: #fff;
-      color: #111;
+      color: var(--a-landing-text);
     }
   }
 
@@ -161,7 +161,7 @@
   .showMore {
     border: 0;
     background: transparent;
-    color: #1a1a1a;
+    color: var(--a-landing-text-soft);
     font-family: GothaProReg, Arial, Helvetica, sans-serif;
     font-size: 22px;
     cursor: pointer;

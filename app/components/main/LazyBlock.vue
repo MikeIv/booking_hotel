@@ -55,7 +55,12 @@
 
   .placeholder {
     width: 100%;
-    background: linear-gradient(90deg, #efefef 25%, #f8f8f8 37%, #efefef 63%);
+    background: linear-gradient(
+      90deg,
+      var(--a-landing-surface-muted) 25%,
+      var(--a-gray-50) 37%,
+      var(--a-landing-surface-muted) 63%
+    );
     background-size: 400% 100%;
     animation: shimmer 1.4s ease infinite;
   }

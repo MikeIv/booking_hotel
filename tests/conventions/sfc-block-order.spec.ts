@@ -28,11 +28,13 @@ describe("SFC block order (Wave 8)", () => {
     const source = readFileSync(resolve(process.cwd(), relativePath), "utf8");
     const { script, template, style } = blockPositions(source);
 
-    expect(script).toBeGreaterThanOrEqual(0);
     expect(template).toBeGreaterThanOrEqual(0);
     expect(style).toBeGreaterThanOrEqual(0);
-    expect(script).toBeLessThan(template);
     expect(template).toBeLessThan(style);
+    // Пустой script не обязателен; если есть — только перед template
+    if (script >= 0) {
+      expect(script).toBeLessThan(template);
+    }
   });
 
   it("NotificationToast и InitialLoadOverlay без dual scoped/module", () => {

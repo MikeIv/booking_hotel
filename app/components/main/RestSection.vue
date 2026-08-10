@@ -200,6 +200,7 @@
     max-width: 100%;
     padding: 100px 0;
     background: #fff;
+
     /* Слайдер шире вьюпорта (трек в %) — не даём странице уехать вбок после подгрузки фонов */
     overflow-x: clip;
   }
@@ -216,7 +217,7 @@
     font-family: GothaProBol, Arial, Helvetica, sans-serif;
     font-size: 34px;
     line-height: 1.1;
-    color: #0b0f1b;
+    color: var(--a-landing-ink);
   }
 
   .hero {
@@ -290,7 +291,7 @@
 
     &:hover {
       background: #fff;
-      color: #111;
+      color: var(--a-landing-text);
     }
   }
 
@@ -379,13 +380,13 @@
     height: 8px;
     border: 0;
     border-radius: 50%;
-    background: #c8c8c8;
+    background: var(--a-landing-muted);
     padding: 0;
     cursor: pointer;
   }
 
   .dotActive {
-    background: #7a2a2a;
+    background: var(--a-landing-accent-deep);
   }
 
   @media (max-width: 1100px) {

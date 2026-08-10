@@ -44,6 +44,15 @@
   --ds-role-info: #1677ff;
   --ds-role-booking-surface: #625e57;
 
+  /* Landing palette (home sections — exact HEX, Wave 9 prep) */
+  --ds-landing-ink: #0b0f1b;
+  --ds-landing-text: #111;
+  --ds-landing-text-soft: #1a1a1a;
+  --ds-landing-surface-muted: #efefef;
+  --ds-landing-muted: #c8c8c8;
+  --ds-landing-accent: #8f2727;
+  --ds-landing-accent-deep: #7a2a2a;
+
   /* Design System shadows (Figma 1.5 Shadows) */
   --ds-shadow-sm: 0 0 10px rgba(0, 0, 0, 0.1);
   --ds-shadow-inner: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -97,6 +106,15 @@
   --a-accentLightBg: var(--ds-primary-50);
   --a-accentDarkBg: var(--ds-primary-900);
   --a-btnAccentBg: var(--ds-role-accent);
+
+  /* Landing aliases */
+  --a-landing-ink: var(--ds-landing-ink);
+  --a-landing-text: var(--ds-landing-text);
+  --a-landing-text-soft: var(--ds-landing-text-soft);
+  --a-landing-surface-muted: var(--ds-landing-surface-muted);
+  --a-landing-muted: var(--ds-landing-muted);
+  --a-landing-accent: var(--ds-landing-accent);
+  --a-landing-accent-deep: var(--ds-landing-accent-deep);
 
   /* Banner backgrounds */
   --a-banner-alert-bg: #fdeeee;

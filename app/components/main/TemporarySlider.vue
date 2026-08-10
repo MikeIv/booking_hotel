@@ -325,7 +325,7 @@
   }
 
   .activeDot {
-    background: #7a2a2a;
+    background: var(--a-landing-accent-deep);
   }
 
   @media (max-width: 991px) {
