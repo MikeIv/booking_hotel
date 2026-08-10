@@ -1,52 +1,25 @@
 <script setup lang="ts">
   import Logo from "~/assets/images/logo.svg";
   import BurgerButton from "~/components/ui/BurgerButton.vue";
+  import LayoutAuthSection from "~/components/layout/LayoutAuthSection.vue";
 
   const { locale, t, setLocale } = useI18n();
   const router = useRouter();
   const isMenuOpen = ref(false);
-  const authStore = useAuthStore();
 
-  const authDialogType = ref<"login" | "register" | "recovery" | null>(null);
-  const recoveryEmail = ref("");
-  const showMyBookingPopup = ref(false);
-
-  // Проверяем наличие успешного бронирования неавторизованного пользователя
-  const hasUnauthenticatedBooking = ref(false);
-
-  const checkUnauthenticatedBooking = () => {
-    if (typeof window !== "undefined") {
-      hasUnauthenticatedBooking.value =
-        sessionStorage.getItem("hasUnauthenticatedBooking") === "true";
-    }
-  };
-
-  const route = useRoute();
-
-  onMounted(() => {
-    checkUnauthenticatedBooking();
-  });
-
-  watch(
-    () => route.path,
-    () => {
-      checkUnauthenticatedBooking();
-    },
-  );
-
-  watch(
-    () => authStore.isAuthenticated,
-    () => {
-      checkUnauthenticatedBooking();
-      // Если пользователь авторизовался, скрываем попап и очищаем флаг
-      if (authStore.isAuthenticated) {
-        showMyBookingPopup.value = false;
-        if (typeof window !== "undefined") {
-          sessionStorage.removeItem("hasUnauthenticatedBooking");
-        }
-      }
-    },
-  );
+  const {
+    authStore,
+    authDialogType,
+    recoveryEmail,
+    showMyBookingPopup,
+    hasUnauthenticatedBooking,
+    showMyBookingDialog,
+    hideMyBookingDialog,
+    handleMyBookingLoginSuccess,
+    showAuthDialog,
+    hideAuthDialog,
+    switchAuthDialog,
+  } = useLayoutAuth();
 
   const toggleMenu = () => {
     isMenuOpen.value = !isMenuOpen.value;
@@ -79,47 +52,6 @@
 
   const goToContacts = () => {
     window.open("http://varvarkan.grandfs.ru/contacts.php", "_blank");
-  };
-
-  const showMyBookingDialog = () => {
-    showMyBookingPopup.value = true;
-  };
-
-  const hideMyBookingDialog = () => {
-    showMyBookingPopup.value = false;
-  };
-
-  const handleMyBookingLoginSuccess = () => {
-    if (typeof window !== "undefined") {
-      sessionStorage.removeItem("hasUnauthenticatedBooking");
-    }
-    hasUnauthenticatedBooking.value = false;
-    hideMyBookingDialog();
-  };
-
-  const showAuthDialog = (
-    type: "login" | "register" | "recovery",
-    email?: string,
-  ) => {
-    authDialogType.value = type;
-    if (email) {
-      recoveryEmail.value = email;
-    }
-  };
-
-  const hideAuthDialog = () => {
-    authDialogType.value = null;
-    recoveryEmail.value = "";
-  };
-
-  const switchAuthDialog = (
-    to: "login" | "register" | "recovery",
-    email?: string,
-  ) => {
-    authDialogType.value = to;
-    if (email) {
-      recoveryEmail.value = email;
-    }
   };
 
   const menuLinks = computed(() => [
@@ -313,31 +245,17 @@
     @close="toggleMenu"
   />
 
-  <BookingLoginPopup
-    :visible="authDialogType === 'login'"
+  <LayoutAuthSection
+    :auth-dialog-type="authDialogType"
+    :recovery-email="recoveryEmail"
+    :show-my-booking-popup="showMyBookingPopup"
     @close="hideAuthDialog"
     @switch-to-register="switchAuthDialog('register')"
     @switch-to-recovery="switchAuthDialog('recovery', $event)"
+    @switch-to-login="switchAuthDialog('login')"
     @login-success="hideAuthDialog"
-  />
-
-  <BookingRegisterPopup
-    :visible="authDialogType === 'register'"
-    @close="hideAuthDialog"
-    @switch-to-login="switchAuthDialog('login')"
-  />
-
-  <BookingPasswordRecoveryPopup
-    :visible="authDialogType === 'recovery'"
-    :initial-email="recoveryEmail"
-    @close="hideAuthDialog"
-    @switch-to-login="switchAuthDialog('login')"
-  />
-
-  <BookingMyBookingPopup
-    :visible="showMyBookingPopup"
-    @close="hideMyBookingDialog"
-    @login-success="handleMyBookingLoginSuccess"
+    @my-booking-close="hideMyBookingDialog"
+    @my-booking-login-success="handleMyBookingLoginSuccess"
   />
 </template>
 

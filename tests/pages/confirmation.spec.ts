@@ -305,12 +305,14 @@ describe("pages/confirmation.vue", () => {
       expect(bookingNumber.exists()).toBe(true);
       expect(bookingNumber.text()).toContain("№ BW-2026-06-05-179");
 
-      const downloadButton = wrapper.find("button.btn__bs.danger");
-      const printButton = wrapper.find("button.btn__bs.dark");
-      expect(downloadButton.exists()).toBe(true);
-      expect(downloadButton.text()).toBe("Скачать подтверждение");
-      expect(printButton.exists()).toBe(true);
-      expect(printButton.text()).toBe("Распечатать");
+      const downloadButton = wrapper
+        .findAll("button")
+        .find((btn) => btn.text() === "Скачать подтверждение");
+      const printButton = wrapper
+        .findAll("button")
+        .find((btn) => btn.text() === "Распечатать");
+      expect(downloadButton).toBeDefined();
+      expect(printButton).toBeDefined();
     });
 
     it("не должен показывать номер и кнопки скачать, если бронирование не создано", async () => {

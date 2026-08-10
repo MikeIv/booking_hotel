@@ -8,6 +8,7 @@ import { pickNumber } from "~/utils/pick";
 import { mapBookingRoomsServicesToByRoom } from "~/utils/mapBookingRoomServices";
 import { buildSelectedEntry } from "~/utils/selectedEntry";
 import { getBookingNumber } from "~/utils/bookingStatus";
+import BookingDetailsHeader from "~/components/booking/details/BookingDetailsHeader.vue";
 
 definePageMeta({
   layout: "steps",
@@ -291,8 +292,6 @@ const { isBookingConfirmed, isBookingFailed, showConfirmationContent } =
     onConfirmed: openManagementPopupsIfNeeded,
   });
 
-const { qrCanvas } = useConfirmationQR(pdfUrl, showConfirmationContent);
-
 // --- Watchers ---
 watch(
   () => createdBooking.value,
@@ -453,39 +452,17 @@ const handleNewBooking = () => {
       <section :class="$style.contentBlock">
         <div :class="$style.contentWrapper">
           <div :class="$style.mainContent">
-            <div :class="$style.section">
+            <BookingDetailsHeader
+              v-if="isBookingCreated"
+              :booking-number="bookingNumber"
+              :pdf-url="pdfUrl ?? undefined"
+              :has-pdf="Boolean(pdfUrl)"
+              @download="handleDownload"
+              @print="handlePrint"
+            />
+            <div v-else :class="$style.section">
               <h2 :class="$style.sectionTitle">Номер Вашего бронирования:</h2>
-              <div :class="$style.bookingInfo">
-                <div :class="$style.bookingLeft">
-                  <div
-                    v-if="isBookingCreated && bookingNumber"
-                    :class="$style.bookingNumber"
-                  >
-                    № {{ bookingNumber }}
-                  </div>
-                  <div v-else :class="$style.bookingMessage">
-                    Обновите бронирование
-                  </div>
-                  <div v-if="isBookingCreated" :class="$style.actionButtons">
-                    <Button
-                      v-if="pdfUrl"
-                      label="Скачать подтверждение"
-                      class="btn__bs danger"
-                      unstyled
-                      @click="handleDownload"
-                    />
-                    <Button
-                      label="Распечатать"
-                      class="btn__bs dark"
-                      unstyled
-                      @click="handlePrint"
-                    />
-                  </div>
-                </div>
-                <div v-if="isBookingCreated && pdfUrl" :class="$style.qrCode">
-                  <canvas ref="qrCanvas" :class="$style.qrCanvas" />
-                </div>
-              </div>
+              <div :class="$style.bookingMessage">Обновите бронирование</div>
             </div>
 
             <div :class="$style.divider" />
@@ -723,102 +700,12 @@ const handleNewBooking = () => {
     }
   }
 
-  .bookingInfo {
-    display: flex;
-    flex-direction: column;
-    gap: rem(20);
-
-    @media (min-width: #{size.$tablet}) {
-      gap: rem(24);
-    }
-
-    @media (min-width: #{size.$desktopMin}) {
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: rem(32);
-    }
-  }
-
-  .bookingLeft {
-    display: flex;
-    flex-direction: column;
-    gap: rem(20);
-
-    @media (min-width: #{size.$tablet}) {
-      gap: rem(24);
-    }
-
-    @media (min-width: #{size.$desktopMin}) {
-      flex: 1;
-    }
-  }
-
-  .bookingNumber {
-    font-family: var(--a-font-heading);
-    font-size: rem(20);
-    font-weight: 500;
-    color: var(--a-text-dark);
-
-    @media (min-width: #{size.$tablet}) {
-      font-size: rem(22);
-    }
-
-    @media (min-width: #{size.$desktopMin}) {
-      font-size: rem(24);
-    }
-  }
-
   .bookingMessage {
     font-family: var(--a-font-body);
     font-size: rem(18);
     font-weight: 400;
     color: var(--a-text-dark);
     padding: rem(16) 0;
-  }
-
-  .qrCode {
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    order: 2;
-
-    @media (min-width: #{size.$desktopMin}) {
-      order: 0;
-      justify-content: flex-end;
-    }
-  }
-
-  .qrCanvas {
-    border: rem(1) solid var(--a-black);
-    width: rem(100);
-    height: rem(100);
-
-    @media (min-width: #{size.$tablet}) {
-      width: rem(120);
-      height: rem(120);
-    }
-
-    @media (min-width: #{size.$desktopMin}) {
-      width: rem(140);
-      height: rem(140);
-    }
-  }
-
-  .actionButtons {
-    display: flex;
-    flex-direction: column;
-    gap: rem(12);
-    order: 1;
-
-    @media (min-width: #{size.$tablet}) {
-      flex-direction: row;
-      gap: rem(16);
-    }
-
-    @media (min-width: #{size.$desktopMin}) {
-      order: 0;
-    }
   }
 
   .confirmationText {

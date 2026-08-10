@@ -1,72 +1,26 @@
 ﻿<script setup lang="ts">
   import LogoRadisson from "~/assets/images/logo_radisson.svg";
 
+  import LayoutAuthSection from "~/components/layout/LayoutAuthSection.vue";
+
   const { locale, setLocale } = useI18n();
-  const authStore = useAuthStore();
   const router = useRouter();
 
-  // --- Auth state ---
-  const authDialogType = ref<"login" | "register" | "recovery" | null>(null);
-  const recoveryEmail = ref("");
-  const showMyBookingPopup = ref(false);
-  const hasUnauthenticatedBooking = ref(false);
-
-  const checkUnauthenticatedBooking = () => {
-    if (typeof window !== "undefined") {
-      hasUnauthenticatedBooking.value =
-        sessionStorage.getItem("hasUnauthenticatedBooking") === "true";
-    }
-  };
-
-  const route = useRoute();
+  const {
+    authStore,
+    authDialogType,
+    recoveryEmail,
+    showMyBookingPopup,
+    hasUnauthenticatedBooking,
+    showMyBookingDialog,
+    hideMyBookingDialog,
+    handleMyBookingLoginSuccess,
+    showAuthDialog,
+    hideAuthDialog,
+    switchAuthDialog,
+  } = useLayoutAuth();
 
   let asideResizeObserver: ResizeObserver | null = null;
-
-  watch(
-    () => route.path,
-    () => {
-      checkUnauthenticatedBooking();
-    },
-  );
-
-  watch(
-    () => authStore.isAuthenticated,
-    () => {
-      checkUnauthenticatedBooking();
-      if (authStore.isAuthenticated) {
-        showMyBookingPopup.value = false;
-        if (typeof window !== "undefined") {
-          sessionStorage.removeItem("hasUnauthenticatedBooking");
-        }
-      }
-    },
-  );
-
-  const showMyBookingDialog = () => {
-    showMyBookingPopup.value = true;
-  };
-  const hideMyBookingDialog = () => {
-    showMyBookingPopup.value = false;
-  };
-  const handleMyBookingLoginSuccess = () => {
-    if (typeof window !== "undefined") {
-      sessionStorage.removeItem("hasUnauthenticatedBooking");
-    }
-    hasUnauthenticatedBooking.value = false;
-    hideMyBookingDialog();
-  };
-  const showAuthDialog = (type: "login" | "register" | "recovery", email?: string) => {
-    authDialogType.value = type;
-    if (email) recoveryEmail.value = email;
-  };
-  const hideAuthDialog = () => {
-    authDialogType.value = null;
-    recoveryEmail.value = "";
-  };
-  const switchAuthDialog = (to: "login" | "register" | "recovery", email?: string) => {
-    authDialogType.value = to;
-    if (email) recoveryEmail.value = email;
-  };
 
   // --- Navigation ---
   const navLinks = [
@@ -141,8 +95,6 @@
   };
 
   onMounted(() => {
-    checkUnauthenticatedBooking();
-
     nextTick(() => {
       updateHeight();
       asideResizeObserver = new ResizeObserver(updateHeight);
@@ -311,29 +263,17 @@
     @close="toggleMenu"
   />
 
-  <!-- Попапы авторизации -->
-  <BookingLoginPopup
-    :visible="authDialogType === 'login'"
+  <LayoutAuthSection
+    :auth-dialog-type="authDialogType"
+    :recovery-email="recoveryEmail"
+    :show-my-booking-popup="showMyBookingPopup"
     @close="hideAuthDialog"
     @switch-to-register="switchAuthDialog('register')"
     @switch-to-recovery="switchAuthDialog('recovery', $event)"
+    @switch-to-login="switchAuthDialog('login')"
     @login-success="hideAuthDialog"
-  />
-  <BookingRegisterPopup
-    :visible="authDialogType === 'register'"
-    @close="hideAuthDialog"
-    @switch-to-login="switchAuthDialog('login')"
-  />
-  <BookingPasswordRecoveryPopup
-    :visible="authDialogType === 'recovery'"
-    :initial-email="recoveryEmail"
-    @close="hideAuthDialog"
-    @switch-to-login="switchAuthDialog('login')"
-  />
-  <BookingMyBookingPopup
-    :visible="showMyBookingPopup"
-    @close="hideMyBookingDialog"
-    @login-success="handleMyBookingLoginSuccess"
+    @my-booking-close="hideMyBookingDialog"
+    @my-booking-login-success="handleMyBookingLoginSuccess"
   />
 </template>
 

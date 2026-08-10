@@ -181,8 +181,9 @@ export function mountComponent<T extends Component>(
     },
     Button: {
       template:
-        '<button @click="$attrs.onClick" :disabled="disabled" :class="$attrs.class">{{ label }}<slot /></button>',
-      props: ["disabled", "unstyled", "label"],
+        '<button type="button" :disabled="disabled" :class="$attrs.class" @click="$emit(\'click\', $event)">{{ label }}<slot /></button>',
+      props: ["disabled", "unstyled", "label", "variant", "size"],
+      emits: ["click"],
     },
     ProgressSpinner: {
       template: '<div data-testid="progress-spinner"></div>',

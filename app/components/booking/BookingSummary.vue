@@ -1,162 +1,132 @@
 <script setup lang="ts">
-  import { computed, ref, toRefs, watch } from "vue";
-  import { storeToRefs } from "pinia";
-  import { formatCount } from "~/utils/declension";
-  import type { DeclensionRules } from "~/utils/declension";
-  import {
-    useBookingStore,
-    type SelectedService,
-  } from "~/stores/booking";
-  import type { SelectedEntry } from "~/types/booking";
-  import { toStayTotal } from "~/utils/price";
-  import { formatDateLong, formatWeekdayLong } from "~/utils/dateFormat";
+import { computed, ref, toRefs, watch } from "vue";
+import { storeToRefs } from "pinia";
+import { formatCount } from "~/utils/declension";
+import type { DeclensionRules } from "~/utils/declension";
+import { useBookingStore, type SelectedService } from "~/stores/booking";
+import type { SelectedEntry } from "~/types/booking";
+import { toStayTotal } from "~/utils/price";
+import BookingSummaryDatesSection from "~/components/booking/summary/BookingSummaryDatesSection.vue";
+import BookingSummaryRoomItem from "~/components/booking/summary/BookingSummaryRoomItem.vue";
 
-  interface Props {
-    selectedEntries: Record<string, SelectedEntry>;
-    date: [Date, Date] | null | undefined;
-    nights: number;
-    bookingTotal: number;
-    /**
-     * Показывать CTA "Продолжить".
-     * Используется на шагах оформления; на финальной странице скрываем.
-     */
-    showContinue?: boolean;
-    /** Услуги из ответа API (confirmation); при наличии заменяют данные стора */
-    servicesByRoomOverride?: Record<number, SelectedService[]>;
-    /** Разрешить удаление услуг из сводки (на confirmation — только просмотр) */
-    editableServices?: boolean;
+interface Props {
+  selectedEntries: Record<string, SelectedEntry>;
+  date: [Date, Date] | null | undefined;
+  nights: number;
+  bookingTotal: number;
+  /**
+   * Показывать CTA "Продолжить".
+   * Используется на шагах оформления; на финальной странице скрываем.
+   */
+  showContinue?: boolean;
+  /** Услуги из ответа API (confirmation); при наличии заменяют данные стора */
+  servicesByRoomOverride?: Record<number, SelectedService[]>;
+  /** Разрешить удаление услуг из сводки (на confirmation — только просмотр) */
+  editableServices?: boolean;
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  showContinue: true,
+  editableServices: true,
+  servicesByRoomOverride: undefined,
+});
+const emit = defineEmits<{
+  (e: "continue"): void;
+}>();
+
+const { date, nights, selectedEntries, bookingTotal } = toRefs(props);
+const isContinueVisible = computed(() => props.showContinue);
+const isDatesDetailsOpen = ref(false);
+
+const bookingStore = useBookingStore();
+const { guests, selectedServicesByRoom } = storeToRefs(bookingStore);
+
+const resolveServicesForRoom = (roomIdx: number): SelectedService[] => {
+  if (props.servicesByRoomOverride !== undefined) {
+    return props.servicesByRoomOverride[roomIdx] ?? [];
   }
+  return selectedServicesByRoom.value[String(roomIdx)] ?? [];
+};
 
-  const props = withDefaults(defineProps<Props>(), {
-    showContinue: true,
-    editableServices: true,
-    servicesByRoomOverride: undefined,
+const servicesByRoom = computed(() => {
+  const byRoom: Record<number, SelectedService[]> = {};
+  roomEntries.value.forEach((entry) => {
+    byRoom[entry.roomIdx] = resolveServicesForRoom(entry.roomIdx);
   });
-  const emit = defineEmits<{
-    (e: "continue"): void;
-  }>();
+  return byRoom;
+});
 
-  const { date, nights, selectedEntries, bookingTotal } = toRefs(props);
-  const isContinueVisible = computed(() => props.showContinue);
+const roomTotalWithServices = (entry: SelectedEntry) => {
+  const roomPrice = toStayTotal(entry.price, nights.value);
+  const services = resolveServicesForRoom(entry.roomIdx);
+  const servicesSum = services.reduce((sum, s) => sum + s.price, 0);
+  return roomPrice + servicesSum;
+};
 
-  const formatNights = (nights: number): string => {
-    if (nights === 1) return "ночь";
-    if (nights >= 2 && nights <= 4) return "ночи";
-    return "ночей";
-  };
+const expandedRooms = ref<Record<number, boolean>>({});
 
-  const checkInDate = computed(() => date.value?.[0] ?? null);
-  const checkOutDate = computed(() => date.value?.[1] ?? null);
+const toggleRoomDetails = (roomIdx: number) => {
+  expandedRooms.value[roomIdx] = !expandedRooms.value[roomIdx];
+};
 
-  const checkInFormatted = computed(() => formatDateLong(checkInDate.value));
-  const checkOutFormatted = computed(() => formatDateLong(checkOutDate.value));
+const isRoomExpanded = (roomIdx: number) => !!expandedRooms.value[roomIdx];
 
-  const checkInWeekday = computed(() => formatWeekdayLong(checkInDate.value));
-  const checkOutWeekday = computed(() => formatWeekdayLong(checkOutDate.value));
+const ADULT_DECLENSION: DeclensionRules = {
+  one: "взрослый",
+  few: "взрослых",
+  many: "взрослых",
+};
 
-  const isDatesDetailsOpen = ref(false);
+const CHILD_DECLENSION: DeclensionRules = {
+  one: "ребёнок",
+  few: "ребёнка",
+  many: "детей",
+};
 
-  const toggleDatesDetails = () => {
-    isDatesDetailsOpen.value = !isDatesDetailsOpen.value;
-  };
+const roomGuests = computed(
+  () => guests.value?.roomList?.map((room) => ({ ...room })) ?? [],
+);
 
-  const bookingStore = useBookingStore();
-  const { guests, selectedServicesByRoom } = storeToRefs(bookingStore);
-
-  const resolveServicesForRoom = (roomIdx: number): SelectedService[] => {
-    if (props.servicesByRoomOverride !== undefined) {
-      return props.servicesByRoomOverride[roomIdx] ?? [];
+const roomGuestLines = computed(() => {
+  return roomGuests.value.map((room) => {
+    if (!room) return [] as string[];
+    const lines: string[] = [];
+    if (room.adults > 0) {
+      lines.push(
+        `${formatCount(room.adults, ADULT_DECLENSION)} на основном месте`,
+      );
     }
-    return selectedServicesByRoom.value[String(roomIdx)] ?? [];
-  };
-
-  /** Услуги по номерам для мультибронирования; для одного номера — только roomIdx 0 */
-  const servicesByRoom = computed(() => {
-    const byRoom: Record<number, SelectedService[]> = {};
-    roomEntries.value.forEach((entry) => {
-      byRoom[entry.roomIdx] = resolveServicesForRoom(entry.roomIdx);
-    });
-    return byRoom;
+    if (room.children > 0) {
+      lines.push(
+        `${formatCount(room.children, CHILD_DECLENSION)} на дополнительном месте`,
+      );
+    }
+    return lines;
   });
+});
 
-  const roomTotalWithServices = (entry: SelectedEntry) => {
-    const roomPrice = toStayTotal(entry.price, nights.value);
-    const services = resolveServicesForRoom(entry.roomIdx);
-    const servicesSum = services.reduce((sum, s) => sum + s.price, 0);
-    return roomPrice + servicesSum;
-  };
+const roomEntries = computed(() =>
+  Object.values(selectedEntries.value).sort((a, b) => a.roomIdx - b.roomIdx),
+);
 
-  const expandedRooms = ref<Record<number, boolean>>({});
+const hasRoomEntries = computed(() => roomEntries.value.length > 0);
+const isSingleRoom = computed(() => roomEntries.value.length === 1);
 
-  const toggleRoomDetails = (roomIdx: number) => {
-    expandedRooms.value[roomIdx] = !expandedRooms.value[roomIdx];
-  };
+watch(
+  () => roomEntries.value.length,
+  (length) => {
+    if (length === 1) {
+      expandedRooms.value[roomEntries.value[0]?.roomIdx] = true;
+    }
+  },
+  { immediate: true },
+);
 
-  const isRoomExpanded = (roomIdx: number) => {
-    return !!expandedRooms.value[roomIdx];
-  };
+const handleContinue = () => emit("continue");
 
-  const ADULT_DECLENSION: DeclensionRules = {
-    one: "взрослый",
-    few: "взрослых",
-    many: "взрослых",
-  };
-
-  const CHILD_DECLENSION: DeclensionRules = {
-    one: "ребёнок",
-    few: "ребёнка",
-    many: "детей",
-  };
-
-  const roomGuests = computed(
-    () => guests.value?.roomList?.map((room) => ({ ...room })) ?? [],
-  );
-
-  const roomGuestLines = computed(() => {
-    return roomGuests.value.map((room) => {
-      if (!room) {
-        return [] as string[];
-      }
-
-      const lines: string[] = [];
-
-      if (room.adults > 0) {
-        lines.push(
-          `${formatCount(room.adults, ADULT_DECLENSION)} на основном месте`,
-        );
-      }
-
-      if (room.children > 0) {
-        lines.push(
-          `${formatCount(room.children, CHILD_DECLENSION)} на дополнительном месте`,
-        );
-      }
-
-      return lines;
-    });
-  });
-
-  const roomEntries = computed(() =>
-    Object.values(selectedEntries.value).sort((a, b) => a.roomIdx - b.roomIdx),
-  );
-
-  const hasRoomEntries = computed(() => roomEntries.value.length > 0);
-
-  const isSingleRoom = computed(() => roomEntries.value.length === 1);
-
-  watch(
-    () => roomEntries.value.length,
-    (length) => {
-      if (length === 1) {
-        expandedRooms.value[roomEntries.value[0]?.roomIdx] = true;
-      }
-    },
-    { immediate: true },
-  );
-
-  const handleContinue = () => {
-    emit("continue");
-  };
+const handleRemoveService = (roomIdx: number, serviceId: number) => {
+  bookingStore.removeService(serviceId, roomIdx);
+};
 </script>
 
 <template>
@@ -167,175 +137,29 @@
         isDatesDetailsOpen ? $style.pageSummaryInner_expanded : undefined,
       ]"
     >
-      <div :class="$style.pageSummaryHeader">
-        <span :class="$style.pageSummaryTitle">Ваше бронирование:</span>
-        <div :class="$style.infoButtonWrapper">
-          <BookingInfoButton
-            :icon-name="
-              isDatesDetailsOpen
-                ? 'i-chevron-up'
-                : 'i-chevron-down'
-            "
-            aria-label="Подробнее о датах проживания"
-            :aria-expanded="isDatesDetailsOpen"
-            @click="toggleDatesDetails"
-          />
-        </div>
-      </div>
-      <div v-if="!isDatesDetailsOpen" :class="$style.pageSummaryDatesMobile">
-        {{ formatDateLong(date?.[0] || null) }} -
-        {{ formatDateLong(date?.[1] || null) }}, {{ nights }}
-        {{ formatNights(nights) }}
-      </div>
-      <div :class="$style.pageSummaryDates">
-        {{ formatDateLong(date?.[0] || null) }} -
-        {{ formatDateLong(date?.[1] || null) }}, {{ nights }}
-        {{ formatNights(nights) }}
-      </div>
-      <div
-        :class="[
-          $style.pageSummaryDatesDetails,
-          isDatesDetailsOpen ? $style.open : undefined,
-        ]"
-      >
-        <div :class="$style.roomInfoBlock">
-          <div :class="$style.dateRow">
-            <span :class="$style.bookingDetailLabel">{{
-              checkInFormatted
-            }}</span>
-            <UIcon name="i-arrow-long" :class="$style.detailIcon" />
-            <span :class="$style.bookingDetailLabel">{{
-              checkOutFormatted
-            }}</span>
-          </div>
-          <div :class="$style.weekdayRow">
-            <span :class="$style.detailDay">{{ checkInWeekday }}</span>
-            <span :class="$style.weekday">{{
-              formatCount(nights, "night")
-            }}</span>
-            <span :class="[$style.detailDay, $style.dayRight]">{{
-              checkOutWeekday
-            }}</span>
-          </div>
-        </div>
-      </div>
+      <BookingSummaryDatesSection
+        v-model:open="isDatesDetailsOpen"
+        :date="date"
+        :nights="nights"
+      />
 
       <div v-if="hasRoomEntries" :class="$style.pageSummaryList">
-        <div
+        <BookingSummaryRoomItem
           v-for="entry in roomEntries"
           :key="entry.roomIdx + '-' + entry.ratePlanCode"
-          :class="$style.pageSummaryItem"
-        >
-          <!-- Кнопка раскрытия только для мультибронирования -->
-          <Button
-            v-if="!isSingleRoom"
-            type="button"
-            :class="$style.roomButton"
-            class="btn__bs dark round"
-            unstyled
-            :aria-expanded="isRoomExpanded(entry.roomIdx)"
-            @click="toggleRoomDetails(entry.roomIdx)"
-          >
-            <span :class="$style.roomButtonText">
-              Номер {{ entry.roomIdx + 1 }}
-            </span>
-            <div :class="$style.roomButtonIconWrapper">
-              <UIcon
-                name="i-chevron-down"
-                :class="[
-                  $style.roomButtonIcon,
-                  {
-                    [$style.roomButtonIconRotated]: isRoomExpanded(entry.roomIdx),
-                  },
-                ]"
-              />
-            </div>
-          </Button>
-          <!-- Детали номера: для одного номера всегда видимы, для нескольких - по раскрытию -->
-          <Transition name="fade">
-            <div
-              v-if="isSingleRoom || isRoomExpanded(entry.roomIdx)"
-              :class="[
-                $style.roomDetails,
-                (servicesByRoom[entry.roomIdx]?.length ?? 0) === 0
-                  ? $style.roomDetails_noServices
-                  : undefined,
-              ]"
-            >
-              <div :class="$style.roomCategoryRow">
-                <span :class="$style.roomType">{{ entry.roomTitle }}</span>
-                <span :class="$style.roomPrice">
-                  {{ toStayTotal(entry.price, nights).toLocaleString("ru-RU") }} ₽
-                </span>
-              </div>
-              <div :class="$style.roomDivider" />
-              <div :class="$style.roomTariff">{{ entry.title }}</div>
-              <div :class="$style.roomDivider" />
-              <div
-                v-for="(line, idx) in roomGuestLines[entry.roomIdx] || []"
-                :key="idx"
-                :class="$style.roomGuestLine"
-              >
-                {{ line }}
-              </div>
-              <div
-                v-if="
-                  (roomGuestLines[entry.roomIdx] || []).length > 0 &&
-                  (servicesByRoom[entry.roomIdx]?.length ?? 0) > 0
-                "
-                :class="$style.roomDivider"
-              />
-              <!-- Дополнительные услуги по номеру -->
-              <template
-                v-if="(servicesByRoom[entry.roomIdx]?.length ?? 0) > 0"
-              >
-                <div :class="$style.servicesSection">
-                  <div :class="$style.servicesHeader">
-                    Дополнительные услуги:
-                  </div>
-                  <div :class="$style.servicesList">
-                    <div
-                      v-for="service in servicesByRoom[entry.roomIdx]"
-                      :key="service.id"
-                      :class="$style.serviceItem"
-                    >
-                      <span :class="$style.serviceTitle">{{
-                        service.title
-                      }}</span>
-                      <div :class="$style.serviceActions">
-                        <span :class="$style.servicePrice">
-                          {{ service.price.toLocaleString("ru-RU") }} ₽
-                        </span>
-                        <Button
-                          v-if="editableServices"
-                          type="button"
-                          unstyled
-                          :class="$style.removeServiceButton"
-                          aria-label="Удалить услугу"
-                          @click="
-                            bookingStore.removeService(service.id, entry.roomIdx)
-                          "
-                        >
-                          <UIcon
-                            name="i-close"
-                            :class="$style.removeIcon"
-                          />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </template>
-              <!-- Итого за номер: с учётом услуг при мультибронировании -->
-              <div v-if="!isSingleRoom" :class="$style.roomTotal">
-                <span>Итого за Номер {{ entry.roomIdx + 1 }}:</span>
-                <strong>
-                  {{ roomTotalWithServices(entry).toLocaleString("ru-RU") }} ₽
-                </strong>
-              </div>
-            </div>
-          </Transition>
-        </div>
+          :entry="entry"
+          :nights="nights"
+          :guest-lines="roomGuestLines[entry.roomIdx] || []"
+          :services="servicesByRoom[entry.roomIdx] || []"
+          :is-expanded="isRoomExpanded(entry.roomIdx)"
+          :is-single-room="isSingleRoom"
+          :editable-services="editableServices"
+          :room-total="roomTotalWithServices(entry)"
+          @toggle="toggleRoomDetails(entry.roomIdx)"
+          @remove-service="
+            (serviceId) => handleRemoveService(entry.roomIdx, serviceId)
+          "
+        />
       </div>
 
       <div :class="$style.pageSummaryDivider" />
@@ -343,10 +167,7 @@
         <span>Итого:</span>
         <strong>{{ bookingTotal.toLocaleString("ru-RU") }} ₽</strong>
       </div>
-      <div
-        v-if="isContinueVisible"
-        :class="$style.pageSummaryFooter"
-      >
+      <div v-if="isContinueVisible" :class="$style.pageSummaryFooter">
         <Button
           unstyled
           :class="$style.pageContinueButton"
@@ -378,24 +199,17 @@
     border-radius: var(--a-borderR--dialog) var(--a-borderR--dialog) 0 0;
     z-index: z.z("booking-summary");
 
-    @media (min-width: #{size.$tablet}) {
-      width: rem(687);
-      max-width: rem(687);
-      margin-left: auto;
-      margin-right: auto;
-    }
-
     @media (min-width: #{size.$desktopMin}) {
-      position: static;
+      position: relative;
+      left: auto;
+      right: auto;
+      bottom: auto;
       width: 100%;
-      max-width: 100%;
       margin: 0;
-      padding: 0;
       box-shadow: none;
       border-radius: 0;
+      z-index: auto;
       background: transparent;
-      flex: 1;
-      min-height: 0;
     }
   }
 
@@ -414,127 +228,6 @@
     }
   }
 
-  .pageSummaryHeader {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: rem(8);
-  }
-
-  .infoButtonWrapper {
-    @media (min-width: #{size.$desktopMin}) {
-      display: none;
-    }
-  }
-
-  .pageSummaryTitle {
-    @include typo.typo-h3;
-    color: var(--a-text-dark);
-  }
-
-  .pageSummaryDates {
-    display: none;
-    margin-bottom: rem(12);
-    @include typo.typo-h3;
-    color: var(--a-text-dark);
-    text-align: center;
-  }
-
-  .pageSummaryDatesMobile {
-    display: block;
-    margin-bottom: rem(12);
-    @include typo.typo-h3;
-    color: var(--a-text-dark);
-    text-align: center;
-
-    @media (min-width: #{size.$desktopMin}) {
-      display: none;
-    }
-  }
-
-  .pageSummaryDatesDetails {
-    display: none;
-    margin-bottom: rem(12);
-  }
-
-  .open {
-    display: block;
-  }
-
-  @media (min-width: #{size.$desktopMin}) {
-    .pageSummaryDatesDetails {
-      display: block;
-    }
-  }
-
-  .roomInfoBlock {
-    display: flex;
-    flex-direction: column;
-    gap: rem(20);
-    align-items: center;
-    padding: rem(20) rem(24);
-    background: var(--a-lightPrimaryBg);
-    border-radius: var(--a-borderR--card);
-  }
-
-  .dateRow {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: rem(15);
-  }
-
-  .weekdayRow {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: space-between;
-    width: 100%;
-  }
-
-  .bookingDetailLabel {
-    @include typo.typo-h3;
-    color: var(--a-text-dark);
-    white-space: nowrap;
-  }
-
-  .detailIcon {
-    width: rem(62);
-    height: rem(8);
-    color: var(--a-text-dark);
-  }
-
-  .detailDay {
-    flex-shrink: 0;
-    width: rem(52);
-    @include typo.typo-body-md;
-    color: var(--a-text-dark);
-    text-align: center;
-  }
-
-  .dayRight {
-    width: rem(62);
-    text-align: center;
-  }
-
-  .weekday {
-    flex-shrink: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: rem(161);
-    height: rem(24);
-    padding: rem(4) rem(28);
-    @include typo.typo-body-sm;
-    color: var(--a-text-dark);
-    text-align: center;
-    white-space: nowrap;
-    border: 0.5px solid var(--a-border-dark);
-    border-radius: var(--a-borderR--card);
-    box-shadow: var(--a-shadow-weekday);
-  }
-
   .pageSummaryList {
     display: flex;
     flex-direction: column;
@@ -549,184 +242,6 @@
     @media (max-width: calc(#{size.$desktopMin} - 1px)) {
       display: flex;
     }
-  }
-
-  .pageSummaryItem {
-    display: flex;
-    flex-direction: column;
-    gap: rem(8);
-    padding: rem(12) 0;
-  }
-
-  .roomButton {
-    display: flex;
-    align-items: center;
-    gap: rem(8);
-    padding: 0 rem(20);
-    width: 100%;
-    height: rem(49);
-  }
-
-  .roomButtonText {
-    flex: 1;
-    text-align: left;
-    @include typo.typo-body-lg;
-    font-weight: 700;
-    color: var(--a-white);
-  }
-
-  .roomButtonIconWrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: rem(28);
-    height: rem(28);
-    background: var(--a-white);
-    border-radius: 50%;
-  }
-
-  .roomButtonIcon {
-    width: rem(16);
-    height: rem(16);
-    color: var(--a-text-dark);
-    transition: transform 0.3s ease;
-  }
-
-  .roomButtonIconRotated {
-    transform: rotate(180deg);
-  }
-
-  .roomDetails {
-    display: flex;
-    flex-direction: column;
-    gap: rem(12);
-    padding: rem(16);
-  }
-
-  .roomDetails_noServices {
-    padding-bottom: 0;
-  }
-
-  .roomCategoryRow {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: rem(12);
-  }
-
-  .roomType {
-    flex: 1;
-    @include typo.typo-h3;
-    color: var(--a-text-dark);
-  }
-
-  .roomPrice {
-    @include typo.typo-h3;
-    color: var(--a-text-dark);
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-
-  .roomTariff {
-    @include typo.typo-body-lg;
-    font-weight: 600;
-    color: var(--a-text-dark);
-  }
-
-  .roomDivider {
-    width: 100%;
-    height: rem(1);
-    background-color: var(--a-border-dark);
-  }
-
-  .roomGuestLine {
-    @include typo.typo-body-md;
-    font-weight: 500;
-    color: var(--a-text-dark);
-  }
-
-  .roomTotal {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: rem(12);
-    @include typo.typo-body-lg;
-    font-weight: 600;
-    color: var(--a-text-dark);
-  }
-
-  .roomTotal strong {
-    @include typo.typo-body-lg;
-    font-weight: 600;
-  }
-
-  .servicesSection {
-    display: flex;
-    flex-direction: column;
-    gap: rem(12);
-  }
-
-  .servicesHeader {
-    @include typo.typo-body-lg;
-    font-weight: 700;
-    color: var(--a-text-dark);
-  }
-
-  .servicesList {
-    display: flex;
-    flex-direction: column;
-    gap: rem(8);
-  }
-
-  .serviceItem {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: rem(12);
-    padding: rem(8) 0;
-  }
-
-  .serviceTitle {
-    flex: 1;
-    @include typo.typo-body-md;
-    font-weight: 500;
-    color: var(--a-text-dark);
-  }
-
-  .serviceActions {
-    display: flex;
-    align-items: center;
-    gap: rem(12);
-  }
-
-  .servicePrice {
-    @include typo.typo-body-md;
-    font-weight: 700;
-    color: var(--a-text-dark);
-    white-space: nowrap;
-  }
-
-  .removeServiceButton {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: rem(24);
-    height: rem(24);
-    padding: 0;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    transition: opacity 0.2s ease;
-  }
-
-  .removeServiceButton:hover {
-    opacity: 0.7;
-  }
-
-  .removeIcon {
-    width: rem(20);
-    height: rem(20);
-    color: var(--a-text-dark);
   }
 
   .pageSummaryDivider {
