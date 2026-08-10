@@ -163,4 +163,24 @@ describe("store persist pick", () => {
     expect(restored.date?.[0].getTime()).toBe(range[0].getTime());
     expect(restored.date?.[1].getTime()).toBe(range[1].getTime());
   });
+
+  it("selectedTariff персистится без description / cancellation_popover", () => {
+    setupPersistedPinia();
+    const store = useBookingStore();
+    store.setSelectedTariff({
+      rate_plan_code: "BAR",
+      title: "Flexible",
+      price: 41000,
+      packages: [],
+      description: "<p>very long html that must not bloat storage</p>",
+      cancellation_popover: { title: "Cancel", description: "details" },
+    });
+    store.$persist();
+
+    const persisted = readStore("booking-store");
+    const tariff = persisted.selectedTariff as Record<string, unknown>;
+    expect(tariff.rate_plan_code).toBe("BAR");
+    expect(tariff).not.toHaveProperty("description");
+    expect(tariff).not.toHaveProperty("cancellation_popover");
+  });
 });

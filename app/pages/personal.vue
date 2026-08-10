@@ -85,7 +85,13 @@ async function submitBookingAndRedirect(bookingData: BookingData) {
       summary: "Бронирование успешно создано!",
       life: 3000,
     });
-    await router.push("/confirmation");
+    const uuid =
+      typeof payload?.uuid === "string" ? payload.uuid.trim() : "";
+    await router.push(
+      uuid
+        ? { path: "/confirmation", query: { uuid } }
+        : "/confirmation",
+    );
   } catch (error) {
     if (import.meta.dev) {
       console.error("Ошибка при создании бронирования:", error);
@@ -191,7 +197,7 @@ const canAddRoomAdditionalGuest = (roomIdx: number): boolean => {
 // Добавление дополнительного гостя для номера
 const addRoomAdditionalGuest = (roomIdx: number) => {
   if (!canAddRoomAdditionalGuest(roomIdx)) return;
-  
+
   if (!formData.roomGuests[roomIdx]) {
     formData.roomGuests[roomIdx] = createRoomGuestData();
   }

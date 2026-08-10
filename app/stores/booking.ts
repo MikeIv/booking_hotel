@@ -10,7 +10,10 @@ import type {
   ApiSearchPayload,
   SelectedEntry,
 } from "~/types/booking";
-import { getSortedMultiRoomEntries } from "~/utils/multiBooking";
+import {
+  getExpectedRoomCount,
+  getSortedMultiRoomEntries,
+} from "~/utils/multiBooking";
 import {
   mapBookingShowToHistoryItem,
   normalizeBookingByUuidPayload,
@@ -22,6 +25,11 @@ import {
   normalizeSearchPayload,
   prepareSearchData as buildSearchData,
 } from "~/utils/bookingSearch";
+import {
+  pruneSelectedMultiRooms,
+  pruneSelectedServicesByRoom,
+  slimTariffForPersist,
+} from "~/utils/bookingPersist";
 
 export interface SelectedService {
   id: number;
@@ -157,11 +165,37 @@ export const useBookingStore = defineStore(
       isServerRequest.value = value;
     }
 
+    function syncSelectionsWithGuestCount(roomCount: number) {
+      selectedMultiRooms.value = pruneSelectedMultiRooms(
+        selectedMultiRooms.value,
+        roomCount,
+      );
+      selectedServicesByRoom.value = pruneSelectedServicesByRoom(
+        selectedServicesByRoom.value,
+        roomCount,
+      );
+    }
+
     function setGuests(value: {
       rooms: number;
       roomList: { adults: number; children: number; childrenAges: number[] }[];
     }) {
+      const prevCount = getExpectedRoomCount(guests.value);
+      const nextCount = getExpectedRoomCount(value);
       guests.value = value;
+
+      // shrink: deleteRoom/updateRooms переиндексируют roomList — старые roomIdx невалидны.
+      if (nextCount < prevCount) {
+        if (nextCount <= 1) {
+          syncSelectionsWithGuestCount(1);
+        } else {
+          selectedMultiRooms.value = {};
+          selectedServicesByRoom.value = {};
+        }
+        return;
+      }
+
+      syncSelectionsWithGuestCount(nextCount);
     }
 
     function setSearchResults(value: SearchResponse | null) {
@@ -338,6 +372,7 @@ export const useBookingStore = defineStore(
           );
           searchResults.value = normalized;
           roomTariffs.value = normalized.rooms;
+          syncSelectionsWithGuestCount(getExpectedRoomCount(guests.value));
           return normalized;
         }
 
@@ -627,7 +662,9 @@ export const useBookingStore = defineStore(
       error.value = null;
       searchResults.value = null;
       selectedRoomType.value = null;
+      selectedTariff.value = null;
       roomTariffs.value = [];
+      packages.value = [];
       selectedServicesByRoom.value = {};
       createdBooking.value = null;
       bookingsByUuid.value = {};
@@ -700,6 +737,8 @@ export const useBookingStore = defineStore(
   {
     persist: {
       key: "booking-store",
+      // Cookie Nuxt-модуля ~4KB; localStorage держит multi-выбор и тариф без обрезки.
+      storage: typeof localStorage !== "undefined" ? localStorage : undefined,
       pick: [
         "date",
         "guests",
@@ -712,8 +751,12 @@ export const useBookingStore = defineStore(
       serializer: {
         serialize: (state: StateTree) => {
           const date = state.date;
+          const selectedTariff = slimTariffForPersist(
+            state.selectedTariff as RoomTariff | null | undefined,
+          );
           return JSON.stringify({
             ...state,
+            selectedTariff,
             date: Array.isArray(date)
               ? date.map((d) => (d instanceof Date ? d.toISOString() : d))
               : date,
