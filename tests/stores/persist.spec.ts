@@ -137,5 +137,31 @@ describe("store persist pick", () => {
     expect(store.searchResults).toBeNull();
     expect(store.promoCode).toBe("SAVE");
     expect(store.guests.rooms).toBe(1);
+    expect(store.date?.[0]).toBeInstanceOf(Date);
+    expect(store.date?.[1]).toBeInstanceOf(Date);
+  });
+
+  it("round-trip date: Date[] → persist → новый стор → валидные Date", () => {
+    const range = futureDateRange();
+
+    setupPersistedPinia();
+    const store = useBookingStore();
+    store.setDate(range);
+    store.$persist();
+
+    const persisted = readStore("booking-store");
+    expect(Array.isArray(persisted.date)).toBe(true);
+    const [startIso, endIso] = persisted.date as string[];
+    expect(typeof startIso).toBe("string");
+    expect(typeof endIso).toBe("string");
+
+    setupPersistedPinia();
+    const restored = useBookingStore();
+
+    expect(restored.date).not.toBeNull();
+    expect(restored.date?.[0]).toBeInstanceOf(Date);
+    expect(restored.date?.[1]).toBeInstanceOf(Date);
+    expect(restored.date?.[0].getTime()).toBe(range[0].getTime());
+    expect(restored.date?.[1].getTime()).toBe(range[1].getTime());
   });
 });
