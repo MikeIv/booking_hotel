@@ -50,23 +50,25 @@
 </template>
 
 <style module lang="scss">
+  @use "~/assets/styles/variables/resolutions" as size;
+
   .advantage {
     width: 100%;
-    padding: 100px 0;
-    background: #fff;
+    padding: rem(100) 0;
+    background: var(--a-whiteBg);
   }
 
   .container {
-    width: min(1220px, calc(100% - 48px));
+    width: min(#{rem(1220)}, calc(100% - var(--ds-space-600)));
     margin: 0 auto;
   }
 
   .sectionTitle {
-    margin: 0 0 34px;
+    margin: 0 0 rem(34);
     text-align: center;
     text-transform: uppercase;
     font-family: GothaProBol, Arial, Helvetica, sans-serif;
-    font-size: 34px;
+    font-size: rem(34);
     line-height: 1.1;
     color: var(--a-landing-ink);
   }
@@ -83,33 +85,33 @@
     flex-direction: column;
     align-items: flex-start;
     text-align: left;
-    padding: 0 30px;
-    margin: 0 0 60px;
+    padding: 0 rem(30);
+    margin: 0 0 rem(60);
   }
 
   .iconWrap {
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    min-height: 74px;
-    margin-bottom: 18px;
+    min-height: rem(74);
+    margin-bottom: rem(18);
   }
 
   .icon {
     display: block;
     width: auto;
     height: auto;
-    max-width: 74px;
-    max-height: 74px;
+    max-width: rem(74);
+    max-height: rem(74);
     object-fit: contain;
   }
 
   .cardTitle {
-    margin: 0 0 25px;
+    margin: 0 0 rem(24);
     padding: 0;
     color: var(--a-landing-ink);
     font-family: GothaProBol, Arial, Helvetica, sans-serif;
-    font-size: 18px;
+    font-size: rem(18);
     font-weight: 600;
     line-height: 1.2;
     text-transform: uppercase;
@@ -117,9 +119,9 @@
 
   .cardText {
     font-family: GothaProReg, Arial, Helvetica, sans-serif;
-    font-size: 16px;
+    font-size: rem(16);
     line-height: 1.4;
-    color: #121212;
+    color: var(--a-landing-text);
     text-align: left;
 
     :global(p) {
@@ -132,45 +134,45 @@
     }
   }
 
-  @media (max-width: 1024px) {
+  @media (max-width: #{size.$desktopMin}) {
     .card {
-      padding: 0 20px;
-      margin-bottom: 40px;
+      padding: 0 var(--ds-space-200);
+      margin-bottom: var(--ds-space-500);
     }
   }
 
-  @media (max-width: 1100px) {
+  @media (max-width: #{rem(1100)}) {
     .advantage {
-      padding: 76px 0;
+      padding: rem(76) 0;
     }
 
     .sectionTitle {
-      font-size: 30px;
+      font-size: rem(30);
     }
 
     .cardText {
-      font-size: 15px;
+      font-size: rem(15);
     }
   }
 
-  @media (max-width: 900px) {
+  @media (max-width: #{rem(900)}) {
     .grid {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 
-  @media (max-width: 768px) {
+  @media (max-width: #{size.$tablet}) {
     .advantage {
-      padding: 48px 0;
+      padding: var(--ds-space-600) 0;
     }
 
     .container {
-      width: calc(100% - 32px);
+      width: calc(100% - var(--ds-space-400));
     }
 
     .grid {
       grid-template-columns: 1fr;
-      row-gap: 26px;
+      row-gap: rem(26);
     }
 
     .card {
@@ -183,12 +185,12 @@
     }
 
     .sectionTitle {
-      font-size: 28px;
-      margin-bottom: 20px;
+      font-size: rem(28);
+      margin-bottom: var(--ds-space-200);
     }
 
     .cardText {
-      font-size: 15px;
+      font-size: rem(15);
       text-align: center;
     }
 
@@ -196,5 +198,4 @@
       text-align: center;
     }
   }
-
 </style>

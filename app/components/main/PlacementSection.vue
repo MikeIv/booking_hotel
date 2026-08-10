@@ -70,21 +70,21 @@
 <style module lang="scss">
   .placementSection {
     width: 100%;
-    padding: 100px 0;
-    background: #fff;
+    padding: rem(100) 0;
+    background: var(--a-whiteBg);
   }
 
   .container {
-    width: min(1220px, calc(100% - 48px));
+    width: min(#{rem(1220)}, calc(100% - var(--ds-space-600)));
     margin: 0 auto;
   }
 
   .sectionTitle {
-    margin: 0 0 34px;
+    margin: 0 0 rem(34);
     text-align: center;
     text-transform: uppercase;
     font-family: GothaProBol, Arial, Helvetica, sans-serif;
-    font-size: 34px;
+    font-size: rem(34);
     line-height: 1.1;
     color: var(--a-landing-ink);
   }
@@ -92,11 +92,11 @@
   .grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 20px;
+    gap: rem(20);
   }
 
   .card {
-    min-height: 280px;
+    min-height: rem(280);
     background-size: cover;
     background-position: center;
     display: flex;
@@ -108,26 +108,26 @@
     flex-direction: column;
     justify-content: space-between;
     width: 100%;
-    padding: 30px 24px 22px;
-    color: #fff;
+    padding: rem(30) var(--ds-space-300) rem(22);
+    color: var(--a-white);
   }
 
   .cardTitle {
-    margin: 0 0 14px;
+    margin: 0 0 rem(14);
     font-family: GothaProBol, Arial, Helvetica, sans-serif;
-    font-size: 18px;
+    font-size: rem(18);
     line-height: 1.2;
     text-transform: uppercase;
   }
 
   .cardDetails {
-    margin-bottom: 22px;
+    margin-bottom: rem(22);
     font-family: GothaProReg, Arial, Helvetica, sans-serif;
-    font-size: 15px;
+    font-size: rem(15);
     line-height: 1.3;
 
     :global(p) {
-      margin: 0 0 4px;
+      margin: 0 0 var(--ds-space-025);
     }
   }
 
@@ -136,18 +136,18 @@
     align-items: center;
     justify-content: center;
     align-self: flex-start;
-    min-width: 170px;
-    min-height: 38px;
-    padding: 0 18px;
-    border: 1px solid rgb(255 255 255 / 85%);
-    color: #fff;
+    min-width: rem(170);
+    min-height: rem(38);
+    padding: 0 rem(18);
+    border: rem(1) solid color-mix(in srgb, var(--a-white) 85%, transparent);
+    color: var(--a-white);
     font-family: GothaProReg, Arial, Helvetica, sans-serif;
-    font-size: 14px;
+    font-size: rem(14);
     text-transform: lowercase;
     transition: background-color 0.2s ease, color 0.2s ease;
 
     &:hover {
-      background: #fff;
+      background: var(--a-whiteBg);
       color: var(--a-landing-text);
     }
   }
@@ -155,7 +155,7 @@
   .showMoreWrap {
     display: flex;
     justify-content: center;
-    margin-top: 22px;
+    margin-top: rem(22);
   }
 
   .showMore {
@@ -163,72 +163,72 @@
     background: transparent;
     color: var(--a-landing-text-soft);
     font-family: GothaProReg, Arial, Helvetica, sans-serif;
-    font-size: 22px;
+    font-size: rem(22);
     cursor: pointer;
   }
 
-  @media (max-width: 1100px) {
+  @media (max-width: rem(1100)) {
     .placementSection {
-      padding: 76px 0;
+      padding: rem(76) 0;
     }
 
     .card {
-      min-height: 240px;
+      min-height: rem(240);
     }
 
     .cardTitle {
-      font-size: 17px;
+      font-size: rem(17);
     }
 
     .cardDetails {
-      font-size: 14px;
+      font-size: rem(14);
     }
   }
 
-  @media (max-width: 700px) {
+  @media (max-width: rem(700)) {
     .placementSection {
-      padding: 48px 0;
+      padding: var(--ds-space-600) 0;
     }
 
     .container {
-      width: calc(100% - 32px);
+      width: calc(100% - var(--ds-space-400));
     }
 
     .sectionTitle {
-      font-size: 28px;
-      margin-bottom: 22px;
+      font-size: rem(28);
+      margin-bottom: rem(22);
     }
 
     .grid {
       grid-template-columns: 1fr;
-      gap: 16px;
+      gap: var(--ds-space-200);
     }
 
     .card {
-      min-height: 250px;
+      min-height: rem(250);
     }
 
     .cardContent {
-      padding: 20px 18px;
+      padding: rem(20) rem(18);
     }
 
     .cardTitle {
-      font-size: 18px;
+      font-size: rem(18);
     }
 
     .cardDetails {
-      font-size: 14px;
-      margin-bottom: 16px;
+      font-size: rem(14);
+      margin-bottom: var(--ds-space-200);
     }
 
     .cardButton {
-      min-width: 136px;
-      min-height: 36px;
-      font-size: 13px;
+      min-width: rem(136);
+      min-height: rem(36);
+      font-size: rem(13);
     }
 
     .showMore {
-      font-size: 20px;
+      font-size: rem(20);
     }
   }
 </style>

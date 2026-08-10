@@ -98,16 +98,18 @@
 </template>
 
 <style module lang="scss">
+  @use "~/assets/styles/variables/resolutions" as size;
+
   .footer {
-    background: #525252;
-    color: #fff;
+    background: var(--secondary);
+    color: var(--a-text-white);
     font-family: GothaProReg, Arial, Helvetica, sans-serif;
-    padding-top: 70px;
-    padding-bottom: 70px;
+    padding-top: rem(70);
+    padding-bottom: rem(70);
   }
 
   .container {
-    max-width: 1220px;
+    max-width: rem(1220);
     margin: 0 auto;
     padding: 0 var(--ds-space-300);
   }
@@ -116,19 +118,19 @@
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    margin-bottom: 30px;
+    margin-bottom: rem(30);
   }
 
   .colTitle {
-    margin: 0 0 20px;
+    margin: 0 0 rem(20);
     font-family: GothaProReg, Arial, Helvetica, sans-serif;
     font-weight: 400;
-    font-size: 14px;
+    font-size: rem(14);
     line-height: 1.2;
     text-transform: uppercase;
 
     a {
-      color: #fff;
+      color: var(--a-text-white);
       text-decoration: none;
     }
   }
@@ -138,19 +140,19 @@
     padding: 0;
     list-style: none;
     display: grid;
-    gap: 6px;
+    gap: rem(6);
 
     a {
-      color: #fff;
+      color: var(--a-text-white);
       text-decoration: none;
       font-family: GothaProReg, Arial, Helvetica, sans-serif;
-      font-size: 16px;
+      font-size: rem(16);
       font-weight: 300;
       line-height: 1.5;
     }
 
     a:hover {
-      color: #9f927f;
+      color: var(--primary);
     }
   }
 
@@ -164,54 +166,54 @@
   .bottomItem {
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 16px;
+    gap: rem(10);
+    font-size: rem(16);
     line-height: 1.5;
 
     a {
-      color: #9f927f;
+      color: var(--primary);
       text-decoration: none;
     }
   }
 
   .icon {
-    width: 20px;
-    height: 20px;
-    color: #9f927f;
-    flex: 0 0 20px;
+    width: rem(20);
+    height: rem(20);
+    color: var(--primary);
+    flex: 0 0 rem(20);
   }
 
   .copyright {
-    color: #fff;
-    font-size: 12px;
+    color: var(--a-text-white);
+    font-size: rem(12);
     line-height: 1.4;
     text-align: right;
   }
 
-  @media (max-width: 1220px) {
+  @media (max-width: #{rem(1220)}) {
     .container {
       padding: 0 var(--ds-space-400);
     }
   }
 
-  @media (max-width: 1060px) {
+  @media (max-width: #{rem(1060)}) {
     .colList a {
-      font-size: 14px;
+      font-size: rem(14);
     }
   }
 
-  @media (max-width: 1024px) {
+  @media (max-width: #{size.$desktopMin}) {
     .bottomItem {
       a {
-        font-size: 14px;
+        font-size: rem(14);
       }
     }
   }
 
-  @media (max-width: 992px) {
+  @media (max-width: #{size.$tabletMax}) {
     .footer {
-      padding-top: 56px;
-      padding-bottom: 56px;
+      padding-top: var(--ds-space-700);
+      padding-bottom: var(--ds-space-700);
     }
 
     .top {
@@ -231,7 +233,7 @@
     }
   }
 
-  @media (max-width: 667px) {
+  @media (max-width: #{rem(667)}) {
     .container {
       padding: 0 var(--ds-space-200);
     }
@@ -247,18 +249,18 @@
     }
 
     .bottomItem:nth-child(2) {
-      margin: 35px 0;
+      margin: rem(35) 0;
     }
   }
 
-  @media (max-width: 420px) {
+  @media (max-width: #{rem(420)}) {
     .footer {
-      padding-top: 48px;
-      padding-bottom: 48px;
+      padding-top: var(--ds-space-600);
+      padding-bottom: var(--ds-space-600);
     }
 
     .copyright {
-      font-size: 10px;
+      font-size: rem(10);
     }
   }
 </style>

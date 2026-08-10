@@ -128,39 +128,39 @@
 <style module lang="scss">
   .eventsSection {
     width: 100%;
-    padding: 100px 0;
+    padding: rem(100) 0;
     background: var(--a-landing-surface-muted);
   }
 
   .container {
-    width: min(1220px, calc(100% - 48px));
+    width: min(#{rem(1220)}, calc(100% - var(--ds-space-600)));
     margin: 0 auto;
   }
 
   .sectionTitle {
-    margin: 0 0 32px;
+    margin: 0 0 var(--ds-space-400);
     text-align: center;
     text-transform: uppercase;
     font-family: GothaProBol, Arial, Helvetica, sans-serif;
-    font-size: 34px;
+    font-size: rem(34);
     line-height: 1.1;
     color: var(--a-landing-ink);
   }
 
   .sliderWrap {
     position: relative;
-    width: min(1220px, calc(100% - 48px));
+    width: min(#{rem(1220)}, calc(100% - var(--ds-space-600)));
     margin: 0 auto;
   }
 
   .row {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 16px;
+    gap: var(--ds-space-200);
   }
 
   .card {
-    min-height: 300px;
+    min-height: rem(300);
     background-size: cover;
     background-position: center;
   }
@@ -171,26 +171,26 @@
     justify-content: space-between;
     width: 100%;
     height: 100%;
-    padding: 22px 18px;
-    color: #fff;
+    padding: rem(22) rem(18);
+    color: var(--a-white);
   }
 
   .cardTitle {
     margin: 0;
     font-family: GothaProBol, Arial, Helvetica, sans-serif;
-    font-size: 15px;
+    font-size: rem(15);
     line-height: 1.15;
     text-transform: uppercase;
   }
 
   .cardText {
     font-family: GothaProReg, Arial, Helvetica, sans-serif;
-    font-size: 13px;
+    font-size: rem(13);
     line-height: 1.3;
-    margin-top: 8px;
+    margin-top: var(--ds-space-100);
 
     :global(p) {
-      margin: 0 0 4px;
+      margin: 0 0 var(--ds-space-025);
     }
   }
 
@@ -199,11 +199,11 @@
     justify-content: center;
     align-items: center;
     align-self: flex-start;
-    min-width: 110px;
-    min-height: 34px;
-    border: 1px solid rgb(255 255 255 / 88%);
+    min-width: rem(110);
+    min-height: rem(34);
+    border: rem(1) solid color-mix(in srgb, var(--a-white) 88%, transparent);
     font-family: GothaProReg, Arial, Helvetica, sans-serif;
-    font-size: 12px;
+    font-size: rem(12);
     text-transform: lowercase;
   }
 
@@ -212,32 +212,32 @@
     top: 50%;
     transform: translateY(-50%);
     z-index: 3;
-    width: 34px;
-    height: 34px;
+    width: rem(34);
+    height: rem(34);
     border: 0;
     border-radius: 50%;
     background: transparent;
     color: var(--a-landing-accent);
-    font-size: 34px;
+    font-size: rem(34);
     line-height: 1;
     cursor: pointer;
   }
 
   .prev {
-    left: -28px;
+    left: rem(-28);
   }
 
   .next {
-    right: -28px;
+    right: rem(-28);
   }
 
-  @media (max-width: 1100px) {
+  @media (max-width: rem(1100)) {
     .eventsSection {
-      padding: 76px 0;
+      padding: rem(76) 0;
     }
 
     .sectionTitle {
-      font-size: 30px;
+      font-size: rem(30);
     }
 
     .row {
@@ -245,22 +245,22 @@
     }
 
     .sliderWrap {
-      width: min(1220px, calc(100% - 64px));
+      width: min(#{rem(1220)}, calc(100% - var(--ds-space-800)));
     }
   }
 
-  @media (max-width: 700px) {
+  @media (max-width: rem(700)) {
     .eventsSection {
-      padding: 48px 0;
+      padding: var(--ds-space-600) 0;
     }
 
     .sectionTitle {
-      font-size: 28px;
-      margin-bottom: 22px;
+      font-size: rem(28);
+      margin-bottom: rem(22);
     }
 
     .sliderWrap {
-      width: calc(100% - 32px);
+      width: calc(100% - var(--ds-space-400));
     }
 
     .row {
@@ -268,21 +268,21 @@
     }
 
     .card {
-      min-height: 260px;
+      min-height: rem(260);
     }
 
     .arrow {
-      width: 30px;
-      height: 30px;
-      font-size: 28px;
+      width: rem(30);
+      height: rem(30);
+      font-size: rem(28);
     }
 
     .prev {
-      left: -12px;
+      left: rem(-12);
     }
 
     .next {
-      right: -12px;
+      right: rem(-12);
     }
   }
 </style>

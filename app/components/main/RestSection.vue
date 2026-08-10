@@ -198,24 +198,24 @@
   .restSection {
     width: 100%;
     max-width: 100%;
-    padding: 100px 0;
-    background: #fff;
+    padding: rem(100) 0;
+    background: var(--a-whiteBg);
 
     /* Слайдер шире вьюпорта (трек в %) — не даём странице уехать вбок после подгрузки фонов */
     overflow-x: clip;
   }
 
   .container {
-    width: min(1220px, calc(100% - 48px));
+    width: min(#{rem(1220)}, calc(100% - var(--ds-space-600)));
     margin: 0 auto;
   }
 
   .sectionTitle {
-    margin: 0 0 34px;
+    margin: 0 0 rem(34);
     text-align: center;
     text-transform: uppercase;
     font-family: GothaProBol, Arial, Helvetica, sans-serif;
-    font-size: 34px;
+    font-size: rem(34);
     line-height: 1.1;
     color: var(--a-landing-ink);
   }
@@ -224,12 +224,12 @@
     box-sizing: border-box;
     flex: 0 0 auto;
     min-width: 0;
-    min-height: 420px;
+    min-height: rem(420);
     background-size: cover;
     background-position: center;
     display: flex;
     align-items: flex-end;
-    padding: 34px 0;
+    padding: rem(34) 0;
     overflow: hidden;
   }
 
@@ -255,23 +255,23 @@
   }
 
   .heroContent {
-    max-width: min(680px, 100%);
-    color: #fff;
+    max-width: min(#{rem(680)}, 100%);
+    color: var(--a-white);
     overflow-wrap: break-word;
   }
 
   .heroTitle {
-    margin: 0 0 14px;
+    margin: 0 0 rem(14);
     font-family: GothaProBol, Arial, Helvetica, sans-serif;
-    font-size: 38px;
+    font-size: rem(38);
     line-height: 1.1;
     text-transform: uppercase;
   }
 
   .heroDescription {
-    margin: 0 0 20px;
+    margin: 0 0 rem(20);
     font-family: GothaProReg, Arial, Helvetica, sans-serif;
-    font-size: 22px;
+    font-size: rem(22);
     line-height: 1.35;
   }
 
@@ -279,18 +279,18 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 190px;
-    min-height: 52px;
-    padding: 10px 24px;
-    border: 1px solid #fff;
-    color: #fff;
+    min-width: rem(190);
+    min-height: rem(52);
+    padding: rem(10) var(--ds-space-300);
+    border: rem(1) solid var(--a-white);
+    color: var(--a-white);
     text-transform: lowercase;
     font-family: GothaProReg, Arial, Helvetica, sans-serif;
-    font-size: 22px;
+    font-size: rem(22);
     transition: background-color 0.2s ease, color 0.2s ease;
 
     &:hover {
-      background: #fff;
+      background: var(--a-whiteBg);
       color: var(--a-landing-text);
     }
   }
@@ -298,8 +298,8 @@
   .controls {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-top: 20px;
+    gap: rem(12);
+    margin-top: rem(20);
     width: 100%;
     max-width: 100%;
     min-width: 0;
@@ -309,15 +309,15 @@
   .thumbRow {
     display: flex;
     align-items: stretch;
-    gap: 14px;
+    gap: rem(14);
     flex: 1;
     min-width: 0;
     overflow: hidden;
   }
 
   .thumb {
-    flex: 0 0 calc((100% - 42px) / 4);
-    min-height: 108px;
+    flex: 0 0 calc((100% - #{rem(42)}) / 4);
+    min-height: rem(108);
     border: 0;
     position: relative;
     background-size: cover;
@@ -329,33 +329,33 @@
 
   .thumbTitle {
     position: absolute;
-    left: 10px;
-    right: 10px;
-    bottom: 10px;
+    left: rem(10);
+    right: rem(10);
+    bottom: rem(10);
     text-align: left;
-    color: #fff;
+    color: var(--a-white);
     font-family: GothaProBol, Arial, Helvetica, sans-serif;
-    font-size: 13px;
+    font-size: rem(13);
     line-height: 1.2;
     text-transform: uppercase;
   }
 
   .thumbActive {
-    outline: 2px solid #fff;
-    box-shadow: inset 0 0 0 1px rgb(255 255 255 / 55%);
+    outline: rem(2) solid var(--a-white);
+    box-shadow: inset 0 0 0 rem(1) color-mix(in srgb, var(--a-white) 55%, transparent);
     transform: scale(1.02);
     opacity: 1;
   }
 
   .arrow {
     position: static;
-    width: 36px;
-    height: 36px;
+    width: rem(36);
+    height: rem(36);
     border: 0;
     border-radius: 50%;
-    background: rgb(185 185 185 / 82%);
-    color: #fff;
-    font-size: 18px;
+    background: color-mix(in srgb, var(--ds-neutral-300) 82%, transparent);
+    color: var(--a-white);
+    font-size: rem(18);
     line-height: 1;
     cursor: pointer;
   }
@@ -371,13 +371,13 @@
   .dots {
     display: flex;
     justify-content: center;
-    gap: 10px;
-    margin-top: 14px;
+    gap: rem(10);
+    margin-top: rem(14);
   }
 
   .dot {
-    width: 8px;
-    height: 8px;
+    width: var(--ds-space-100);
+    height: var(--ds-space-100);
     border: 0;
     border-radius: 50%;
     background: var(--a-landing-muted);
@@ -389,81 +389,81 @@
     background: var(--a-landing-accent-deep);
   }
 
-  @media (max-width: 1100px) {
+  @media (max-width: rem(1100)) {
     .restSection {
-      padding: 76px 0;
+      padding: rem(76) 0;
     }
 
     .hero {
-      min-height: 340px;
+      min-height: rem(340);
     }
 
     .heroTitle {
-      font-size: 30px;
+      font-size: rem(30);
     }
 
     .heroDescription {
-      font-size: 18px;
+      font-size: rem(18);
     }
 
     .cta {
-      min-height: 46px;
-      font-size: 18px;
+      min-height: rem(46);
+      font-size: rem(18);
     }
   }
 
-  @media (max-width: 700px) {
+  @media (max-width: rem(700)) {
     .restSection {
-      padding: 48px 0;
+      padding: var(--ds-space-600) 0;
     }
 
     .container {
-      width: calc(100% - 32px);
+      width: calc(100% - var(--ds-space-400));
     }
 
     .sectionTitle {
-      font-size: 28px;
-      margin-bottom: 22px;
+      font-size: rem(28);
+      margin-bottom: rem(22);
     }
 
     .hero {
-      min-height: 260px;
-      padding: 22px 0;
+      min-height: rem(260);
+      padding: rem(22) 0;
     }
 
     .heroTitle {
-      font-size: 22px;
+      font-size: rem(22);
     }
 
     .heroDescription {
-      font-size: 15px;
-      margin-bottom: 14px;
+      font-size: rem(15);
+      margin-bottom: rem(14);
     }
 
     .cta {
-      min-width: 148px;
-      min-height: 40px;
-      font-size: 15px;
+      min-width: rem(148);
+      min-height: var(--ds-space-500);
+      font-size: rem(15);
     }
 
     .thumbRow {
-      gap: 10px;
+      gap: rem(10);
     }
 
     .thumb {
-      flex-basis: calc((100% - 10px) / 2);
-      min-height: 86px;
+      flex-basis: calc((100% - #{rem(10)}) / 2);
+      min-height: rem(86);
     }
 
     .controls {
-      gap: 8px;
-      margin-top: 12px;
+      gap: var(--ds-space-100);
+      margin-top: rem(12);
     }
 
     .arrow {
-      width: 30px;
-      height: 30px;
-      font-size: 16px;
+      width: rem(30);
+      height: rem(30);
+      font-size: rem(16);
     }
   }
 </style>

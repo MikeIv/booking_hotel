@@ -297,11 +297,11 @@
     }
   }
 
-  .dateField,
-  .guestsField,
-  .promoField {
-    width: 100% !important;
-    min-width: 0 !important;
+  .form .dateField,
+  .form .guestsField,
+  .form .promoField {
+    width: 100%;
+    min-width: 0;
   }
 
   .dateField,

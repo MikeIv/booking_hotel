@@ -274,11 +274,11 @@ const handleRemoveService = (roomIdx: number, serviceId: number) => {
   }
 
   .pageContinueButton {
-    width: rem(275) !important;
-    height: rem(67) !important;
-    min-width: rem(275) !important;
-    max-width: rem(275) !important;
-    padding: 0 !important;
+    width: rem(275);
+    height: rem(67);
+    min-width: rem(275);
+    max-width: rem(275);
+    padding: 0;
     border-radius: var(--a-borderR--x20);
     background-color: var(--a-blackBg);
     color: var(--a-white);
@@ -290,14 +290,5 @@ const handleRemoveService = (roomIdx: number, serviceId: number) => {
     justify-content: center;
     box-sizing: border-box;
     flex-shrink: 0;
-
-    @media (min-width: #{size.$desktopMin}) {
-      width: rem(275) !important;
-      height: rem(67) !important;
-      min-width: rem(275) !important;
-      max-width: rem(275) !important;
-      padding: 0 !important;
-      border-radius: var(--a-borderR--x20);
-    }
   }
 </style>

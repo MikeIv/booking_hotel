@@ -216,10 +216,12 @@
 </template>
 
 <style module lang="scss">
+  @use "~/assets/styles/variables/resolutions" as size;
+
   .temporarySection {
     width: 100%;
-    margin-top: 46px;
-    margin-bottom: 36px;
+    margin-top: rem(46);
+    margin-bottom: rem(36);
     overflow: hidden;
   }
 
@@ -228,14 +230,14 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: min(1260px, calc(100% - 96px));
+    width: min(#{rem(1260)}, calc(100% - var(--ds-space-1000)));
     margin: 0 auto;
   }
 
   .track {
     display: grid;
     grid-template-columns: 0.92fr 1.52fr 0.92fr;
-    gap: 18px;
+    gap: rem(18);
     align-items: center;
     width: 100%;
   }
@@ -257,7 +259,12 @@
   .placeholder {
     position: absolute;
     inset: 0;
-    background: linear-gradient(90deg, #e9e9e9 25%, #f6f6f6 37%, #e9e9e9 63%);
+    background: linear-gradient(
+      90deg,
+      var(--ds-neutral-100) 25%,
+      var(--a-gray-50) 37%,
+      var(--ds-neutral-100) 63%
+    );
     background-size: 400% 100%;
     animation: shimmer 1.2s ease infinite;
   }
@@ -287,40 +294,40 @@
     top: 50%;
     transform: translateY(-50%);
     z-index: 2;
-    width: 31px;
-    height: 31px;
+    width: rem(31);
+    height: rem(31);
     border: none;
     border-radius: 50%;
-    color: #fff;
-    background: #bababa;
-    font-size: 18px;
+    color: var(--a-text-white);
+    background: var(--ds-neutral-300);
+    font-size: rem(18);
     line-height: 1;
     cursor: pointer;
   }
 
   .prev {
-    left: -14px;
+    left: rem(-14);
   }
 
   .next {
-    right: -14px;
+    right: rem(-14);
   }
 
   .dots {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 11px;
-    margin-top: 14px;
+    gap: rem(11);
+    margin-top: rem(14);
   }
 
   .dot {
-    width: 7px;
-    height: 7px;
+    width: rem(7);
+    height: rem(7);
     border: none;
     border-radius: 50%;
     padding: 0;
-    background: #c6c6c6;
+    background: var(--a-landing-muted);
     cursor: pointer;
   }
 
@@ -328,10 +335,10 @@
     background: var(--a-landing-accent-deep);
   }
 
-  @media (max-width: 991px) {
+  @media (max-width: calc(#{size.$tabletMax} - #{rem(1)})) {
     .temporarySection {
-      margin-top: 28px;
-      margin-bottom: 32px;
+      margin-top: rem(28);
+      margin-bottom: var(--ds-space-400);
     }
 
     .track {
@@ -344,20 +351,20 @@
     }
 
     .slider {
-      width: calc(100% - 32px);
+      width: calc(100% - var(--ds-space-400));
     }
 
     .arrow {
-      width: 36px;
-      height: 36px;
+      width: rem(36);
+      height: rem(36);
     }
 
     .prev {
-      left: 8px;
+      left: var(--ds-space-100);
     }
 
     .next {
-      right: 8px;
+      right: var(--ds-space-100);
     }
   }
 
