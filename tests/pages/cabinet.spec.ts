@@ -373,14 +373,12 @@ describe("pages/cabinet.vue", () => {
   });
 
   describe("onMounted логика", () => {
-    it("должен сбрасывать состояние загрузки бронирований при монтировании", async () => {
-      mockBookingStore.isServerRequest = true;
-
+    it("не сбрасывает loading бронирований при монтировании (persist pick)", async () => {
       const _wrapper = createWrapper();
       await nextTick();
 
-      expect(mockBookingStore.setLoading).toHaveBeenCalledWith(false);
-      expect(mockBookingStore.isServerRequest).toBe(false);
+      expect(mockBookingStore.setLoading).not.toHaveBeenCalled();
+      expect(mockBookingStore.setServerRequest).not.toHaveBeenCalled();
     });
 
     it("должен загружать профиль пользователя, если он есть в authStore", async () => {

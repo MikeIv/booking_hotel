@@ -120,9 +120,6 @@
   };
 
   onMounted(async () => {
-    bookingStore.setLoading(false);
-    bookingStore.setServerRequest(false);
-
     if (authStore.user) {
       await fetchUserProfile();
     }

@@ -1,6 +1,5 @@
 import { defineStore } from "pinia";
 import type { StateTree } from "pinia";
-import type { PersistenceOptions } from "pinia-plugin-persistedstate";
 import type {
   PackageResource,
   Room,
@@ -1067,7 +1066,6 @@ export const useBookingStore = defineStore(
       multiBookingUnavailableRooms.value = [];
       setLoading(false);
       isServerRequest.value = false;
-      // deliberately preserve persisted state (e.g., userProfiles)
     }
 
     return {
@@ -1130,13 +1128,12 @@ export const useBookingStore = defineStore(
   {
     persist: {
       key: "booking-store",
-      paths: [
+      pick: [
         "date",
         "guests",
         "promoCode",
         "selectedRoomType",
         "selectedTariff",
-        "userProfiles",
         "selectedServicesByRoom",
         "selectedMultiRooms",
       ],
@@ -1150,17 +1147,7 @@ export const useBookingStore = defineStore(
               d instanceof Date ? d.toISOString() : d,
             );
           }
-          try {
-            return JSON.stringify(serialized);
-          } catch {
-            // Fallback: сохраняем только критически важные поля без объёмных данных
-            const minimal = {
-              date: serialized.date,
-              guests: serialized.guests,
-              promoCode: serialized.promoCode,
-            };
-            return JSON.stringify(minimal);
-          }
+          return JSON.stringify(serialized);
         },
         deserialize: (str: string) => {
           const state = JSON.parse(str);
@@ -1172,6 +1159,6 @@ export const useBookingStore = defineStore(
           return state;
         },
       },
-    } as PersistenceOptions,
+    },
   },
 );

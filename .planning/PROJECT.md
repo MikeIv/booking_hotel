@@ -44,6 +44,10 @@ yarn test
 - Контекст: `90-project-context.mdc`
 - Индекс: `AGENTS.md`
 
+## Текущий фокус
+
+Audit remediation (2026-08-10): план в `.planning/plan.md`, baseline в `.planning/state.md`. Волны 1–10; вне scope — CI/Dockerfile/i18n/scraped-home/`package.json`.
+
 ## Ограничения для агента
 
 - Pinia: только через actions, не мутировать storeToRefs напрямую

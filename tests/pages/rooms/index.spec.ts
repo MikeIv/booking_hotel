@@ -518,8 +518,8 @@ describe("pages/rooms/index.vue", () => {
         detail: "Ошибка сети",
         life: 3000,
       });
-      expect(mockBookingStore.setLoading).toHaveBeenCalledWith(false);
-      expect(mockBookingStore.isServerRequest).toBe(false);
+      // loading сбрасывает bookingStore.search() в finally — страница не дублирует
+      expect(mockBookingStore.setLoading).not.toHaveBeenCalled();
     });
   });
 

@@ -64,8 +64,6 @@
             (error as Error)?.message || "Произошла ошибка при поиске номеров",
           life: 3000,
         });
-        bookingStore.setLoading(false);
-        bookingStore.setServerRequest(false);
       }
     }
   });

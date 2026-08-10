@@ -268,8 +268,6 @@ const MAX_ROOMS = 5;
       });
     } finally {
       isApplying.value = false;
-      bookingStore.setLoading(false);
-      bookingStore.setServerRequest(false);
     }
   }
 

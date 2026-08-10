@@ -66,14 +66,12 @@ const validateForm = (): boolean => {
 
 /** Отправка бронирования: оверлей уже показан; при успехе — редирект на оплату или /confirmation */
 async function submitBookingAndRedirect(bookingData: BookingData) {
-  let isRedirecting = false;
   try {
     bookingStore.setLoading(true, "Создаём бронирование...");
     const payload = await bookingStore.createBooking(bookingData);
     if (payload?.redirect_url) {
       bookingStore.setLoading(true, "Перенаправление на страницу оплаты...");
       bookingStore.setServerRequest(true);
-      isRedirecting = true;
       window.location.href = payload.redirect_url;
       return;
     }
@@ -91,11 +89,6 @@ async function submitBookingAndRedirect(bookingData: BookingData) {
       detail: bookingStore.error || "Произошла ошибка.",
       life: 5000,
     });
-  } finally {
-    if (!isRedirecting) {
-      bookingStore.setLoading(false);
-      bookingStore.setServerRequest(false);
-    }
   }
 }
 
@@ -473,9 +466,6 @@ const roomFormData = computed(() => {
 });
 
 onMounted(async () => {
-  bookingStore.setLoading(false);
-  bookingStore.setServerRequest(false);
-
   // Проверяем режим мультибронирования
   if (isMultiRoomsMode.value) {
     if (Object.keys(selectedMultiRooms.value).length === 0) {

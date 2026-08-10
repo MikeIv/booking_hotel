@@ -1,15 +1,9 @@
 <script setup lang="ts">
   import UKRAINA_HOME_DATA from "~/assets/data/ukraina-home.generated.json";
-  import { useBookingStore } from "~/stores/booking";
 
   definePageMeta({
     layout: "home-copy",
   });
-
-  const bookingStore = useBookingStore();
-
-  bookingStore.setLoading(false);
-  bookingStore.setServerRequest(false);
 
   useSeoMeta({
     title: "Главная",
