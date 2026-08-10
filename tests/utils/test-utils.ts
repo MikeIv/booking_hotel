@@ -26,6 +26,35 @@ export function mountComponent<T extends Component>(
         '<button @click="$attrs.onClick" :disabled="disabled"><slot /></button>',
       props: ["loading", "disabled"],
     },
+    UiButton: {
+      template:
+        '<button type="button" data-testid="ui-button" :disabled="disabled || loading" @click="$emit(\'click\', $event)"><slot />{{ label }}</button>',
+      props: [
+        "variant",
+        "size",
+        "loading",
+        "disabled",
+        "label",
+        "type",
+        "class",
+      ],
+      emits: ["click"],
+    },
+    UiSelect: {
+      template:
+        '<button type="button" data-testid="ui-select" :aria-label="ariaLabel || valueText" @click="$emit(\'click\', $event)"><span class="ui-select-label">{{ label }}</span><span class="ui-select-value">{{ valueText }}</span></button>',
+      props: [
+        "label",
+        "valueText",
+        "iconName",
+        "variant",
+        "ariaLabel",
+        "placeholder",
+        "disabled",
+        "open",
+      ],
+      emits: ["click"],
+    },
     // Заглушки для Core компонентов
     CoreDatePicker: {
       template: '<input data-testid="date-picker" />',

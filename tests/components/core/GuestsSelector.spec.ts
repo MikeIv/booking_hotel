@@ -73,10 +73,17 @@ describe("GuestsSelector.vue", () => {
               "delete",
             ],
           },
-          Button: {
+          UiSelect: {
             template:
-              "<button @click=\"$emit('click', $event)\"><slot /></button>",
-            props: ["unstyled", "class"],
+              '<button type="button" class="ui-select-stub" :aria-label="ariaLabel || valueText" @click="$emit(\'click\', $event)"><span class="ui-select-label">{{ label }}</span><span class="ui-select-value">{{ valueText }}</span></button>',
+            props: ["label", "valueText", "iconName", "variant", "ariaLabel"],
+            emits: ["click"],
+          },
+          UiButton: {
+            template:
+              '<button type="button" class="ui-button-stub" :disabled="disabled" @click="$emit(\'click\', $event)"><slot /></button>',
+            props: ["variant", "size", "loading", "disabled", "class"],
+            emits: ["click"],
           },
           UIcon: {
             template: '<span class="icon-stub"></span>',
@@ -464,10 +471,7 @@ describe("GuestsSelector.vue", () => {
         },
       });
 
-      const summary = wrapper.vm.summaryString;
-      expect(summary).toContain("1 номер");
-      expect(summary).toContain("2 взр.");
-      expect(summary).toContain("1 дет.");
+      expect(wrapper.vm.summaryString).toBe("2 взрослых, 1 ребенок");
     });
 
     it("должен корректно формировать строку для нескольких номеров", () => {
@@ -482,10 +486,7 @@ describe("GuestsSelector.vue", () => {
         },
       });
 
-      const summary = wrapper.vm.summaryString;
-      expect(summary).toContain("3 номера");
-      expect(summary).toContain("5 взр.");
-      expect(summary).toContain("3 дет.");
+      expect(wrapper.vm.summaryString).toBe("5 взрослых, 3 ребенка");
     });
 
     it("должен корректно формировать строку без детей", () => {
@@ -499,10 +500,7 @@ describe("GuestsSelector.vue", () => {
         },
       });
 
-      const summary = wrapper.vm.summaryString;
-      expect(summary).toContain("2 номера");
-      expect(summary).toContain("3 взр.");
-      expect(summary).toContain("0 дет.");
+      expect(wrapper.vm.summaryString).toBe("3 взрослых, 0 детей");
     });
   });
 
@@ -545,17 +543,21 @@ describe("GuestsSelector.vue", () => {
   });
 
   describe("Рендеринг компонента", () => {
-    it("должен отображать input с summaryString", () => {
+    it("должен отображать UiSelect с summaryString", () => {
       const modelValue: GuestsValue = {
         rooms: 1,
         roomList: [{ adults: 2, children: 1, childrenAges: [5] }],
       };
       const wrapper = mountGuestsSelector({ modelValue });
 
-      const input = wrapper.find("input");
-      expect(input.exists()).toBe(true);
-      expect(input.attributes("aria-label")).toContain("Гости:");
-      expect((input.element as HTMLInputElement).value).toContain("1 номер");
+      const trigger = wrapper.find(".ui-select-stub");
+      expect(trigger.exists()).toBe(true);
+      expect(trigger.attributes("aria-label")).toBe(
+        "Гости: 2 взрослых, 1 ребенок",
+      );
+      expect(trigger.find(".ui-select-value").text()).toBe(
+        "2 взрослых, 1 ребенок",
+      );
     });
 
     it("должен отображать label 'Гости'", () => {
@@ -565,11 +567,7 @@ describe("GuestsSelector.vue", () => {
       };
       const wrapper = mountGuestsSelector({ modelValue });
 
-      // Ищем span с текстом "Гости"
-      const labels = wrapper.findAll("span");
-      const label = labels.find((span) => span.text() === "Гости");
-      expect(label).toBeTruthy();
-      expect(label?.exists()).toBe(true);
+      expect(wrapper.find(".ui-select-label").text()).toBe("Гости");
     });
 
     it("должен отображать CoreCounter для количества номеров", () => {

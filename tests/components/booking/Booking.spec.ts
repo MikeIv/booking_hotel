@@ -130,13 +130,44 @@ describe("Booking.vue", () => {
           { adults: 1, children: 0, childrenAges: [] },
         ],
       };
+      // Цены по room_index обязательны — иначе gate unavailable блокирует редирект
       mockBookingStore.search.mockResolvedValue({
-        rooms: [{ room_type_code: "R1" }],
+        rooms: [
+          {
+            room_type_code: "R1",
+            tariffs: [
+              {
+                rate_plan_code: "BAR",
+                title: "BAR",
+                price: 5000,
+                room_prices: [
+                  {
+                    room_index: 0,
+                    room_number: 1,
+                    room_type_code: "R1",
+                    rate_plan_code: "BAR",
+                    price: 5000,
+                  },
+                  {
+                    room_index: 1,
+                    room_number: 2,
+                    room_type_code: "R1",
+                    rate_plan_code: "BAR",
+                    price: 5000,
+                  },
+                ],
+              },
+            ],
+          },
+        ],
       });
 
       await wrapper.vm.handleSearch();
 
       expect(mockRouterPush).toHaveBeenCalledWith("/multi-rooms");
+      expect(
+        mockBookingStore.clearMultiBookingUnavailableRooms,
+      ).toHaveBeenCalled();
     });
 
     it("не должен делать редирект, если уже на нужной странице", async () => {
@@ -216,7 +247,7 @@ describe("Booking.vue", () => {
     it("должен отображать кнопку поиска", () => {
       const wrapper = mountComponent(Booking);
 
-      const button = wrapper.find("button");
+      const button = wrapper.find('[data-testid="ui-button"]');
       expect(button.exists()).toBe(true);
       expect(button.text()).toBe("Поиск");
     });
@@ -227,7 +258,7 @@ describe("Booking.vue", () => {
       mockBookingStore.loading.value = true;
       await nextTick();
 
-      const button = wrapper.find("button");
+      const button = wrapper.find('[data-testid="ui-button"]');
       expect(button.text()).toBe("Поиск...");
     });
   });

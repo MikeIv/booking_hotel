@@ -39,6 +39,11 @@ export function createMockBookingStore() {
     }),
     search: vi.fn().mockResolvedValue({}),
     setSelectedRoomType: vi.fn(),
+    setDate: vi.fn(),
+    setGuests: vi.fn(),
+    setPromoCode: vi.fn(),
+    setMultiBookingUnavailableRooms: vi.fn(),
+    clearMultiBookingUnavailableRooms: vi.fn(),
   };
 }
 

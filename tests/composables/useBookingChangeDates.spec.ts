@@ -30,6 +30,7 @@ const mockFormatDate = vi.fn((d: Date) => d.toISOString().split("T")[0]);
 const mockGetSelectedServicesForRoom = vi.fn().mockReturnValue([]);
 const mockSetDate = vi.fn();
 const mockSetSelectedTariff = vi.fn();
+const mockSetGuests = vi.fn();
 
 vi.mock("~/stores/booking", () => ({
   useBookingStore: () => ({
@@ -44,6 +45,7 @@ vi.mock("~/stores/booking", () => ({
     getSelectedServicesForRoom: mockGetSelectedServicesForRoom,
     setDate: mockSetDate,
     setSelectedTariff: mockSetSelectedTariff,
+    setGuests: mockSetGuests,
   }),
 }));
 
@@ -264,7 +266,18 @@ describe("useBookingChangeDates", () => {
     });
 
     it("должен устанавливать ошибку если пакеты недоступны на новые даты", async () => {
-      mockGetSelectedServicesForRoom.mockReturnValue([{ packageCode: "SPA" }]);
+      createdBookingRef.value = {
+        rooms: [
+          {
+            id: 10,
+            room_type_code: "STANDARD",
+            rate_plan_code: "BBREAKFAST",
+            packages: ["SPA"],
+            adults: 2,
+            children: 0,
+          },
+        ],
+      };
       mockSearchPackages.mockResolvedValue([]); // пустой список — SPA недоступен
 
       const { newDates, changeDatesError, confirmChangeDates } =
@@ -278,6 +291,19 @@ describe("useBookingChangeDates", () => {
     });
 
     it("должен успешно изменять даты, вызывать PUT и загружать бронирование", async () => {
+      createdBookingRef.value = {
+        rooms: [
+          {
+            id: 10,
+            room_type_code: "STANDARD",
+            rate_plan_code: "BBREAKFAST",
+            packages: [],
+            adults: 2,
+            children: 0,
+          },
+        ],
+      };
+
       const { newDates, changeDatesSuccess, confirmChangeDates } =
         makeComposable();
       newDates.value = [newStart, newEnd];
@@ -285,17 +311,12 @@ describe("useBookingChangeDates", () => {
 
       expect(mockPut).toHaveBeenCalledWith(
         "/v1/booking/booking-uuid",
-        expect.objectContaining({
+        {
           start_at: "2026-04-15",
           end_at: "2026-04-17",
-          rooms: expect.arrayContaining([
-            expect.objectContaining({
-              room_type_code: "STANDARD",
-              rate_plan_code: "BBREAKFAST",
-            }),
-          ]),
-        }),
-        expect.any(Object),
+          rooms: [{ booking_id: 10 }],
+        },
+        expect.objectContaining({ signal: expect.any(AbortSignal) }),
       );
       expect(mockGetBookingByUuid).toHaveBeenCalledWith("booking-uuid");
       expect(changeDatesSuccess.value).toBeTruthy();
