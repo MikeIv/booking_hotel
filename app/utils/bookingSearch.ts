@@ -30,13 +30,19 @@ export type PrepareSearchDataInput = {
   roomIndex?: number;
 };
 
-export function ensureChildAges(count: number, ages: number[]): number[] {
+const EMPTY_FILTERS: SearchResponse["filters"] = {
+  beds: [],
+  views: [],
+  balconies: [],
+};
+
+function ensureChildAges(count: number, ages: number[]): number[] {
   if (count === 0) return [];
   if (ages.length === count) return ages;
   return Array.from({ length: count }, (_, index) => ages[index] ?? 0);
 }
 
-export function clampRoomGuests(adults: number, children: number) {
+function clampRoomGuests(adults: number, children: number) {
   let a = adults;
   let c = children;
   if (a + c > MAX_GUESTS_PER_ROOM) {
@@ -46,7 +52,18 @@ export function clampRoomGuests(adults: number, children: number) {
   return { adults: a, children: c };
 }
 
-export function normalizeMinPrice(
+function toGuestPayload(room: SearchGuestRoom) {
+  const { adults, children } = clampRoomGuests(room.adults, room.children);
+  return {
+    adults,
+    childs: ensureChildAges(
+      children,
+      (room.childrenAges ?? []).slice(0, children),
+    ),
+  };
+}
+
+function normalizeMinPrice(
   price: number | string | null | undefined,
 ): number | null {
   if (price === null || price === undefined) return null;
@@ -59,7 +76,19 @@ export function normalizeMinPrice(
   return price;
 }
 
-export function mapTariffs(tariffs?: ApiRoomTariff[]): RoomTariff[] {
+function toPriceNumber(price: number | string): number {
+  return typeof price === "string" ? Number(price) : price;
+}
+
+function resolveRoomTypeCode(
+  code: string | undefined,
+  groupTitle: string,
+): string | null {
+  if (code && code.trim() !== "" && code !== groupTitle) return code;
+  return null;
+}
+
+function mapTariffs(tariffs?: ApiRoomTariff[]): RoomTariff[] {
   if (!tariffs || tariffs.length === 0) return [];
   return tariffs.map((tariff) => {
     let cancellation_popover:
@@ -77,18 +106,14 @@ export function mapTariffs(tariffs?: ApiRoomTariff[]): RoomTariff[] {
     return {
       rate_plan_code: tariff.rate_plan_code,
       title: tariff.title,
-      price:
-        typeof tariff.price === "string" ? Number(tariff.price) : tariff.price,
+      price: toPriceNumber(tariff.price),
       price_for_register: tariff.price_for_register,
       room_prices: tariff.room_prices?.map((roomPrice) => ({
         room_index: normalizeRoomIndex(roomPrice.room_index),
         room_number: roomPrice.room_number,
         room_type_code: roomPrice.room_type_code,
         rate_plan_code: roomPrice.rate_plan_code,
-        price:
-          typeof roomPrice.price === "string"
-            ? Number(roomPrice.price)
-            : roomPrice.price,
+        price: toPriceNumber(roomPrice.price),
         price_for_register: roomPrice.price_for_register,
         packages: roomPrice.packages,
       })),
@@ -106,7 +131,7 @@ export function mapTariffs(tariffs?: ApiRoomTariff[]): RoomTariff[] {
   });
 }
 
-export function mapRoom(room: ApiRoomType, group?: ApiGroupedRoom): Room {
+function mapRoom(room: ApiRoomType, group?: ApiGroupedRoom): Room {
   return {
     id: room.id ?? room.room_type_code,
     room_type_code: room.room_type_code,
@@ -136,35 +161,22 @@ export function mapRoom(room: ApiRoomType, group?: ApiGroupedRoom): Room {
   };
 }
 
-export function mapGroupedRoom(group: ApiGroupedRoom): Room {
+function mapGroupedRoom(group: ApiGroupedRoom): Room {
   const variantsSource = group.beds ?? group.room_type_codes ?? [];
   const variants = variantsSource.map((variant) => mapRoom(variant, group));
-
   const primaryVariant = variants[0];
 
-  const firstVariant = variantsSource[0];
   const roomTypeCode =
-    primaryVariant?.room_type_code &&
-    primaryVariant.room_type_code.trim() !== "" &&
-    primaryVariant.room_type_code !== group.title
-      ? primaryVariant.room_type_code
-      : firstVariant?.room_type_code &&
-          firstVariant.room_type_code.trim() !== "" &&
-          firstVariant.room_type_code !== group.title
-        ? firstVariant.room_type_code
-        : "";
+    resolveRoomTypeCode(primaryVariant?.room_type_code, group.title) ?? "";
 
   const tariffsSet = new Map<string, RoomTariff>();
-  variants.forEach((variant) => {
-    if (variant.tariffs && variant.tariffs.length > 0) {
-      variant.tariffs.forEach((tariff) => {
-        if (!tariffsSet.has(tariff.rate_plan_code)) {
-          tariffsSet.set(tariff.rate_plan_code, tariff);
-        }
-      });
+  for (const variant of variants) {
+    for (const tariff of variant.tariffs ?? []) {
+      if (!tariffsSet.has(tariff.rate_plan_code)) {
+        tariffsSet.set(tariff.rate_plan_code, tariff);
+      }
     }
-  });
-  const allTariffs = Array.from(tariffsSet.values());
+  }
 
   return {
     id: primaryVariant?.id ?? group.title,
@@ -189,20 +201,14 @@ export function mapGroupedRoom(group: ApiGroupedRoom): Room {
       group.photos && group.photos.length > 0
         ? group.photos
         : (primaryVariant?.photos ?? []),
-    tariffs: allTariffs,
+    tariffs: Array.from(tariffsSet.values()),
     room_type_codes: variants,
     group_title: group.title,
     group_description: group.description ?? null,
   } satisfies Room;
 }
 
-const EMPTY_FILTERS: SearchResponse["filters"] = {
-  beds: [],
-  views: [],
-  balconies: [],
-};
-
-export function extractTariffGroups(
+function extractTariffGroups(
   payload: ApiSearchPayload,
 ): TariffGroup[] | undefined {
   if (!payload || Array.isArray(payload) || !("tariff_groups" in payload)) {
@@ -219,7 +225,7 @@ export function extractTariffGroups(
  * Объединяет дубликат Room при группировке:
  * мержит варианты (room_type_codes), обновляет min_price, фото и удобства.
  */
-export function mergeGroupedRoom(existing: Room, incoming: Room): void {
+function mergeGroupedRoom(existing: Room, incoming: Room): void {
   const variantMap = new Map<string, Room>();
   (existing.room_type_codes ?? []).forEach((v, i) => {
     variantMap.set(v.room_type_code ?? v.id?.toString() ?? `v-${i}`, v);
@@ -256,7 +262,7 @@ export function mergeGroupedRoom(existing: Room, incoming: Room): void {
  * Преобразует список ApiGroupedRoom[] в SearchResponse, объединяя дубликаты по ключу семейства/группы.
  * Используется для форматов 3 (ApiGroupedPayload) и 5 (устаревший массив без фильтров).
  */
-export function processGroupedRooms(
+function processGroupedRooms(
   groups: ApiGroupedRoom[],
   rawPayload: ApiSearchPayload,
   filters?: SearchResponse["filters"],
@@ -388,31 +394,12 @@ export function prepareSearchData(input: PrepareSearchDataInput) {
 
   const list = roomList ?? [];
   const isSingleRoomRequest = roomIndex !== undefined;
+  const singleRoom = isSingleRoomRequest ? list[roomIndex] : undefined;
   const guestsPayload = isSingleRoomRequest
-    ? (() => {
-        const room = list[roomIndex!];
-        if (!room) return [];
-        const { adults, children } = clampRoomGuests(
-          room.adults,
-          room.children,
-        );
-        const childs = ensureChildAges(
-          children,
-          (room.childrenAges ?? []).slice(0, children),
-        );
-        return [{ adults, childs }];
-      })()
-    : list.map((room) => {
-        const { adults, children } = clampRoomGuests(
-          room.adults,
-          room.children,
-        );
-        const childs = ensureChildAges(
-          children,
-          (room.childrenAges ?? []).slice(0, children),
-        );
-        return { adults, childs };
-      });
+    ? singleRoom
+      ? [toGuestPayload(singleRoom)]
+      : []
+    : list.map(toGuestPayload);
 
   const groupedByBed = guestsPayload.length <= 1;
   const multiBookingMode = !isSingleRoomRequest && guestsPayload.length > 1;

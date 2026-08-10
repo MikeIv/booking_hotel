@@ -11,15 +11,13 @@ import {
   MULTI_BOOKING_UNAVAILABLE_TOAST,
 } from "~/utils/multiBooking";
 import { isStaleSearchError } from "~/utils/staleSearchError";
+import { MAX_GUESTS_PER_ROOM } from "~/utils/bookingSearch";
 
 export interface RoomGuests {
   adults: number;
   children: number;
   childrenAges: number[];
 }
-
-/** Максимум гостей (взрослые + дети) в одном номере */
-const MAX_GUESTS_PER_ROOM = 15;
 
 interface GuestsValue {
   rooms: number;
