@@ -82,7 +82,9 @@ async function submitBookingAndRedirect(bookingData: BookingData) {
     });
     await router.push("/confirmation");
   } catch (error) {
-    console.error("Ошибка при создании бронирования:", error);
+    if (import.meta.dev) {
+      console.error("Ошибка при создании бронирования:", error);
+    }
     toast.add({
       severity: "error",
       summary: "Ошибка при создании бронирования.",

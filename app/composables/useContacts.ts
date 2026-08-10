@@ -29,7 +29,9 @@ export const useContacts = () => {
           ? err.message
           : "Произошла ошибка при загрузке контактов";
       error.value = errorMessage;
-      console.error("Ошибка загрузки контактов:", err);
+      if (import.meta.dev) {
+        console.error("Ошибка загрузки контактов:", err);
+      }
     } finally {
       loading.value = false;
     }

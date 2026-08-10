@@ -46,7 +46,7 @@ yarn test
 
 ## Текущий фокус
 
-Audit remediation (2026-08-10): план в `.planning/plan.md`, baseline в `.planning/state.md`. Волны 1–10; вне scope — CI/Dockerfile/i18n/scraped-home/`package.json`.
+Audit remediation: **Волна 4 done** → пауза. Handoff в `.planning/state.md`. Next: Волна 5 только после явного «да».
 
 ## Ограничения для агента
 

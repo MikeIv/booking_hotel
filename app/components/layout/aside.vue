@@ -174,7 +174,9 @@
   const updateHeight = () => {
     if (asideRef.value) {
       asideHeight.value = asideRef.value.offsetHeight;
-      console.log("Updated asideHeight:", asideHeight.value);
+      if (import.meta.dev) {
+        console.log("Updated asideHeight:", asideHeight.value);
+      }
     }
   };
 

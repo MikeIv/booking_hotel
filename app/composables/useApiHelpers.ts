@@ -9,14 +9,6 @@ export const isApiError = (error: unknown): error is ApiError => {
   );
 };
 
-export const getValidationErrors = (error: ApiError): string[] => {
-  const data = error.data;
-  if (Array.isArray(data)) {
-    return data.filter((item): item is string => typeof item === "string");
-  }
-  return [];
-};
-
 export const getErrorMessage = (error: unknown): string => {
   if (isApiError(error)) {
     return error.message;
@@ -40,7 +32,6 @@ export const isBookingAccessDeniedError = (error: unknown): boolean =>
 export const useApiHelpers = () => {
   return {
     isApiError,
-    getValidationErrors,
     getErrorMessage,
   };
 };

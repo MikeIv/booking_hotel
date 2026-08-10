@@ -220,7 +220,6 @@
     <h1 :class="$style.header">Выбор тарифа для номера</h1>
 
     <Booking mode="inner" />
-    <!-- <BookingAdvantages /> -->
 
     <section :class="$style.tariffBlock">
       <UiButton
@@ -258,11 +257,6 @@
               @open-popup="openPopup"
               @toggle-expand="toggleExpand"
             />
-            <!--            <BookingServicesList-->
-            <!--              :services="searchResults?.packages || []"-->
-            <!--              :is-service-popup-open="isServicePopupOpen"-->
-            <!--              @open-service-popup="openServicePopup"-->
-            <!--            />-->
             <BookingTariffsList
               :tariffs="room.tariffs || []"
               :tariff-groups="searchResults?.tariffGroups"

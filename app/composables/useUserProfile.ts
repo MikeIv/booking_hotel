@@ -5,13 +5,11 @@ import type {
   UpdateProfileResponse,
 } from "~/types/auth";
 import { useAuthStore } from "~/stores/auth";
-import { useBookingStore } from "~/stores/booking";
 import { useNotificationToast } from "~/composables/useToast";
 import { useApi } from "~/composables/useApi";
 
 export const useUserProfile = () => {
   const authStore = useAuthStore();
-  const bookingStore = useBookingStore();
   const toast = useNotificationToast();
 
   const originalData = reactive<UserProfile>({
@@ -203,11 +201,6 @@ export const useUserProfile = () => {
 
         authStore.setUser(updatedUser);
 
-        // Сохраняем данные в bookingStore
-        if (payloadData.id) {
-          bookingStore.saveUserProfile(payloadData.id, serverData);
-        }
-
         toast.add({
           severity: "success",
           summary: "Успешно",
@@ -287,11 +280,6 @@ export const useUserProfile = () => {
 
         await nextTick();
         authStore.setUser(updatedUser);
-
-        // Сохраняем актуальные данные в bookingStore для использования в других местах
-        if (response.payload.id) {
-          bookingStore.saveUserProfile(response.payload.id, profileData);
-        }
 
         if (import.meta.dev) {
           console.log("✅ Профиль загружен:", profileData);

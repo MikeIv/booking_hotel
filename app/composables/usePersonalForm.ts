@@ -282,7 +282,9 @@ export const usePersonalForm = () => {
   ): string | null => {
     if (!date || !time) return null;
     if (!HH_MM_TIME_REGEX.test(time)) {
-      console.warn(`Неверный формат времени: ${time}. Ожидается HH:mm.`);
+      if (import.meta.dev) {
+        console.warn(`Неверный формат времени: ${time}. Ожидается HH:mm.`);
+      }
       return null;
     }
     const formattedDate = formatDate(date);

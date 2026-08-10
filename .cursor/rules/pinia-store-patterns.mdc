@@ -15,7 +15,7 @@ alwaysApply: false
 paths: ["searchResults", "roomTariffs", "packages"]
 
 // ✅ ХОРОШО — только пользовательский ввод
-paths: ["date", "guests", "promoCode", "selectedRoomType", "userProfiles"]
+paths: ["date", "guests", "promoCode", "selectedRoomType"]
 ```
 
 Добавляй `try/catch` в `serialize`, чтобы квота не крашила приложение:

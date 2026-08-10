@@ -31,15 +31,6 @@ import {
 } from "~/utils/mapBookingShowToHistoryItem";
 import { toBookingAllowedActionsArray } from "~/utils/bookingAllowedActions";
 
-export interface UserProfileData {
-  name: string;
-  surname: string;
-  middle_name: string;
-  phone: string;
-  email: string;
-  country: string;
-}
-
 export interface SelectedService {
   id: number;
   title: string;
@@ -68,7 +59,6 @@ export const useBookingStore = defineStore(
     const selectedTariff = ref<RoomTariff | null>(null);
     const roomTariffs = ref<Room[]>([]);
     const loadingMessage = ref("Загружаем данные о номерах...");
-    const userProfiles = ref<Record<string, UserProfileData>>({});
 
     const selectedServicesByRoom = ref<Record<string, SelectedService[]>>({});
     const createdBooking = ref<BookingResponse | null>(null);
@@ -219,13 +209,6 @@ export const useBookingStore = defineStore(
         loadingMessage.value = message;
       }
     };
-
-    function saveUserProfile(userId: number, profile: UserProfileData) {
-      userProfiles.value = {
-        ...userProfiles.value,
-        [String(userId)]: { ...profile },
-      };
-    }
 
     const formatDate = (value: Date | string): string => {
       if (typeof value === "string") return value;
@@ -1135,8 +1118,6 @@ export const useBookingStore = defineStore(
       getBookingDetails,
       getBookingByUuid,
       formatDate,
-      userProfiles,
-      saveUserProfile,
       selectedServices,
       selectedServicesByRoom,
       addService,

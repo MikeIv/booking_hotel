@@ -11,7 +11,9 @@
 
   const handleError = () => clearError({ redirect: "/" });
 
-  console.log("Error", props.error);
+  if (import.meta.dev) {
+    console.log("Error", props.error);
+  }
 </script>
 
 <template>

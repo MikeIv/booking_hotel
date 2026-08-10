@@ -15,7 +15,9 @@ export const useImageLoader = () => {
 
       return matchedImages;
     } catch (error) {
-      console.error("Error loading images:", error);
+      if (import.meta.dev) {
+        console.error("Error loading images:", error);
+      }
       return [];
     }
   };

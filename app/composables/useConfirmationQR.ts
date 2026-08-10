@@ -19,7 +19,9 @@ export const useConfirmationQR = (
       margin: 1,
       color: { dark: "#000000", light: "#FFFFFF" },
     }).catch((error) => {
-      console.error("Ошибка при генерации QR-кода:", error);
+      if (import.meta.dev) {
+        console.error("Ошибка при генерации QR-кода:", error);
+      }
     });
   });
 

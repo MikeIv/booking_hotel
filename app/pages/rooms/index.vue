@@ -56,7 +56,9 @@
       try {
         await bookingStore.search();
       } catch (error: unknown) {
-        console.error("Ошибка при загрузке сохраненного поиска:", error);
+        if (import.meta.dev) {
+          console.error("Ошибка при загрузке сохраненного поиска:", error);
+        }
         toast.add({
           severity: "error",
           summary: "Ошибка загрузки",

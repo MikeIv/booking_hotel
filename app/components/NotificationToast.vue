@@ -135,7 +135,9 @@ const handleActionClick = async (
     try {
       await action.action();
     } catch (error) {
-      console.error("Ошибка при выполнении действия уведомления:", error);
+      if (import.meta.dev) {
+        console.error("Ошибка при выполнении действия уведомления:", error);
+      }
     }
     // Автоматически закрываем уведомление после действия
     props.onRemove(notification.id);

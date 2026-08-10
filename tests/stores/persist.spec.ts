@@ -22,7 +22,6 @@ const BOOKING_EPHEMERAL_KEYS = [
   "loading",
   "isServerRequest",
   "error",
-  "userProfiles",
 ] as const;
 
 function setupPersistedPinia() {

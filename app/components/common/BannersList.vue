@@ -9,7 +9,7 @@
 
   const validBanners = computed(() => {
     if (!Array.isArray(props.banners)) {
-      if (process.env.NODE_ENV === "development") {
+      if (import.meta.dev) {
         console.warn(
           "BannersList: banners должен быть массивом, получен:",
           typeof props.banners,

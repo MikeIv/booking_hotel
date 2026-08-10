@@ -43,7 +43,13 @@
     
     // Убеждаемся, что возвращается массив
     if (!Array.isArray(result)) {
-      console.warn("Booking: getBannersByVisibility вернул не массив:", typeof result, result);
+      if (import.meta.dev) {
+        console.warn(
+          "Booking: getBannersByVisibility вернул не массив:",
+          typeof result,
+          result,
+        );
+      }
       return [];
     }
     return result;

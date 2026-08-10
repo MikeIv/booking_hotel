@@ -41,7 +41,9 @@ export const useBanners = () => {
             ? err.message
             : "Произошла ошибка при загрузке баннеров";
         error.value = errorMessage;
-        console.error("Ошибка загрузки баннеров:", err);
+        if (import.meta.dev) {
+          console.error("Ошибка загрузки баннеров:", err);
+        }
       } finally {
         loading.value = false;
         fetchPromise.value = null;
@@ -59,11 +61,13 @@ export const useBanners = () => {
     }
 
     if (!Array.isArray(banners.value)) {
-      console.error(
-        "getBannersByVisibility: banners.value не является массивом:",
-        typeof banners.value,
-        banners.value,
-      );
+      if (import.meta.dev) {
+        console.error(
+          "getBannersByVisibility: banners.value не является массивом:",
+          typeof banners.value,
+          banners.value,
+        );
+      }
       return [];
     }
 

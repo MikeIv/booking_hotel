@@ -86,7 +86,9 @@ export const useCalendarPrices = () => {
       } catch (err: unknown) {
         const apiError = err as { message?: string };
         error.value = apiError.message || "Ошибка при загрузке цен календаря";
-        console.error("Ошибка загрузки цен календаря:", err);
+        if (import.meta.dev) {
+          console.error("Ошибка загрузки цен календаря:", err);
+        }
       } finally {
         activeRequests.value--;
         // Удаляем запрос из списка активных

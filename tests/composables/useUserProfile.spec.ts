@@ -29,14 +29,6 @@ vi.mock("~/stores/auth", () => ({
   useAuthStore: () => mockAuthStore,
 }));
 
-// Мокируем booking store
-const mockBookingStoreSaveUserProfile = vi.fn();
-vi.mock("~/stores/booking", () => ({
-  useBookingStore: () => ({
-    saveUserProfile: mockBookingStoreSaveUserProfile,
-  }),
-}));
-
 describe("useUserProfile", () => {
   beforeEach(() => {
     // Сбрасываем моки/стор до задания пользователя
@@ -75,7 +67,6 @@ describe("useUserProfile", () => {
       });
 
       mockToastAdd.mockClear();
-      mockBookingStoreSaveUserProfile.mockClear();
 
       const { formData, saveChanges, hasChanges, isSaving } = useUserProfile();
 
