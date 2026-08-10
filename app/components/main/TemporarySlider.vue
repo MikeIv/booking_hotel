@@ -44,6 +44,9 @@
   const goNext = () => goTo(safeCurrentIndex.value + 1);
   const goPrev = () => goTo(safeCurrentIndex.value - 1);
 
+  const slideAlt = (index: number) =>
+    `Фотогалерея, слайд ${index + 1} из ${props.items.length}`;
+
   const stopAutoplay = () => {
     if (autoplayTimer) {
       clearInterval(autoplayTimer);
@@ -146,7 +149,7 @@
           <div v-if="!isLoaded(items[prevIndex].image)" :class="$style.placeholder" />
           <img
             :src="items[prevIndex].image"
-            alt=""
+            :alt="slideAlt(prevIndex)"
             loading="lazy"
             decoding="async"
             @load="markLoaded(items[prevIndex].image)"
@@ -164,7 +167,7 @@
           <div v-if="!isLoaded(items[safeCurrentIndex].image)" :class="$style.placeholder" />
           <img
             :src="items[safeCurrentIndex].image"
-            alt=""
+            :alt="slideAlt(safeCurrentIndex)"
             :loading="safeCurrentIndex === 0 ? 'eager' : 'lazy'"
             :fetchpriority="safeCurrentIndex === 0 ? 'high' : 'auto'"
             decoding="async"
@@ -183,7 +186,7 @@
           <div v-if="!isLoaded(items[nextIndex].image)" :class="$style.placeholder" />
           <img
             :src="items[nextIndex].image"
-            alt=""
+            :alt="slideAlt(nextIndex)"
             loading="lazy"
             decoding="async"
             @load="markLoaded(items[nextIndex].image)"

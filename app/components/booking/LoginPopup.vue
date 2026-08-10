@@ -197,11 +197,13 @@
     <template #content>
       <section :class="$style.content">
         <div :class="$style.inputBlock">
+          <label for="login-email" :class="$style.srOnly">Почта</label>
           <input
-            id="email"
+            id="login-email"
             v-model="formData.email"
             type="email"
             placeholder="Почта"
+            autocomplete="email"
             :class="[$style.input, { [$style.inputError]: emailError }]"
           >
           <small v-if="emailError" :class="$style.errorText">{{
@@ -210,6 +212,7 @@
         </div>
 
         <div :class="$style.inputBlock">
+          <label for="login-password" :class="$style.srOnly">Пароль</label>
           <div
             :class="[
               $style.passwordWrapper,
@@ -217,16 +220,17 @@
             ]"
           >
             <input
-              id="password"
+              id="login-password"
               v-model="formData.password"
               :type="showPassword ? 'text' : 'password'"
               placeholder="Пароль"
+              autocomplete="current-password"
               :class="$style.passwordInput"
             >
             <button
               type="button"
               :class="$style.togglePassword"
-              :title="showPassword ? 'Скрыть пароль' : 'Показать пароль'"
+              :aria-label="showPassword ? 'Скрыть пароль' : 'Показать пароль'"
               @click="showPassword = !showPassword"
             >
               {{ showPassword ? '🙈' : '👁️' }}
@@ -288,6 +292,18 @@
     display: flex;
     flex-direction: column;
     width: 100%;
+  }
+
+  .srOnly {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
   }
 
   .input,

@@ -110,11 +110,15 @@
     <template #content>
       <section :class="$style.content">
         <div :class="$style.inputBlock">
+          <label for="my-booking-number" :class="$style.srOnly"
+            >Номер бронирования</label
+          >
           <input
-            id="bookingNumber"
+            id="my-booking-number"
             v-model="formData.bookingNumber"
             type="text"
             placeholder="Номер бронирования"
+            autocomplete="off"
             :class="[$style.input, { [$style.inputError]: bookingNumberError }]"
           >
           <small v-if="bookingNumberError" :class="$style.errorText">{{
@@ -123,11 +127,15 @@
         </div>
 
         <div :class="$style.inputBlock">
+          <label for="my-booking-access-code" :class="$style.srOnly"
+            >Код доступа</label
+          >
           <input
-            id="accessCode"
+            id="my-booking-access-code"
             v-model="formData.accessCode"
             type="text"
             placeholder="Код доступа"
+            autocomplete="one-time-code"
             :class="[$style.input, { [$style.inputError]: accessCodeError }]"
           >
           <small v-if="accessCodeError" :class="$style.errorText">{{
@@ -170,6 +178,18 @@
     display: flex;
     flex-direction: column;
     width: 100%;
+  }
+
+  .srOnly {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
   }
 
   .input {

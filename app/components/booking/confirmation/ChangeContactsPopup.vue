@@ -39,36 +39,69 @@
         </p>
 
         <div :class="$style.changeContactsPopupGrid">
-          <input
-            v-model.trim="localForm.name"
-            :class="$style.changeContactsInput"
-            type="text"
-            placeholder="Имя"
-          />
-          <input
-            v-model.trim="localForm.surname"
-            :class="$style.changeContactsInput"
-            type="text"
-            placeholder="Фамилия"
-          />
-          <input
-            v-model.trim="localForm.middle_name"
-            :class="$style.changeContactsInput"
-            type="text"
-            placeholder="Отчество"
-          />
-          <input
-            v-model.trim="localForm.phone"
-            :class="$style.changeContactsInput"
-            type="tel"
-            placeholder="Телефон"
-          />
-          <input
-            v-model.trim="localForm.email"
-            :class="$style.changeContactsInput"
-            type="email"
-            placeholder="E-mail"
-          />
+          <div :class="$style.changeContactsField">
+            <label for="change-contact-name" :class="$style.srOnly">Имя</label>
+            <input
+              id="change-contact-name"
+              v-model.trim="localForm.name"
+              :class="$style.changeContactsInput"
+              type="text"
+              placeholder="Имя"
+              autocomplete="given-name"
+            />
+          </div>
+          <div :class="$style.changeContactsField">
+            <label for="change-contact-surname" :class="$style.srOnly"
+              >Фамилия</label
+            >
+            <input
+              id="change-contact-surname"
+              v-model.trim="localForm.surname"
+              :class="$style.changeContactsInput"
+              type="text"
+              placeholder="Фамилия"
+              autocomplete="family-name"
+            />
+          </div>
+          <div :class="$style.changeContactsField">
+            <label for="change-contact-middle-name" :class="$style.srOnly"
+              >Отчество</label
+            >
+            <input
+              id="change-contact-middle-name"
+              v-model.trim="localForm.middle_name"
+              :class="$style.changeContactsInput"
+              type="text"
+              placeholder="Отчество"
+              autocomplete="additional-name"
+            />
+          </div>
+          <div :class="$style.changeContactsField">
+            <label for="change-contact-phone" :class="$style.srOnly"
+              >Телефон</label
+            >
+            <input
+              id="change-contact-phone"
+              v-model.trim="localForm.phone"
+              :class="$style.changeContactsInput"
+              type="tel"
+              placeholder="Телефон"
+              autocomplete="tel"
+            />
+          </div>
+          <div :class="$style.changeContactsField">
+            <label for="change-contact-email" :class="$style.srOnly"
+              >E-mail</label
+            >
+            <input
+              id="change-contact-email"
+              v-model.trim="localForm.email"
+              :class="$style.changeContactsInput"
+              type="email"
+              placeholder="E-mail"
+              autocomplete="email"
+            />
+          </div>
         </div>
 
         <div :class="$style.changeContactsPopupActions">
@@ -128,6 +161,24 @@
       grid-template-columns: repeat(2, 1fr);
       gap: rem(14);
     }
+  }
+
+  .changeContactsField {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .srOnly {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
   }
 
   .changeContactsInput {

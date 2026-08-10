@@ -119,7 +119,13 @@ onBeforeUnmount(() => {
       @click.stop="toggleOpen"
     />
 
-    <div v-if="isOpen" :class="$style.menu" @click.stop>
+    <div
+      v-if="isOpen"
+      :class="$style.menu"
+      role="listbox"
+      :aria-label="ariaLabel || placeholder"
+      @click.stop
+    >
       <div v-if="searchable" :class="$style.searchContainer">
         <input
           ref="searchInputRef"
@@ -137,6 +143,8 @@ onBeforeUnmount(() => {
           v-for="option in filteredOptions"
           :key="option.value"
           type="button"
+          role="option"
+          :aria-selected="option.value === modelValue"
           :class="[
             $style.option,
             option.value === modelValue && $style.option_active,

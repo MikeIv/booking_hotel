@@ -143,11 +143,13 @@
       <section :class="$style.content">
         <div :class="$style.inputRow">
           <div :class="$style.inputBlock">
+            <label for="register-lastName" :class="$style.srOnly">Фамилия</label>
             <input
-              id="lastName"
+              id="register-lastName"
               v-model="formData.surname"
               type="text"
               placeholder="Фамилия"
+              autocomplete="family-name"
               :class="[$style.input, { [$style.inputError]: errors.surname }]"
             >
             <small v-if="errors.surname" :class="$style.errorText">{{
@@ -156,11 +158,13 @@
           </div>
 
           <div :class="$style.inputBlock">
+            <label for="register-firstName" :class="$style.srOnly">Имя</label>
             <input
-              id="firstName"
+              id="register-firstName"
               v-model="formData.name"
               type="text"
               placeholder="Имя"
+              autocomplete="given-name"
               :class="[$style.input, { [$style.inputError]: errors.name }]"
             >
             <small v-if="errors.name" :class="$style.errorText">{{
@@ -170,21 +174,27 @@
         </div>
 
         <div :class="$style.inputBlock">
+          <label for="register-middleName" :class="$style.srOnly"
+            >Отчество</label
+          >
           <input
-            id="middleName"
+            id="register-middleName"
             v-model="formData.middle_name"
             type="text"
             placeholder="Отчество (необязательно)"
+            autocomplete="additional-name"
             :class="[$style.input]"
           >
         </div>
 
         <div :class="$style.inputBlock">
+          <label for="register-phone" :class="$style.srOnly">Телефон</label>
           <input
-            id="phone"
+            id="register-phone"
             v-model="formData.phone"
             type="tel"
             placeholder="Телефон"
+            autocomplete="tel"
             :class="[$style.input, { [$style.inputError]: errors.phone }]"
           >
           <small v-if="errors.phone" :class="$style.errorText">{{
@@ -193,11 +203,13 @@
         </div>
 
         <div :class="$style.inputBlock">
+          <label for="register-email" :class="$style.srOnly">Почта</label>
           <input
-            id="email"
+            id="register-email"
             v-model="formData.email"
             type="email"
             placeholder="Почта"
+            autocomplete="email"
             :class="[$style.input, { [$style.inputError]: errors.email }]"
           >
           <small v-if="errors.email" :class="$style.errorText">{{
@@ -205,7 +217,12 @@
           }}</small>
         </div>
 
-        <div :class="$style.inputBlock">
+        <div
+          :class="$style.inputBlock"
+          role="group"
+          aria-labelledby="register-country-label"
+        >
+          <span id="register-country-label" :class="$style.srOnly">Страна</span>
           <BookingSelect
             v-model="formData.country"
             :options="countriesRu"
@@ -216,12 +233,14 @@
         </div>
 
         <div :class="$style.inputBlock">
+          <label for="register-password" :class="$style.srOnly">Пароль</label>
           <div :class="$style.passwordWrapper">
             <input
-              id="password"
+              id="register-password"
               v-model="formData.password"
               :type="showPassword ? 'text' : 'password'"
               placeholder="Пароль"
+              autocomplete="new-password"
               :class="[
                 $style.passwordInput,
                 { [$style.inputError]: errors.password },
@@ -230,11 +249,13 @@
             <button
               type="button"
               :class="$style.togglePassword"
+              :aria-label="showPassword ? 'Скрыть пароль' : 'Показать пароль'"
               @click="showPassword = !showPassword"
             >
               <UIcon
                 :name="showPassword ? 'i-eye-off' : 'i-eye'"
                 :class="$style.eyeIcon"
+                aria-hidden="true"
               />
             </button>
           </div>
@@ -244,12 +265,16 @@
         </div>
 
         <div :class="$style.inputBlock">
+          <label for="register-password-confirmation" :class="$style.srOnly"
+            >Повторить пароль</label
+          >
           <div :class="$style.passwordWrapper">
             <input
-              id="password_confirmation"
+              id="register-password-confirmation"
               v-model="formData.password_confirmation"
               :type="showPassword ? 'text' : 'password'"
               placeholder="Повторить пароль"
+              autocomplete="new-password"
               :class="[
                 $style.passwordInput,
                 { [$style.inputError]: errors.password_confirmation },
@@ -323,6 +348,18 @@
     display: flex;
     flex-direction: column;
     width: 100%;
+  }
+
+  .srOnly {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
   }
 
   .input,

@@ -35,7 +35,7 @@
           <div :class="$style.iconWrap">
             <img
               :src="LOCAL_ICONS[index] ?? item.image ?? ''"
-              alt=""
+              :alt="item.title || `Преимущество ${index + 1}`"
               loading="lazy"
               decoding="async"
               :class="$style.icon"
