@@ -197,7 +197,7 @@
     <template #content>
       <section :class="$style.content">
         <div :class="$style.inputBlock">
-          <label for="login-email" :class="$style.srOnly">Почта</label>
+          <label for="login-email" class="visually-hidden">Почта</label>
           <input
             id="login-email"
             v-model="formData.email"
@@ -212,7 +212,7 @@
         </div>
 
         <div :class="$style.inputBlock">
-          <label for="login-password" :class="$style.srOnly">Пароль</label>
+          <label for="login-password" class="visually-hidden">Пароль</label>
           <div
             :class="[
               $style.passwordWrapper,
@@ -233,7 +233,11 @@
               :aria-label="showPassword ? 'Скрыть пароль' : 'Показать пароль'"
               @click="showPassword = !showPassword"
             >
-              {{ showPassword ? '🙈' : '👁️' }}
+              <UIcon
+                :name="showPassword ? 'i-eye-off' : 'i-eye'"
+                :class="$style.eyeIcon"
+                aria-hidden="true"
+              />
             </button>
           </div>
           <small v-if="passwordError" :class="$style.errorText">{{
@@ -292,18 +296,6 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-  }
-
-  .srOnly {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border-width: 0;
   }
 
   .input,

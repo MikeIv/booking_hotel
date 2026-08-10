@@ -143,7 +143,7 @@
       <section :class="$style.content">
         <div :class="$style.inputRow">
           <div :class="$style.inputBlock">
-            <label for="register-lastName" :class="$style.srOnly">Фамилия</label>
+            <label for="register-lastName" class="visually-hidden">Фамилия</label>
             <input
               id="register-lastName"
               v-model="formData.surname"
@@ -158,7 +158,7 @@
           </div>
 
           <div :class="$style.inputBlock">
-            <label for="register-firstName" :class="$style.srOnly">Имя</label>
+            <label for="register-firstName" class="visually-hidden">Имя</label>
             <input
               id="register-firstName"
               v-model="formData.name"
@@ -174,7 +174,7 @@
         </div>
 
         <div :class="$style.inputBlock">
-          <label for="register-middleName" :class="$style.srOnly"
+          <label for="register-middleName" class="visually-hidden"
             >Отчество</label
           >
           <input
@@ -188,7 +188,7 @@
         </div>
 
         <div :class="$style.inputBlock">
-          <label for="register-phone" :class="$style.srOnly">Телефон</label>
+          <label for="register-phone" class="visually-hidden">Телефон</label>
           <input
             id="register-phone"
             v-model="formData.phone"
@@ -203,7 +203,7 @@
         </div>
 
         <div :class="$style.inputBlock">
-          <label for="register-email" :class="$style.srOnly">Почта</label>
+          <label for="register-email" class="visually-hidden">Почта</label>
           <input
             id="register-email"
             v-model="formData.email"
@@ -222,7 +222,7 @@
           role="group"
           aria-labelledby="register-country-label"
         >
-          <span id="register-country-label" :class="$style.srOnly">Страна</span>
+          <span id="register-country-label" class="visually-hidden">Страна</span>
           <BookingSelect
             v-model="formData.country"
             :options="countriesRu"
@@ -233,7 +233,7 @@
         </div>
 
         <div :class="$style.inputBlock">
-          <label for="register-password" :class="$style.srOnly">Пароль</label>
+          <label for="register-password" class="visually-hidden">Пароль</label>
           <div :class="$style.passwordWrapper">
             <input
               id="register-password"
@@ -265,7 +265,7 @@
         </div>
 
         <div :class="$style.inputBlock">
-          <label for="register-password-confirmation" :class="$style.srOnly"
+          <label for="register-password-confirmation" class="visually-hidden"
             >Повторить пароль</label
           >
           <div :class="$style.passwordWrapper">
@@ -348,18 +348,6 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-  }
-
-  .srOnly {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border-width: 0;
   }
 
   .input,

@@ -110,7 +110,7 @@
     <template #content>
       <section :class="$style.content">
         <div :class="$style.inputBlock">
-          <label for="my-booking-number" :class="$style.srOnly"
+          <label for="my-booking-number" class="visually-hidden"
             >Номер бронирования</label
           >
           <input
@@ -127,7 +127,7 @@
         </div>
 
         <div :class="$style.inputBlock">
-          <label for="my-booking-access-code" :class="$style.srOnly"
+          <label for="my-booking-access-code" class="visually-hidden"
             >Код доступа</label
           >
           <input
@@ -178,18 +178,6 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-  }
-
-  .srOnly {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border-width: 0;
   }
 
   .input {

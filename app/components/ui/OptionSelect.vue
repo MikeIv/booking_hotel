@@ -116,6 +116,7 @@ onBeforeUnmount(() => {
       :invalid="invalid"
       :disabled="disabled"
       :aria-label="ariaLabel || placeholder"
+      aria-haspopup="listbox"
       @click.stop="toggleOpen"
     />
 

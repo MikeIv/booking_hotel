@@ -161,7 +161,7 @@ const goToHome = () => {
         </p>
 
         <div :class="$style.inputBlock">
-          <label for="password" :class="$style.srOnly">Новый пароль</label>
+          <label for="password" class="visually-hidden">Новый пароль</label>
           <div
             :class="[
               $style.passwordWrapper,
@@ -196,7 +196,7 @@ const goToHome = () => {
         </div>
 
         <div :class="$style.inputBlock">
-          <label for="password_confirmation" :class="$style.srOnly"
+          <label for="password_confirmation" class="visually-hidden"
             >Повторить пароль</label
           >
           <div
@@ -399,17 +399,5 @@ const goToHome = () => {
     width: 100%;
     height: rem(48);
     margin-top: rem(8);
-  }
-
-  .srOnly {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border-width: 0;
   }
 </style>

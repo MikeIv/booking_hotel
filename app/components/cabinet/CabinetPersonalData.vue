@@ -81,7 +81,7 @@
 
     <form v-else :class="$style.form" @submit.prevent="emit('save')">
       <div :class="$style.field">
-        <label for="name" :class="$style.label">Имя</label>
+        <label for="name" class="visually-hidden">Имя</label>
         <input
           id="name"
           v-model="name"
@@ -92,7 +92,7 @@
       </div>
 
       <div :class="$style.field">
-        <label for="surname" :class="$style.label">Фамилия</label>
+        <label for="surname" class="visually-hidden">Фамилия</label>
         <input
           id="surname"
           v-model="surname"
@@ -103,7 +103,7 @@
       </div>
 
       <div :class="$style.field">
-        <label for="middle_name" :class="$style.label">Отчество</label>
+        <label for="middle_name" class="visually-hidden">Отчество</label>
         <input
           id="middle_name"
           v-model="middleName"
@@ -114,7 +114,7 @@
       </div>
 
       <div :class="$style.field">
-        <label for="phone" :class="$style.label">Телефон</label>
+        <label for="phone" class="visually-hidden">Телефон</label>
         <input
           id="phone"
           v-model="phone"
@@ -125,7 +125,7 @@
       </div>
 
       <div :class="$style.field">
-        <label for="email" :class="$style.label">E-mail</label>
+        <label for="email" class="visually-hidden">E-mail</label>
         <input
           id="email"
           v-model="email"
@@ -136,7 +136,7 @@
       </div>
 
       <div :class="$style.field">
-        <label for="country" :class="$style.label">Гражданство</label>
+        <label for="country" class="visually-hidden">Гражданство</label>
         <BookingSelect
           v-model="country"
           :options="countriesRu"
@@ -159,18 +159,6 @@
 
 <style module lang="scss">
   @use "~/assets/styles/variables/resolutions" as size;
-
-  :global(.visually-hidden) {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    padding: 0;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-  }
 
   .content {
     display: flex;
@@ -252,10 +240,6 @@
         margin-right: rem(27);
       }
     }
-  }
-
-  .label {
-    @extend :global(.visually-hidden);
   }
 
   .input {

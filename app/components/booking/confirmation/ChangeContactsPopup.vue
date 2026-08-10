@@ -40,7 +40,7 @@
 
         <div :class="$style.changeContactsPopupGrid">
           <div :class="$style.changeContactsField">
-            <label for="change-contact-name" :class="$style.srOnly">Имя</label>
+            <label for="change-contact-name" class="visually-hidden">Имя</label>
             <input
               id="change-contact-name"
               v-model.trim="localForm.name"
@@ -51,7 +51,7 @@
             />
           </div>
           <div :class="$style.changeContactsField">
-            <label for="change-contact-surname" :class="$style.srOnly"
+            <label for="change-contact-surname" class="visually-hidden"
               >Фамилия</label
             >
             <input
@@ -64,7 +64,7 @@
             />
           </div>
           <div :class="$style.changeContactsField">
-            <label for="change-contact-middle-name" :class="$style.srOnly"
+            <label for="change-contact-middle-name" class="visually-hidden"
               >Отчество</label
             >
             <input
@@ -77,7 +77,7 @@
             />
           </div>
           <div :class="$style.changeContactsField">
-            <label for="change-contact-phone" :class="$style.srOnly"
+            <label for="change-contact-phone" class="visually-hidden"
               >Телефон</label
             >
             <input
@@ -90,7 +90,7 @@
             />
           </div>
           <div :class="$style.changeContactsField">
-            <label for="change-contact-email" :class="$style.srOnly"
+            <label for="change-contact-email" class="visually-hidden"
               >E-mail</label
             >
             <input
@@ -167,18 +167,6 @@
     display: flex;
     flex-direction: column;
     min-width: 0;
-  }
-
-  .srOnly {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border-width: 0;
   }
 
   .changeContactsInput {
