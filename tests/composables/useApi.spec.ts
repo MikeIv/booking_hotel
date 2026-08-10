@@ -1,11 +1,10 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { createApp } from "vue";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createPinia, setActivePinia } from "pinia";
 
 const mockFetch = vi.fn();
 
-function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function unauthorized(status = 401) {
+  return Object.assign(new Error("Unauthorized"), { status });
 }
 
 async function loadUseApi() {
@@ -24,14 +23,7 @@ async function loadUseApi() {
 
 describe("useApi", () => {
   beforeEach(() => {
-    const app = createApp({ render: () => null });
-    const pinia = createPinia();
-    app.use(pinia);
-    setActivePinia(pinia);
-    vi.clearAllMocks();
-  });
-
-  afterEach(() => {
+    setActivePinia(createPinia());
     vi.clearAllMocks();
   });
 
@@ -46,23 +38,20 @@ describe("useApi", () => {
         return { success: true, payload: { accessToken: "fresh" } };
       }
       protectedCalls += 1;
-      if (protectedCalls === 1) {
-        throw Object.assign(new Error("Unauthorized"), { status: 401 });
-      }
+      if (protectedCalls === 1) throw unauthorized();
       return { success: true, payload: { ok: true } };
     });
 
     const { get } = useApi();
     const result = await get<{ ok: boolean }>("/v1/profile");
 
-    expect(result.success).toBe(true);
-    expect(result.payload).toEqual({ ok: true });
+    expect(result).toEqual({ success: true, payload: { ok: true } });
     expect(authStore.token).toBe("fresh");
-
-    const refreshCalls = mockFetch.mock.calls.filter((call) =>
-      String(call[0]).includes("/auth/refresh"),
-    );
-    expect(refreshCalls).toHaveLength(1);
+    expect(
+      mockFetch.mock.calls.filter((call) =>
+        String(call[0]).includes("/auth/refresh"),
+      ),
+    ).toHaveLength(1);
     expect(protectedCalls).toBe(2);
   });
 
@@ -72,25 +61,33 @@ describe("useApi", () => {
     authStore.setToken("expired");
 
     let refreshCalls = 0;
+    let releaseRefresh!: () => void;
+    const refreshGate = new Promise<void>((resolve) => {
+      releaseRefresh = resolve;
+    });
+
     mockFetch.mockImplementation(
       async (url: string, opts?: { headers?: Record<string, string> }) => {
         if (String(url).includes("/auth/refresh")) {
           refreshCalls += 1;
-          await sleep(40);
+          await refreshGate;
           return { success: true, payload: { accessToken: "shared-fresh" } };
         }
 
-        const auth = opts?.headers?.Authorization;
-        if (auth === "Bearer shared-fresh") {
+        if (opts?.headers?.Authorization === "Bearer shared-fresh") {
           return { success: true, payload: { id: String(url) } };
         }
-        throw Object.assign(new Error("Unauthorized"), { status: 401 });
+        throw unauthorized();
       },
     );
 
     const { get } = useApi();
-    const [a, b] = await Promise.all([get("/v1/one"), get("/v1/two")]);
+    const pending = Promise.all([get("/v1/one"), get("/v1/two")]);
 
+    await vi.waitFor(() => expect(refreshCalls).toBe(1));
+    releaseRefresh();
+
+    const [a, b] = await pending;
     expect(a.success).toBe(true);
     expect(b.success).toBe(true);
     expect(refreshCalls).toBe(1);
@@ -110,11 +107,8 @@ describe("useApi", () => {
     });
     const logoutSpy = vi.spyOn(authStore, "logout");
 
-    mockFetch.mockImplementation(async (url: string) => {
-      if (String(url).includes("/auth/refresh")) {
-        throw Object.assign(new Error("Unauthorized"), { status: 401 });
-      }
-      throw Object.assign(new Error("Unauthorized"), { status: 401 });
+    mockFetch.mockImplementation(async () => {
+      throw unauthorized();
     });
 
     const { get } = useApi();

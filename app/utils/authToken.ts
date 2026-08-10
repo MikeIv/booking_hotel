@@ -30,7 +30,9 @@ export function normalizeApiBaseUrl(apiBase: string): string {
 }
 
 export function getFetchErrorStatus(error: unknown): number | undefined {
-  return (error as { status?: number }).status;
+  const err = error as { status?: number; response?: { status?: number } };
+  // ofetch: error.status; legacy/axios-подобные: error.response.status
+  return err.status ?? err.response?.status;
 }
 
 export function isAuthErrorStatus(status?: number): boolean {
