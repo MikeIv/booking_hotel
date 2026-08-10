@@ -48,15 +48,6 @@ export const useNotificationToast = () => {
     // Длительность жизни уведомления
     const duration = message.life ?? 5000;
 
-    if (import.meta?.env?.DEV) {
-      console.log("🔔 Toast.add called:", {
-        type,
-        messageText,
-        title,
-        duration,
-      });
-    }
-
     // Показываем уведомление
     if (type === "success") {
       showSuccess(messageText, {

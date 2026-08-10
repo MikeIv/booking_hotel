@@ -843,7 +843,7 @@ export const useBookingStore = defineStore(
           })),
         };
 
-        if (import.meta?.env?.DEV) {
+        if (import.meta.dev) {
           console.log(
             "📤 Отправка данных бронирования:",
             JSON.stringify(processedData, null, 2),

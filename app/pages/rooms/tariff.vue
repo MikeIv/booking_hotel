@@ -1,6 +1,6 @@
 <script setup lang="ts">
   import { useBookingStore } from "~/stores/booking";
-  import type { PackageResource, RoomTariff } from "~/types/room";
+  import type { RoomTariff } from "~/types/room";
   import { useNotificationToast } from "~/composables/useToast";
 
   definePageMeta({
@@ -15,8 +15,6 @@
   const loading = ref(true);
   const error = ref<Error | null>(null);
   const isPopupOpen = ref(false);
-  const isServicePopupOpen = ref(false);
-  const selectedService = ref<PackageResource | null>(null);
   const expandedRooms = ref<Record<string, boolean>>({});
 
   const openPopup = (event: MouseEvent) => {
@@ -26,17 +24,6 @@
 
   const closePopup = () => {
     isPopupOpen.value = false;
-  };
-
-  const _openServicePopup = (event: MouseEvent, service: PackageResource) => {
-    event.stopPropagation();
-    selectedService.value = service;
-    isServicePopupOpen.value = true;
-  };
-
-  const closeServicePopup = () => {
-    isServicePopupOpen.value = false;
-    selectedService.value = null;
   };
 
   const toggleExpand = (roomTitle: string) => {
@@ -143,63 +130,14 @@
       );
 
     if (hasValidData) {
-      // Данные уже загружены, просто скрываем загрузку
       loading.value = false;
-      if (import.meta?.env?.DEV) {
-        console.log("✅ Данные тарифов уже загружены:", {
-          roomTariffs: roomTariffs.value,
-          selectedRoomType: selectedRoomType.value,
-        });
-      }
       return;
     }
 
     try {
       loading.value = true;
-      const result = await bookingStore.search({ roomTypeCode: selectedRoomType.value });
-      
-      // Ждем обновления DOM после загрузки данных
+      await bookingStore.search({ roomTypeCode: selectedRoomType.value });
       await nextTick();
-      
-      if (import.meta?.env?.DEV) {
-        console.log("📥 Результат загрузки тарифов:", {
-          result,
-          roomTariffs: roomTariffs.value,
-          roomTariffsLength: roomTariffs.value?.length,
-          searchResults: searchResults.value,
-          normalizedRooms: result?.rooms,
-        });
-        
-        // Детальная проверка структуры данных
-        if (roomTariffs.value && roomTariffs.value.length > 0) {
-          roomTariffs.value.forEach((room, idx) => {
-            console.log(`Комната ${idx}:`, {
-              title: room.title,
-              room_type_code: room.room_type_code,
-              tariffsCount: room.tariffs?.length || 0,
-              tariffs: room.tariffs,
-            });
-          });
-        }
-      }
-
-      if (import.meta?.env?.DEV) {
-        if (!roomTariffs.value || roomTariffs.value.length === 0) {
-          console.warn("⚠️ Данные тарифов не загружены после запроса");
-          console.warn("Проверка searchResults:", searchResults.value);
-        } else {
-          const roomsWithTariffs = roomTariffs.value.filter(
-            (room) => room.tariffs && room.tariffs.length > 0,
-          );
-          if (roomsWithTariffs.length === 0) {
-            console.warn("⚠️ Номера загружены, но тарифы отсутствуют");
-            console.warn("Структура номеров:", roomTariffs.value.map(r => ({
-              title: r.title,
-              tariffs: r.tariffs,
-            })));
-          }
-        }
-      }
     } catch (err: unknown) {
       error.value = err as Error;
       toast.add({
@@ -266,12 +204,6 @@
               :room="room"
               :is-open="isPopupOpen"
               @close="closePopup"
-            />
-            <BookingServicePopup
-              v-if="selectedService"
-              :service="selectedService"
-              :is-open="isServicePopupOpen"
-              @close="closeServicePopup"
             />
           </div>
         </div>

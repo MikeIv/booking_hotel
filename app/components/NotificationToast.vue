@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineAsyncComponent, watch, type Component, type DeepReadonly } from "vue";
+import { computed, defineAsyncComponent, type Component, type DeepReadonly } from "vue";
 import type { NotificationType, Notification, CustomIcon } from "~/composables/useNotifications";
 
 /**
@@ -143,25 +143,6 @@ const handleActionClick = async (
     props.onRemove(notification.id);
   }
 };
-
-// Отладочный вывод для проверки получения данных
-if (import.meta?.env?.DEV) {
-  watch(
-    () => props.notifications,
-    (notifications) => {
-      console.log("🔔 NotificationToast: notifications updated", {
-        count: notifications.length,
-        notifications: notifications.map((n) => ({
-          id: n.id,
-          type: n.type,
-          title: n.title,
-          message: n.message,
-        })),
-      });
-    },
-    { immediate: true, deep: true },
-  );
-}
 </script>
 
 <template>

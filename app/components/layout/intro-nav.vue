@@ -2,9 +2,6 @@
   const { useImages } = useImageLoader();
   const desktopImages = useImages("images/intro/bg-slider");
   const mobileImages = useImages("images/intro/bg-slider/mob");
-  if (import.meta.dev) {
-    console.log("desktopImages", desktopImages);
-  }
 </script>
 
 <template>

@@ -32,15 +32,7 @@
 
   const bookingBanners = computed(() => {
     const result = getBannersByVisibility("booking");
-    
-    if (import.meta?.env?.DEV) {
-      console.log("🔍 bookingBanners computed:", {
-        type: typeof result,
-        isArray: Array.isArray(result),
-        result,
-      });
-    }
-    
+
     // Убеждаемся, что возвращается массив
     if (!Array.isArray(result)) {
       if (import.meta.dev) {
@@ -169,14 +161,6 @@
       // Дополнительная защита: гарантируем сброс состояния даже при неожиданных ошибках
       bookingStore.setLoading(false);
       bookingStore.setServerRequest(false);
-    }
-
-    if (import.meta?.env?.DEV) {
-      console.log("Поиск:", {
-        date: date.value,
-        guests: guests.value,
-        promoCode: promoCode.value,
-      });
     }
   };
 

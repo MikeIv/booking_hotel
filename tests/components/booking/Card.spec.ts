@@ -385,22 +385,11 @@ describe("Card.vue", () => {
         props: { room },
       });
 
-      const consoleSpy = vi
-        .spyOn(console, "error")
-        .mockImplementation(() => {});
-
-      // Устанавливаем DEV режим для логирования
-      vi.stubGlobal("import.meta", { env: { DEV: true } });
-
       const vm = wrapper.vm as unknown as CardComponentInstance;
       await vm.handleTariff();
 
-      expect(consoleSpy).toHaveBeenCalled();
       expect(mockBookingStore.setSelectedRoomType).not.toHaveBeenCalled();
       expect(mockRouterPush).not.toHaveBeenCalled();
-
-      consoleSpy.mockRestore();
-      vi.unstubAllGlobals();
     });
 
     it("должен прервать выполнение, если room_type_code пустой", async () => {
@@ -412,21 +401,11 @@ describe("Card.vue", () => {
         props: { room },
       });
 
-      const consoleSpy = vi
-        .spyOn(console, "error")
-        .mockImplementation(() => {});
-
-      vi.stubGlobal("import.meta", { env: { DEV: true } });
-
       const vm = wrapper.vm as unknown as CardComponentInstance;
       await vm.handleTariff();
 
-      expect(consoleSpy).toHaveBeenCalled();
       expect(mockBookingStore.setSelectedRoomType).not.toHaveBeenCalled();
       expect(mockRouterPush).not.toHaveBeenCalled();
-
-      consoleSpy.mockRestore();
-      vi.unstubAllGlobals();
     });
 
     it("должен установить loading в true во время выполнения", async () => {

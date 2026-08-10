@@ -52,23 +52,6 @@
     return (props.room.tariffs?.length || 0) > 0;
   });
 
-  // Отладочная информация (только в dev режиме)
-  if (import.meta?.env?.DEV) {
-    watch(
-      () => [props.room.tariffs, visibleTariffs.value, hasTariffs.value],
-      ([tariffs, visible, has]) => {
-        console.log("MultiCard tariffs debug:", {
-          roomTitle: props.room.title,
-          tariffsCount: (tariffs as RoomTariff[] | undefined)?.length || 0,
-          visibleCount: (visible as RoomTariff[])?.length || 0,
-          hasTariffs: has as boolean,
-          showAllTariffs: showAllTariffs.value,
-        });
-      },
-      { immediate: true },
-    );
-  }
-
   const roomsCount = computed(() => {
     return guests.value?.roomList
       ? guests.value.roomList.length

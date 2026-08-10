@@ -47,12 +47,6 @@
     }
 
     if (!searchResults.value) {
-      if (import.meta?.env?.DEV) {
-        console.log("onMounted search:", {
-          loading: loading.value,
-          isServerRequest: bookingStore.isServerRequest,
-        });
-      }
       try {
         await bookingStore.search();
       } catch (error: unknown) {

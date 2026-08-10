@@ -49,9 +49,6 @@
 
   const availableRoomVariants = computed<Room[]>(() => {
     const variants = props.room.room_type_codes ?? [];
-    if (import.meta.dev) {
-      console.log(variants);
-    }
     return variants.length > 0 ? variants : [props.room];
   });
 
@@ -243,7 +240,7 @@
           roomTypeCode = props.room.room_type_code;
         } else {
           // Если код равен названию или пустой - это ошибка данных
-          if (import.meta?.env?.DEV) {
+          if (import.meta.dev) {
             console.error("room_type_code равен названию или пустой в props.room", {
               room_type_code: props.room.room_type_code,
               title: props.room.title,
@@ -255,7 +252,7 @@
       
       // Финальная проверка: код не должен быть пустым или равным названию
       if (!roomTypeCode || roomTypeCode.trim() === "" || roomTypeCode === roomData.title) {
-        if (import.meta?.env?.DEV) {
+        if (import.meta.dev) {
           console.error("Не удалось определить валидный код типа номера", {
             roomTypeCode,
             roomData: {
