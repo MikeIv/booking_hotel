@@ -107,7 +107,7 @@
   }
 
   .cardTitle {
-    margin: 0 0 rem(24);
+    margin: 0 0 var(--ds-space-300);
     padding: 0;
     color: var(--a-landing-ink);
     font-family: GothaProBol, Arial, Helvetica, sans-serif;

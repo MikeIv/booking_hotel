@@ -302,11 +302,7 @@
   .form .promoField {
     width: 100%;
     min-width: 0;
-  }
 
-  .dateField,
-  .guestsField,
-  .promoField {
     @media (min-width: #{size.$tabletMin}) {
       grid-column: span 1;
     }

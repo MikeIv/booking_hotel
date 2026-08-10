@@ -123,7 +123,6 @@
 
   .colTitle {
     margin: 0 0 rem(20);
-    font-family: GothaProReg, Arial, Helvetica, sans-serif;
     font-weight: 400;
     font-size: rem(14);
     line-height: 1.2;
@@ -145,7 +144,6 @@
     a {
       color: var(--a-text-white);
       text-decoration: none;
-      font-family: GothaProReg, Arial, Helvetica, sans-serif;
       font-size: rem(16);
       font-weight: 300;
       line-height: 1.5;

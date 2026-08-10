@@ -221,7 +221,7 @@ const handleRemoveService = (roomIdx: number, serviceId: number) => {
 
     @media (min-width: #{size.$desktopMin}) {
       position: sticky;
-      top: calc(var(--header-height, 95px) + #{rem(20)});
+      top: calc(var(--header-height, #{rem(95)}) + #{rem(20)});
       box-shadow: var(--a-shadow-summary-inner);
       border-radius: var(--a-borderR--card);
       padding: rem(16);
@@ -233,13 +233,13 @@ const handleRemoveService = (roomIdx: number, serviceId: number) => {
     flex-direction: column;
     gap: rem(10);
 
-    @media (max-width: calc(#{size.$desktopMin} - 1px)) {
+    @media (max-width: calc(#{size.$desktopMin} - #{rem(1)})) {
       display: none;
     }
   }
 
   .pageSummaryInner_expanded .pageSummaryList {
-    @media (max-width: calc(#{size.$desktopMin} - 1px)) {
+    @media (max-width: calc(#{size.$desktopMin} - #{rem(1)})) {
       display: flex;
     }
   }
@@ -274,21 +274,19 @@ const handleRemoveService = (roomIdx: number, serviceId: number) => {
   }
 
   .pageContinueButton {
+    box-sizing: border-box;
+    flex: 0 0 rem(275);
     width: rem(275);
     height: rem(67);
-    min-width: rem(275);
-    max-width: rem(275);
     padding: 0;
+    border: none;
     border-radius: var(--a-borderR--x20);
     background-color: var(--a-blackBg);
     color: var(--a-white);
-    border: none;
     cursor: pointer;
-    @include typo.typo-body-lg;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-sizing: border-box;
-    flex-shrink: 0;
+    @include typo.typo-body-lg;
   }
 </style>

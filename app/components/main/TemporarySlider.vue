@@ -285,7 +285,7 @@
     content: "";
     position: absolute;
     inset: 0;
-    background: rgb(0 0 0 / 17%);
+    background: color-mix(in srgb, var(--a-black) 17%, transparent);
     pointer-events: none;
   }
 
