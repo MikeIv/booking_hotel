@@ -518,7 +518,6 @@ describe("pages/rooms/index.vue", () => {
         detail: "Ошибка сети",
         life: 3000,
       });
-      // loading сбрасывает bookingStore.search() в finally — страница не дублирует
       expect(mockBookingStore.setLoading).not.toHaveBeenCalled();
     });
   });

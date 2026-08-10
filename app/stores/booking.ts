@@ -1139,20 +1139,20 @@ export const useBookingStore = defineStore(
       ],
       serializer: {
         serialize: (state: StateTree) => {
-          const serialized = { ...state } as Record<string, unknown> & {
-            date?: unknown;
-          };
-          if (serialized.date && Array.isArray(serialized.date)) {
-            serialized.date = (serialized.date as unknown[]).map((d) =>
-              d instanceof Date ? d.toISOString() : d,
-            );
-          }
-          return JSON.stringify(serialized);
+          const date = state.date;
+          return JSON.stringify({
+            ...state,
+            date: Array.isArray(date)
+              ? date.map((d) => (d instanceof Date ? d.toISOString() : d))
+              : date,
+          });
         },
         deserialize: (str: string) => {
-          const state = JSON.parse(str);
-          if (state.date && Array.isArray(state.date)) {
-            state.date = state.date.map((d: string | Date) =>
+          const state = JSON.parse(str) as StateTree & {
+            date?: Array<string | Date>;
+          };
+          if (Array.isArray(state.date)) {
+            state.date = state.date.map((d) =>
               typeof d === "string" ? new Date(d) : d,
             );
           }

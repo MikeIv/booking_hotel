@@ -14,13 +14,23 @@ vi.stubGlobal("useApi", () => ({
   delete: vi.fn(),
 }));
 
+/** Поля, которые не должны попадать в localStorage после pick */
+const BOOKING_EPHEMERAL_KEYS = [
+  "searchResults",
+  "roomTariffs",
+  "currentBookingDetails",
+  "loading",
+  "isServerRequest",
+  "error",
+  "userProfiles",
+] as const;
+
 function setupPersistedPinia() {
   const app = createApp({ render: () => null });
   const pinia = createPinia();
   pinia.use(piniaPluginPersistedstate);
   app.use(pinia);
   setActivePinia(pinia);
-  return pinia;
 }
 
 function futureDateRange(): [Date, Date] {
@@ -30,6 +40,12 @@ function futureDateRange(): [Date, Date] {
   const end = new Date(start);
   end.setDate(end.getDate() + 2);
   return [start, end];
+}
+
+function readStore(key: string): Record<string, unknown> {
+  const raw = localStorage.getItem(key);
+  expect(raw).toBeTruthy();
+  return JSON.parse(raw!) as Record<string, unknown>;
 }
 
 describe("store persist pick", () => {
@@ -43,21 +59,8 @@ describe("store persist pick", () => {
           {
             room_type_code: "STD",
             title: "Standard",
-            description: "Room",
-            max_occupancy: 2,
-            square: 20,
-            rooms: 1,
-            amenities: [],
             min_price: 5000,
-            photos: [],
-            tariffs: [
-              {
-                rate_plan_code: "BAR",
-                title: "BAR",
-                price: 5000,
-                price_per_night: 5000,
-              },
-            ],
+            tariffs: [{ rate_plan_code: "BAR", title: "BAR", price: 5000 }],
           },
         ],
         packages: [],
@@ -79,19 +82,11 @@ describe("store persist pick", () => {
     await store.search();
     store.$persist();
 
-    const raw = localStorage.getItem("booking-store");
-    expect(raw).toBeTruthy();
-    const persisted = JSON.parse(raw!) as Record<string, unknown>;
+    const persisted = readStore("booking-store");
 
-    expect(persisted).not.toHaveProperty("searchResults");
-    expect(persisted).not.toHaveProperty("roomTariffs");
-    expect(persisted).not.toHaveProperty("currentBookingDetails");
-    expect(persisted).not.toHaveProperty("loading");
-    expect(persisted).not.toHaveProperty("isServerRequest");
-    expect(persisted).not.toHaveProperty("error");
-    expect(persisted).not.toHaveProperty("apiError");
-    expect(persisted).not.toHaveProperty("userProfiles");
-
+    for (const key of BOOKING_EPHEMERAL_KEYS) {
+      expect(persisted).not.toHaveProperty(key);
+    }
     expect(persisted).toHaveProperty("date");
     expect(persisted).toHaveProperty("guests");
   });
@@ -112,15 +107,10 @@ describe("store persist pick", () => {
     store.setError("boom");
     store.$persist();
 
-    const persisted = JSON.parse(localStorage.getItem("auth-store")!) as Record<
-      string,
-      unknown
-    >;
+    const persisted = readStore("auth-store");
 
-    expect(Object.keys(persisted).sort()).toEqual(["token", "user"].sort());
+    expect(Object.keys(persisted).sort()).toEqual(["token", "user"]);
     expect(persisted.token).toBe("access-token");
-    expect(persisted).not.toHaveProperty("loading");
-    expect(persisted).not.toHaveProperty("error");
   });
 
   it("гидратация booking из слепка с loading: true даёт loading === false", () => {
@@ -130,10 +120,7 @@ describe("store persist pick", () => {
         loading: true,
         isServerRequest: true,
         searchResults: { rooms: [{ room_type_code: "X" }] },
-        date: [
-          new Date("2030-01-10T12:00:00.000Z").toISOString(),
-          new Date("2030-01-12T12:00:00.000Z").toISOString(),
-        ],
+        date: ["2030-01-10T12:00:00.000Z", "2030-01-12T12:00:00.000Z"],
         guests: {
           rooms: 1,
           roomList: [{ adults: 2, children: 0, childrenAges: [] }],

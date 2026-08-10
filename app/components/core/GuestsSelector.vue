@@ -268,6 +268,9 @@ const MAX_ROOMS = 5;
       });
     } finally {
       isApplying.value = false;
+      // search({ skipReset: true }) не гасит overlay — сбрасываем здесь
+      bookingStore.setLoading(false);
+      bookingStore.setServerRequest(false);
     }
   }
 
