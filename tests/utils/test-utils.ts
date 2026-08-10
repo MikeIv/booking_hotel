@@ -223,6 +223,17 @@ export function mountComponent<T extends Component>(
         "change-contacts",
       ],
     },
+    BookingDetailsActions: {
+      template: `
+        <div data-testid="booking-actions">
+          <button v-if="canCancelBooking" @click="$emit('cancel')">Отменить бронирование</button>
+          <button @click="$emit('new-booking')">Новое бронирование</button>
+          <button @click="$emit('back-to-cabinet')">Вернуться в кабинет</button>
+        </div>
+      `,
+      props: ["canCancelBooking"],
+      emits: ["cancel", "new-booking", "back-to-cabinet"],
+    },
     BookingConfirmationCancelPopup: {
       template: '<div v-if="isOpen" data-testid="cancel-popup"></div>',
       props: ["isOpen", "isCancellingBooking", "cancelBookingError"],

@@ -1,11 +1,10 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { useBookingStore } from "~/stores/booking";
 import { useAuthStore } from "~/stores/auth";
 import { storeToRefs } from "pinia";
 import type { BookingDetailsRoom } from "~/types/booking-details";
 import { HOTEL_INFO } from "~/utils/hotel";
 import { getBookingNumber } from "~/utils/bookingStatus";
-import { useNotificationToast } from "~/composables/useToast";
 
 const router = useRouter();
 const route = useRoute();
@@ -15,7 +14,8 @@ const toast = useNotificationToast();
 const { getErrorMessage } = useApiHelpers();
 const { handleBookingAccessDeniedIfNeeded } = useBookingAccessDenied();
 
-const { currentBookingDetails } = storeToRefs(bookingStore);
+const { currentBookingDetails, createdBooking, date } =
+  storeToRefs(bookingStore);
 const bookingDetails = currentBookingDetails;
 const isLoadingDetails = ref(false);
 
@@ -33,7 +33,84 @@ const currentBookingUuid = computed<string | null>(() => {
   return null;
 });
 
-const { startChangeServicesFlow } = useBookingChangeServices(currentBookingUuid);
+const bookingDate = computed<[Date, Date] | null>(() => {
+  const start = bookingDetails.value?.order?.start_at;
+  const end = bookingDetails.value?.order?.end_at;
+  if (start && end) {
+    return [new Date(start), new Date(end)];
+  }
+  if (
+    createdBooking.value?.order?.start_at &&
+    createdBooking.value?.order?.end_at
+  ) {
+    return [
+      new Date(createdBooking.value.order.start_at),
+      new Date(createdBooking.value.order.end_at),
+    ];
+  }
+  return date.value;
+});
+
+const confirmationEmail = computed(() => {
+  const fromDetails =
+    bookingDetails.value?.rooms?.[0]?.guests?.main?.email ||
+    bookingDetails.value?.order?.email;
+  if (typeof fromDetails === "string" && fromDetails.trim() !== "") {
+    return fromDetails.trim();
+  }
+  const orderEmail = createdBooking.value?.order?.email;
+  if (typeof orderEmail === "string" && orderEmail.trim() !== "") {
+    return orderEmail.trim();
+  }
+  return authStore.user?.email?.trim() || "";
+});
+
+const { startChangeServicesFlow } =
+  useBookingChangeServices(currentBookingUuid);
+
+const {
+  isCancelBookingPopupOpen,
+  isCancellingBooking,
+  cancelBookingError,
+  openCancelBookingPopup,
+  closeCancelBookingPopup,
+  confirmCancelBooking,
+} = useBookingCancel(currentBookingUuid, bookingNumber, confirmationEmail);
+
+const {
+  isChangeContactsPopupOpen,
+  isChangingContacts,
+  changeContactsError,
+  changeContactsSuccess,
+  contactForm,
+  canSubmitContactChange,
+  openChangeContactsPopup,
+  closeChangeContactsPopup,
+  confirmChangeContacts,
+} = useBookingChangeContacts(currentBookingUuid);
+
+const {
+  isChangeDatesPopupOpen,
+  isChangingDates,
+  changeDatesError,
+  changeDatesSuccess,
+  newDates,
+  isChangeDatesCalendarOpen,
+  canSubmitDateChange,
+  openChangeDatesPopup,
+  closeChangeDatesPopup,
+  confirmChangeDates,
+} = useBookingChangeDates(currentBookingUuid, bookingDate);
+
+const {
+  isChangeRoomPopupOpen,
+  isChangingRoom,
+  changeRoomError,
+  changeRoomSuccess,
+  openChangeRoomPopup,
+  closeChangeRoomPopup,
+  confirmChangeRoom,
+} = useBookingChangeRoom(currentBookingUuid);
 
 const showChangeServicesError = (detail: string) => {
   toast.add({
@@ -53,17 +130,12 @@ const {
   hasManagementActions,
 } = useBookingAllowedActions(() => bookingDetails.value?.allowed);
 
-const rooms = computed<BookingDetailsRoom[] | undefined>(() => {
-  return bookingDetails.value?.rooms;
-});
-
-const totalPrice = computed(() => {
-  return bookingDetails.value?.total_price || 0;
-});
-
-const nights = computed(() => {
-  return bookingDetails.value?.order?.nights || 0;
-});
+const rooms = computed<BookingDetailsRoom[] | undefined>(
+  () => bookingDetails.value?.rooms,
+);
+const totalPrice = computed(() => bookingDetails.value?.total_price || 0);
+const nights = computed(() => bookingDetails.value?.order?.nights || 0);
+const hasPdf = computed(() => !!bookingDetails.value?.order?.pdf);
 
 const userPhone = computed(() => {
   const phoneFromBooking =
@@ -73,13 +145,9 @@ const userPhone = computed(() => {
   return phoneFromBooking || authStore.user?.phone || "—";
 });
 
-const userEmail = computed(() => {
-  return bookingDetails.value?.rooms?.[0]?.guests?.main?.email || "—";
-});
-
-const hasPdf = computed(() => {
-  return !!bookingDetails.value?.order?.pdf;
-});
+const userEmail = computed(
+  () => bookingDetails.value?.rooms?.[0]?.guests?.main?.email || "—",
+);
 
 const handleDownload = () => {
   const pdfUrl = bookingDetails.value?.order?.pdf;
@@ -92,13 +160,6 @@ const handlePrint = () => {
   window.print();
 };
 
-const handleCancelBooking = () => {
-  if (import.meta.dev) {
-    console.log("Отменить бронирование");
-  }
-  // TODO: Реализовать отмену бронирования
-};
-
 const handleNewBooking = async () => {
   bookingStore.forceReset();
   await router.push("/");
@@ -108,24 +169,23 @@ const handleBackToCabinet = async () => {
   await router.push("/cabinet");
 };
 
-const handleChangeDates = () => {
-  if (import.meta.dev) {
-    console.log("Изменить даты");
-  }
-  // TODO: Реализовать изменение дат
-};
-
 const handleChangeRoom = () => {
-  if (import.meta.dev) {
-    console.log("Изменить номер");
+  if (bookingDate.value) {
+    bookingStore.setDate([...bookingDate.value] as [Date, Date]);
   }
-  // TODO: Реализовать изменение номера
+  bookingStore.setSearchResults(null);
+  bookingStore.setSelectedRoomType(null);
+  bookingStore.setSelectedTariff(null);
+  bookingStore.setChangeRoomUuid(currentBookingUuid.value);
+  void router.push("/rooms");
 };
 
 const handleChangeServices = async () => {
   const uuid = currentBookingUuid.value;
   if (!uuid) {
-    showChangeServicesError("UUID бронирования не найден. Обновите страницу.");
+    showChangeServicesError(
+      "UUID бронирования не найден. Обновите страницу.",
+    );
     return;
   }
 
@@ -154,11 +214,14 @@ const handleChangeServices = async () => {
   await router.push("/services");
 };
 
-const handleChangeContacts = () => {
-  if (import.meta.dev) {
-    console.log("Изменить контакты");
+const openChangeRoomPopupIfNeeded = () => {
+  if (
+    bookingStore.changeRoomUuid &&
+    bookingStore.changeRoomUuid === currentBookingUuid.value &&
+    bookingStore.selectedRoomType
+  ) {
+    openChangeRoomPopup();
   }
-  // TODO: Реализовать изменение контактов
 };
 
 onMounted(async () => {
@@ -170,6 +233,8 @@ onMounted(async () => {
         console.warn("⚠️ ID бронирования не указан в query параметрах");
       }
       await router.push("/cabinet");
+    } else {
+      openChangeRoomPopupIfNeeded();
     }
     return;
   }
@@ -190,6 +255,8 @@ onMounted(async () => {
     if (import.meta.dev) {
       console.log("✅ Детали бронирования загружены");
     }
+
+    openChangeRoomPopupIfNeeded();
   } catch (err: unknown) {
     if (import.meta.dev) {
       console.error("❌ Ошибка загрузки деталей бронирования:", err);
@@ -236,10 +303,10 @@ onMounted(async () => {
           :can-edit-room="canEditRoom"
           :can-edit-packages="canEditPackages"
           :can-edit-contacts="canEditContacts"
-          @change-dates="handleChangeDates"
+          @change-dates="openChangeDatesPopup"
           @change-room="handleChangeRoom"
           @change-services="handleChangeServices"
-          @change-contacts="handleChangeContacts"
+          @change-contacts="openChangeContactsPopup"
         />
       </template>
 
@@ -279,7 +346,7 @@ onMounted(async () => {
 
       <BookingDetailsActions
         :can-cancel-booking="canCancelBooking"
-        @cancel="handleCancelBooking"
+        @cancel="openCancelBookingPopup"
         @new-booking="handleNewBooking"
         @back-to-cabinet="handleBackToCabinet"
       />
@@ -287,11 +354,7 @@ onMounted(async () => {
 
     <section v-else-if="!isLoadingDetails" :class="$style.notFound">
       <p>Бронирование не найдено</p>
-      <Button
-        class="btn__bs dark"
-        unstyled
-        @click="handleBackToCabinet"
-      >
+      <Button class="btn__bs dark" unstyled @click="handleBackToCabinet">
         Вернуться в кабинет
       </Button>
     </section>
@@ -299,6 +362,48 @@ onMounted(async () => {
     <section v-else :class="$style.loading">
       <p>Загрузка деталей бронирования...</p>
     </section>
+
+    <BookingConfirmationCancelPopup
+      :is-open="isCancelBookingPopupOpen"
+      :is-cancelling-booking="isCancellingBooking"
+      :cancel-booking-error="cancelBookingError"
+      @close="closeCancelBookingPopup"
+      @confirm="confirmCancelBooking"
+    />
+
+    <BookingConfirmationChangeDatesPopup
+      v-model="newDates"
+      :is-open="isChangeDatesPopupOpen"
+      :is-calendar-open="isChangeDatesCalendarOpen"
+      :can-submit-date-change="canSubmitDateChange"
+      :is-changing-dates="isChangingDates"
+      :change-dates-success="changeDatesSuccess"
+      :change-dates-error="changeDatesError"
+      @close="closeChangeDatesPopup"
+      @confirm="confirmChangeDates"
+      @update:is-calendar-open="isChangeDatesCalendarOpen = $event"
+    />
+
+    <BookingConfirmationChangeContactsPopup
+      :is-open="isChangeContactsPopupOpen"
+      :form="contactForm"
+      :can-submit-contact-change="canSubmitContactChange"
+      :is-changing-contacts="isChangingContacts"
+      :change-contacts-success="changeContactsSuccess"
+      :change-contacts-error="changeContactsError"
+      @close="closeChangeContactsPopup"
+      @confirm="confirmChangeContacts"
+      @update:form="contactForm = $event"
+    />
+
+    <BookingConfirmationChangeRoomPopup
+      :is-open="isChangeRoomPopupOpen"
+      :is-changing-room="isChangingRoom"
+      :change-room-success="changeRoomSuccess"
+      :change-room-error="changeRoomError"
+      @close="closeChangeRoomPopup"
+      @confirm="confirmChangeRoom"
+    />
   </main>
 </template>
 
