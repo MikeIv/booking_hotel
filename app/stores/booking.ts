@@ -194,6 +194,10 @@ export const useBookingStore = defineStore(
       date.value = value;
     }
 
+    function setPromoCode(value: string) {
+      promoCode.value = value;
+    }
+
     function setChangeRoomUuid(value: string | null) {
       changeRoomUuid.value = value;
     }
@@ -711,11 +715,21 @@ export const useBookingStore = defineStore(
       selectedTariff.value = nextTariff;
     }
 
+    /** Инкремент на каждый search(); ответ применяется только если id ещё актуален. */
+    let searchRequestSeq = 0;
+    let searchAbortController: AbortController | null = null;
+
     async function search(options?: {
       roomTypeCode?: string;
       skipReset?: boolean;
     }): Promise<SearchResponse> {
       validateSearchParams();
+
+      searchAbortController?.abort();
+      const abortController = new AbortController();
+      searchAbortController = abortController;
+      const requestId = ++searchRequestSeq;
+
       setLoading(true, "Загружаем данные о номерах...");
       error.value = null;
 
@@ -739,13 +753,22 @@ export const useBookingStore = defineStore(
         const searchTimeoutMs = multiBookingMode ? 35000 : 15000;
 
         isServerRequest.value = true;
+
+        const timeoutSignal = AbortSignal.timeout(searchTimeoutMs);
+        const signal =
+          typeof AbortSignal.any === "function"
+            ? AbortSignal.any([abortController.signal, timeoutSignal])
+            : abortController.signal;
+
         const response = await post<ApiSearchPayload>(
           "/v1/search",
           searchData,
-          {
-            signal: AbortSignal.timeout(searchTimeoutMs),
-          },
+          { signal },
         );
+
+        if (requestId !== searchRequestSeq) {
+          throw Object.assign(new Error("Aborted"), { name: "AbortError" });
+        }
 
         if (response.success) {
           const normalized = normalizeSearchPayload(
@@ -759,12 +782,25 @@ export const useBookingStore = defineStore(
 
         apiError = new Error(response.message || "Ошибка при поиске номеров");
       } catch (err: unknown) {
+        // Заменённый запрос: не затираем error актуального поиска
+        if (requestId !== searchRequestSeq) {
+          throw Object.assign(
+            err instanceof Error ? err : new Error("Aborted"),
+            { name: "AbortError" },
+          );
+        }
+
         error.value = (err as Error).message || "Произошла ошибка при поиске";
         throw err;
       } finally {
-        if (!skipReset) {
-          isServerRequest.value = false;
-          setLoading(false);
+        if (requestId === searchRequestSeq) {
+          if (!skipReset) {
+            isServerRequest.value = false;
+            setLoading(false);
+          }
+          if (searchAbortController === abortController) {
+            searchAbortController = null;
+          }
         }
       }
 
@@ -1118,6 +1154,7 @@ export const useBookingStore = defineStore(
       setSearchResults,
       setSelectedTariff,
       setDate,
+      setPromoCode,
       setChangeRoomUuid,
       setChangeServicesUuid,
       multiBookingUnavailableRooms,

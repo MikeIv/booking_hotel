@@ -28,6 +28,19 @@
   const router = useRouter();
   const route = useRoute();
 
+  const dateModel = computed({
+    get: () => date.value,
+    set: (value: [Date, Date] | null) => bookingStore.setDate(value),
+  });
+  const guestsModel = computed({
+    get: () => guests.value,
+    set: (value: typeof guests.value) => bookingStore.setGuests(value),
+  });
+  const promoCodeModel = computed({
+    get: () => promoCode.value,
+    set: (value: string) => bookingStore.setPromoCode(value),
+  });
+
   const { getBannersByVisibility, loading: bannersLoading } = useBanners();
 
   const bookingBanners = computed(() => {
@@ -186,9 +199,12 @@
 <template>
   <section :class="[$style.wrapper, resolvedMode === 'inner' ? $style.inner : $style.home]">
     <div :class="$style.form">
-      <CoreDatePickerWithPrices v-model="date" :class="$style.dateField" />
-      <CoreGuestsSelector v-model="guests" :class="$style.guestsField" />
-      <CorePromoCodeInput v-model="promoCode" :class="$style.promoField" />
+      <CoreDatePickerWithPrices v-model="dateModel" :class="$style.dateField" />
+      <CoreGuestsSelector v-model="guestsModel" :class="$style.guestsField" />
+      <CorePromoCodeInput
+        v-model="promoCodeModel"
+        :class="$style.promoField"
+      />
 
       <UiButton
         :class="$style.button"
