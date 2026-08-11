@@ -150,8 +150,8 @@
       isInRange: state.isInRange,
       isPast: state.isPast,
       price: getPriceForDate(dateOnly),
-      // Уникальный ключ для оптимизации рендеринга
-      key: dateOnly.toISOString(),
+      // Локальный календарный день (не UTC ISO)
+      key: formatDateApi(dateOnly),
     };
   };
 

@@ -4,6 +4,7 @@ import { createPinia, setActivePinia } from "pinia";
 import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
 import { useBookingStore } from "~/stores/booking";
 import { useAuthStore } from "~/stores/auth";
+import { formatDateApi } from "~/utils/dateFormat";
 
 const mockPost = vi.fn();
 
@@ -140,7 +141,7 @@ describe("store persist pick", () => {
     expect(store.date?.[1]).toBeInstanceOf(Date);
   });
 
-  it("round-trip date: Date[] → persist → новый стор → валидные Date", () => {
+  it("round-trip date: Date[] → локальный YYYY-MM-DD → валидные Date", () => {
     const range = futureDateRange();
 
     setupPersistedPinia();
@@ -150,9 +151,10 @@ describe("store persist pick", () => {
 
     const persisted = readStore("booking-store");
     expect(Array.isArray(persisted.date)).toBe(true);
-    const [startIso, endIso] = persisted.date as string[];
-    expect(typeof startIso).toBe("string");
-    expect(typeof endIso).toBe("string");
+    const [startDay, endDay] = persisted.date as string[];
+    expect(startDay).toBe(formatDateApi(range[0]));
+    expect(endDay).toBe(formatDateApi(range[1]));
+    expect(startDay).toMatch(/^\d{4}-\d{2}-\d{2}$/);
 
     setupPersistedPinia();
     const restored = useBookingStore();
@@ -160,8 +162,30 @@ describe("store persist pick", () => {
     expect(restored.date).not.toBeNull();
     expect(restored.date?.[0]).toBeInstanceOf(Date);
     expect(restored.date?.[1]).toBeInstanceOf(Date);
-    expect(restored.date?.[0].getTime()).toBe(range[0].getTime());
-    expect(restored.date?.[1].getTime()).toBe(range[1].getTime());
+    expect(formatDateApi(restored.date![0])).toBe(formatDateApi(range[0]));
+    expect(formatDateApi(restored.date![1])).toBe(formatDateApi(range[1]));
+  });
+
+  it("гидратация старого ISO-слепка даёт локальный календарный день", () => {
+    // Локальная полночь 15.08 → в UTC+ часто ISO с датой 14.08
+    const localStart = new Date(2030, 7, 15, 0, 0, 0);
+    const localEnd = new Date(2030, 7, 16, 0, 0, 0);
+    localStorage.setItem(
+      "booking-store",
+      JSON.stringify({
+        date: [localStart.toISOString(), localEnd.toISOString()],
+        guests: {
+          rooms: 1,
+          roomList: [{ adults: 2, children: 0, childrenAges: [] }],
+        },
+      }),
+    );
+
+    setupPersistedPinia();
+    const store = useBookingStore();
+
+    expect(formatDateApi(store.date![0])).toBe("2030-08-15");
+    expect(formatDateApi(store.date![1])).toBe("2030-08-16");
   });
 
   it("selectedTariff персистится без description / cancellation_popover", () => {

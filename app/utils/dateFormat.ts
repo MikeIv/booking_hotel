@@ -2,22 +2,73 @@
  * Единые форматтеры дат (локальный календарный день, без UTC-сдвига).
  */
 
-function parseDateString(dateString: string | undefined): Date | null {
-  if (!dateString) return null;
-  const date = new Date(dateString);
-  return isNaN(date.getTime()) ? null : date;
+const DATE_ONLY_RE = /^(\d{4})-(\d{2})-(\d{2})$/;
+
+function toLocalYmd(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
-/** API / ключи календаря: YYYY-MM-DD в локальном часовом поясе */
+/**
+ * Календарный день в локальной зоне.
+ * - `YYYY-MM-DD` → локальная полночь (не UTC-парсинг `new Date("YYYY-MM-DD")`)
+ * - ISO datetime → локальный день инстанта
+ */
+export function parseDateApi(value: Date | string): Date {
+  if (value instanceof Date) {
+    if (isNaN(value.getTime())) {
+      throw new Error(`Неверный формат даты: ${String(value)}`);
+    }
+    return new Date(value.getFullYear(), value.getMonth(), value.getDate());
+  }
+
+  if (typeof value !== "string" || !value.trim()) {
+    throw new Error(`Неверный формат даты: ${String(value)}`);
+  }
+
+  const trimmed = value.trim();
+  const dateOnly = DATE_ONLY_RE.exec(trimmed);
+  if (dateOnly) {
+    return new Date(
+      Number(dateOnly[1]),
+      Number(dateOnly[2]) - 1,
+      Number(dateOnly[3]),
+    );
+  }
+
+  const parsed = new Date(trimmed);
+  if (isNaN(parsed.getTime())) {
+    throw new Error(`Неверный формат даты: ${String(value)}`);
+  }
+  return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+}
+
+/** API / ключи календаря / persist: YYYY-MM-DD в локальном часовом поясе */
 export function formatDateApi(value: Date | string): string {
-  if (typeof value === "string") return value;
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    if (DATE_ONLY_RE.test(trimmed)) {
+      return trimmed;
+    }
+    return toLocalYmd(parseDateApi(trimmed));
+  }
+
   if (!(value instanceof Date) || isNaN(value.getTime())) {
     throw new Error(`Неверный формат даты: ${String(value)}`);
   }
-  const year = value.getFullYear();
-  const month = String(value.getMonth() + 1).padStart(2, "0");
-  const day = String(value.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+
+  return toLocalYmd(value);
+}
+
+function parseDateString(dateString: string | undefined): Date | null {
+  if (!dateString) return null;
+  try {
+    return parseDateApi(dateString);
+  } catch {
+    return null;
+  }
 }
 
 /** Отображение: ДД.ММ.ГГГГ */

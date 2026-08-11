@@ -1,6 +1,7 @@
 import type { SelectedEntry } from "~/types/booking";
 import { toPricePerNight } from "~/utils/price";
 import { pickBoolean, pickNumber, pickString } from "~/utils/pick";
+import { parseDateApi } from "~/utils/dateFormat";
 
 export type BookingChangeGuest = {
   id: number | null;
@@ -170,8 +171,8 @@ export function resolveBookingNights(
   const dates = pickBookingStayDates(order ?? undefined);
   if (!dates) return 0;
 
-  const start = new Date(dates.startAt);
-  const end = new Date(dates.endAt);
+  const start = parseDateApi(dates.startAt);
+  const end = parseDateApi(dates.endAt);
   const diff = end.getTime() - start.getTime();
   if (diff <= 0) return 0;
 

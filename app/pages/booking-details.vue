@@ -5,6 +5,7 @@ import { storeToRefs } from "pinia";
 import type { BookingDetailsRoom } from "~/types/booking-details";
 import { HOTEL_INFO } from "~/utils/hotel";
 import { getBookingNumber } from "~/utils/bookingStatus";
+import { parseDateApi } from "~/utils/dateFormat";
 
 const router = useRouter();
 const route = useRoute();
@@ -37,15 +38,15 @@ const bookingDate = computed<[Date, Date] | null>(() => {
   const start = bookingDetails.value?.order?.start_at;
   const end = bookingDetails.value?.order?.end_at;
   if (start && end) {
-    return [new Date(start), new Date(end)];
+    return [parseDateApi(start), parseDateApi(end)];
   }
   if (
     createdBooking.value?.order?.start_at &&
     createdBooking.value?.order?.end_at
   ) {
     return [
-      new Date(createdBooking.value.order.start_at),
-      new Date(createdBooking.value.order.end_at),
+      parseDateApi(createdBooking.value.order.start_at),
+      parseDateApi(createdBooking.value.order.end_at),
     ];
   }
   return date.value;

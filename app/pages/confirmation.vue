@@ -8,6 +8,7 @@ import { pickNumber } from "~/utils/pick";
 import { mapBookingRoomsServicesToByRoom } from "~/utils/mapBookingRoomServices";
 import { buildSelectedEntry } from "~/utils/selectedEntry";
 import { getBookingNumber } from "~/utils/bookingStatus";
+import { parseDateApi } from "~/utils/dateFormat";
 import BookingDetailsHeader from "~/components/booking/details/BookingDetailsHeader.vue";
 
 definePageMeta({
@@ -37,8 +38,8 @@ const bookingDate = computed<[Date, Date] | null>(() => {
     createdBooking.value?.order?.end_at
   ) {
     return [
-      new Date(createdBooking.value.order.start_at),
-      new Date(createdBooking.value.order.end_at),
+      parseDateApi(createdBooking.value.order.start_at),
+      parseDateApi(createdBooking.value.order.end_at),
     ];
   }
   return date.value;

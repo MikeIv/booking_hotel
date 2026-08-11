@@ -20,7 +20,7 @@ import {
 } from "~/utils/mapBookingShowToHistoryItem";
 import { toBookingAllowedActionsArray } from "~/utils/bookingAllowedActions";
 import { createStaleSearchError } from "~/utils/staleSearchError";
-import { formatDateApi } from "~/utils/dateFormat";
+import { formatDateApi, parseDateApi } from "~/utils/dateFormat";
 import {
   normalizeSearchPayload,
   prepareSearchData as buildSearchData,
@@ -774,8 +774,13 @@ export const useBookingStore = defineStore(
           return JSON.stringify({
             ...state,
             selectedTariff,
+            // Persist: локальный YYYY-MM-DD (не UTC ISO)
             date: Array.isArray(date)
-              ? date.map((d) => (d instanceof Date ? d.toISOString() : d))
+              ? date.map((d) =>
+                  d instanceof Date || typeof d === "string"
+                    ? formatDateApi(d)
+                    : d,
+                )
               : date,
           });
         },
@@ -784,8 +789,9 @@ export const useBookingStore = defineStore(
             date?: Array<string | Date>;
           };
           if (Array.isArray(state.date)) {
+            // YYYY-MM-DD и legacy ISO из старых клиентов
             state.date = state.date.map((d) =>
-              typeof d === "string" ? new Date(d) : d,
+              typeof d === "string" ? parseDateApi(d) : d,
             );
           }
           return state;

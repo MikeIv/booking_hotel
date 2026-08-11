@@ -13,6 +13,7 @@ import {
   resolveBookingNights,
 } from "~/utils/bookingChangeRequest";
 import { mapBookingRoomsServicesToByRoom } from "~/utils/mapBookingRoomServices";
+import { parseDateApi } from "~/utils/dateFormat";
 
 type ChangeServicesResponse = {
   success: boolean;
@@ -155,7 +156,7 @@ export const useBookingChangeServices = (
     const endAtRaw = typeof order?.end_at === "string" ? order.end_at : "";
 
     if (startAtRaw && endAtRaw) {
-      bookingStore.setDate([new Date(startAtRaw), new Date(endAtRaw)]);
+      bookingStore.setDate([parseDateApi(startAtRaw), parseDateApi(endAtRaw)]);
     }
 
     bookingStore.setGuests({

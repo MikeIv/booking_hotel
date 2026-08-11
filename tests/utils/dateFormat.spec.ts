@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   formatDateApi,
+  parseDateApi,
   formatDateNumeric,
   formatDateLong,
   formatWeekdayLong,
@@ -15,7 +16,7 @@ describe("dateFormat contracts", () => {
       expect(formatDateApi(date)).toBe("2026-04-15");
     });
 
-    it("возвращает строку как есть", () => {
+    it("возвращает YYYY-MM-DD строку как есть", () => {
       expect(formatDateApi("2026-04-15")).toBe("2026-04-15");
     });
 
@@ -28,10 +29,36 @@ describe("dateFormat contracts", () => {
       }
     });
 
+    it("из ISO datetime берёт локальный день, не UTC-префикс", () => {
+      // Локальная полночь 15.04 при UTC+ → ISO с датой 14.04
+      const localMidnight = new Date(2026, 3, 15, 0, 0, 0);
+      if (localMidnight.getTimezoneOffset() < 0) {
+        const iso = localMidnight.toISOString();
+        expect(iso.startsWith("2026-04-14")).toBe(true);
+        expect(formatDateApi(iso)).toBe("2026-04-15");
+      }
+    });
+
     it("бросает на невалидной дате", () => {
       expect(() => formatDateApi(new Date("invalid"))).toThrow(
         /Неверный формат/,
       );
+    });
+  });
+
+  describe("parseDateApi", () => {
+    it("YYYY-MM-DD → локальная полночь без UTC-сдвига", () => {
+      const date = parseDateApi("2026-08-15");
+      expect(date.getFullYear()).toBe(2026);
+      expect(date.getMonth()).toBe(7);
+      expect(date.getDate()).toBe(15);
+      expect(date.getHours()).toBe(0);
+    });
+
+    it("нормализует Date до календарного дня", () => {
+      const date = parseDateApi(new Date(2026, 7, 15, 18, 45, 0));
+      expect(formatDateApi(date)).toBe("2026-08-15");
+      expect(date.getHours()).toBe(0);
     });
   });
 
@@ -73,7 +100,7 @@ describe("dateFormat contracts", () => {
       );
     });
 
-    it("long из ISO-строки", () => {
+    it("long из date-only без UTC-сдвига", () => {
       const result = formatDateStringLong("2026-04-15", "ru-RU");
       expect(result).toMatch(/15/);
     });

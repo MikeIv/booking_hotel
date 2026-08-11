@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { nextTick } from "vue";
 import DatePickerWithPrices from "~/components/core/DatePickerWithPrices.vue";
 import { setupPinia, mountComponent } from "../../utils/test-utils";
+import { formatDateApi } from "~/utils/dateFormat";
 
 // Моки для composables
 const mockFetchCalendarPrices = vi.fn().mockResolvedValue(undefined);
@@ -173,7 +174,7 @@ describe("DatePickerWithPrices.vue", () => {
         isEndDate: false,
         isInRange: false,
         price: null,
-        key: futureDate.toISOString(),
+        key: formatDateApi(futureDate),
       };
 
       // Вызываем метод handleDateClick напрямую
@@ -204,7 +205,7 @@ describe("DatePickerWithPrices.vue", () => {
         isEndDate: false,
         isInRange: false,
         price: null,
-        key: pastDate.toISOString(),
+        key: formatDateApi(pastDate),
       };
 
       const initialStartDate = wrapper.vm.selectedStartDate;
@@ -255,7 +256,7 @@ describe("DatePickerWithPrices.vue", () => {
         isEndDate: false,
         isInRange: false,
         price: null,
-        key: laterDate.toISOString(),
+        key: formatDateApi(laterDate),
       };
 
       wrapper.vm.handleDateClick(laterDayObject);
@@ -272,7 +273,7 @@ describe("DatePickerWithPrices.vue", () => {
         isEndDate: false,
         isInRange: false,
         price: null,
-        key: earlierDate.toISOString(),
+        key: formatDateApi(earlierDate),
       };
 
       wrapper.vm.handleDateClick(earlierDayObject);
