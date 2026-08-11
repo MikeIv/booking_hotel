@@ -14,13 +14,8 @@
   const router = useRouter();
 
   const searchFilters = computed(() => searchResults.value?.filters);
-  const {
-    selectedView,
-    selectedBalcony,
-    viewOptions,
-    balconyOptions,
-    filterRoomList,
-  } = useRoomFilters(searchFilters);
+  const { selectedView, viewOptions, filterRoomList } =
+    useRoomFilters(searchFilters);
 
   const totalAdults = computed(() => {
     if (!guests.value?.roomList) return 0;
@@ -81,13 +76,6 @@
         option-label="title"
         option-value="id"
         placeholder="Вид из окна"
-      />
-      <UiFilterSelect
-        v-model="selectedBalcony"
-        :options="balconyOptions"
-        option-label="title"
-        option-value="id"
-        placeholder="Балкон"
       />
     </div>
 

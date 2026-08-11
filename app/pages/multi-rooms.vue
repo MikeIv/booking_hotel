@@ -34,13 +34,8 @@
   const roomsUnavailable = ref(false);
 
   const searchFilters = computed(() => searchResults.value?.filters);
-  const {
-    selectedView,
-    selectedBalcony,
-    viewOptions,
-    balconyOptions,
-    filterRoomListWithIndex,
-  } = useRoomFilters(searchFilters);
+  const { selectedView, viewOptions, filterRoomListWithIndex } =
+    useRoomFilters(searchFilters);
 
   const filteredRoomCards = computed(() =>
     filterRoomListWithIndex(roomTariffs.value),
@@ -277,13 +272,6 @@
         option-label="title"
         option-value="id"
         placeholder="Вид из окна"
-      />
-      <UiFilterSelect
-        v-model="selectedBalcony"
-        :options="balconyOptions"
-        option-label="title"
-        option-value="id"
-        placeholder="Балкон"
       />
     </div>
 
