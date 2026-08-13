@@ -353,12 +353,9 @@ export const useBookingStore = defineStore(
         if (roomTypeCode) {
           searchData.grouped = true;
         }
-        // При мультибронировании бэкенд может обрабатывать запрос дольше — увеличиваем таймаут
-        const searchTimeoutMs = searchData.multi_booking_mode ? 35000 : 15000;
-
         isServerRequest.value = true;
 
-        const timeoutSignal = AbortSignal.timeout(searchTimeoutMs);
+        const timeoutSignal = AbortSignal.timeout(60000);
         const signal =
           typeof AbortSignal.any === "function"
             ? AbortSignal.any([abortController.signal, timeoutSignal])
