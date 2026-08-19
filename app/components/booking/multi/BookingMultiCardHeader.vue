@@ -50,7 +50,9 @@
             <dt :class="$style.itemTerm">
               <UIcon name="i-square" :class="$style.icon" aria-hidden="true" />
             </dt>
-            <dd :class="$style.itemTitle">{{ room.square }} м²</dd>
+            <dd :class="$style.itemTitle">
+              <BookingSquareMeters :value="room.square" />
+            </dd>
           </div>
           <div :class="$style.item">
             <dt :class="$style.itemTerm">
@@ -185,6 +187,7 @@
 
   .item {
     display: flex;
+    flex-shrink: 0;
     gap: rem(8);
     align-items: center;
     margin-bottom: rem(8);
@@ -206,8 +209,10 @@
     font-family: var(--a-font-body);
     font-size: rem(14);
     font-weight: 500;
+    line-height: 1.3;
     color: var(--a-text-dark);
     margin: 0;
+    white-space: nowrap;
   }
 
   .amenitiesSection {

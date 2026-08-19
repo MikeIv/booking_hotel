@@ -179,6 +179,10 @@ export function mountComponent<T extends Component>(
       props: ["room", "isOpen"],
       emits: ["close"],
     },
+    BookingSquareMeters: {
+      template: "<span>{{ value }} м2</span>",
+      props: ["value"],
+    },
     Button: {
       template:
         '<button type="button" :disabled="disabled" :class="$attrs.class" @click="$emit(\'click\', $event)">{{ label }}<slot /></button>',

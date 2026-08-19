@@ -37,7 +37,7 @@
       </li>
       <li>
         <UIcon name="i-square" :class="$style.specIcon" />
-        {{ room.square }} м²
+        <BookingSquareMeters :value="room.square" />
       </li>
       <li>
         <UIcon name="i-dash-square" :class="$style.specIcon" />

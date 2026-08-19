@@ -334,7 +334,7 @@
               <UIcon name="i-square" :class="$style.icon" aria-hidden="true" />
             </dt>
             <dd :class="$style.itemTitle">
-              {{ currentRoom.square }} м²
+              <BookingSquareMeters :value="currentRoom.square" />
             </dd>
           </div>
           <div :class="$style.item">
@@ -489,6 +489,7 @@
 
   .item {
     display: flex;
+    flex-shrink: 0;
     gap: rem(8);
     align-items: center;
     margin-bottom: rem(8);
@@ -510,8 +511,10 @@
     font-family: var(--a-font-body);
     font-size: rem(12);
     font-weight: 500;
+    line-height: 1.3;
     color: var(--a-text-light);
     margin: 0;
+    white-space: nowrap;
   }
 
   .bedSelect {

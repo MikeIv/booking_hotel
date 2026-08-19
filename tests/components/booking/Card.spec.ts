@@ -138,7 +138,7 @@ describe("Card.vue", () => {
 
       expect(wrapper.find("article").exists()).toBe(true);
       expect(wrapper.text()).toContain("Делюкс номер");
-      expect(wrapper.text()).toContain("25 м²");
+      expect(wrapper.text()).toContain("25 м2");
       expect(wrapper.text()).toContain("От 5000 руб.");
     });
 
