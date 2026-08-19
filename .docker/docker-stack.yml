@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+  web:
+    image: ${FRONTEND_IMAGE:?}
+    networks:
+      - proxy
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+    healthcheck:
+      test: [CMD-SHELL, "wget -qO- http://127.0.0.1/healthz > /dev/null || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: any
+        delay: 10s
+      update_config:
+        order: start-first
+      labels:
+        - traefik.enable=true
+        - traefik.swarm.network=proxy
+        - traefik.http.routers.${STACK_NAME:?}.rule=Host(`${APP_DOMAIN:?}`)
+        - traefik.http.routers.${STACK_NAME}.priority=10
+        - traefik.http.routers.${STACK_NAME}.entrypoints=web
+        - traefik.http.services.${STACK_NAME}.loadbalancer.server.port=80
+
+networks:
+  proxy:
+    external: true

@@ -1,24 +1,20 @@
-FROM node:20.19-alpine AS build-stage
+ARG REGISTRY=docker.io/library
 
-ARG BASE_URL
-ARG API_BASE_URL
+FROM ${REGISTRY}/node:20.19-alpine AS build
 
-ENV TZ=Europe/Moscow
-ENV NUXT_PUBLIC_API_BASE=$API_BASE_URL
-
-RUN apk update && apk add tzdata
+ARG NUXT_PUBLIC_API_BASE
+ENV NUXT_PUBLIC_API_BASE=$NUXT_PUBLIC_API_BASE
 
 WORKDIR /app
 
-ADD . /app
-RUN env
-RUN corepack enable
-RUN yarn install --frozen-lockfile
-RUN yarn build
+COPY package.json yarn.lock ./
+COPY patches ./patches
+RUN corepack enable && yarn install --frozen-lockfile --ignore-scripts
 
-FROM nginx:stable-alpine
+COPY . .
+RUN yarn postinstall && yarn build
 
-ENV TZ=Europe/Moscow
+FROM ${REGISTRY}/nginx:1.30.4-alpine
 
-RUN apk update && apk add tzdata bash
-COPY --from=build-stage /app/.output/public /usr/share/nginx/html
+COPY .docker/nginx/default.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/.output/public /usr/share/nginx/html
