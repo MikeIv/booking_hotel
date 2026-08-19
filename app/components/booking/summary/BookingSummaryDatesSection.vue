@@ -58,7 +58,7 @@ const toggle = () => emit("update:open", !props.open);
         <div :class="$style.dateRow">
           <span :class="$style.bookingDetailLabel">{{ checkInFormatted }}</span>
           <UIcon name="i-arrow-long" :class="$style.detailIcon" />
-          <span :class="$style.bookingDetailLabel">{{
+          <span :class="[$style.bookingDetailLabel, $style.dayRight]">{{
             checkOutFormatted
           }}</span>
         </div>
@@ -137,32 +137,25 @@ const toggle = () => emit("update:open", !props.open);
     display: flex;
     flex-direction: column;
     gap: rem(20);
-    align-items: center;
-    padding: rem(20) rem(24);
+    min-width: 0;
+    padding: rem(20) var(--a-space-3);
     background: var(--a-lightPrimaryBg);
     border-radius: var(--a-borderR--card);
   }
 
-  .dateRow {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
-    gap: rem(15);
-  }
-
+  .dateRow,
   .weekdayRow {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: space-between;
-    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    column-gap: var(--a-space-1);
+    min-width: 0;
   }
 
   .bookingDetailLabel {
+    min-width: 0;
     @include typo.typo-h3;
     color: var(--a-text-dark);
-    white-space: nowrap;
   }
 
   .detailIcon {
@@ -172,31 +165,26 @@ const toggle = () => emit("update:open", !props.open);
   }
 
   .detailDay {
-    flex-shrink: 0;
-    width: rem(52);
+    min-width: 0;
     @include typo.typo-body-md;
     color: var(--a-text-dark);
-    text-align: center;
+    overflow-wrap: anywhere;
   }
 
   .dayRight {
-    width: rem(62);
-    text-align: center;
+    text-align: right;
   }
 
   .weekday {
-    flex-shrink: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: rem(161);
     height: rem(24);
-    padding: rem(4) rem(28);
+    padding: rem(4) var(--a-space-2);
     @include typo.typo-body-sm;
     color: var(--a-text-dark);
-    text-align: center;
     white-space: nowrap;
-    border: 0.5px solid var(--a-border-dark);
+    border: rem(1) solid var(--a-border-dark);
     border-radius: var(--a-borderR--card);
     box-shadow: var(--a-shadow-weekday);
   }
