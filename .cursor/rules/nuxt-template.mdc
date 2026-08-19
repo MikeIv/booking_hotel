@@ -13,7 +13,7 @@ alwaysApply: true
 - Все `import` — в начале модуля одним блоком (до `definePageMeta` и т.п.).
 - Для `body` в `useApi` post/put/patch — `NitroFetchOptions<NitroFetchRequest>["body"]`, не `unknown`/`any`.
 
-## Nuxt 4.4 (`srcDir: app/`)
+## Nuxt 4.5 (`srcDir: app/`)
 
 - Приложение: `app/` (страницы, компоненты, layouts, composables, stores, plugins, `assets/`). Nitro: `server/routes/`. Общее: `shared/types`, `shared/utils`.
 - Режим: `ssr: false`, `nitro.static` / prerender — решения должны работать в SPA/SSG.

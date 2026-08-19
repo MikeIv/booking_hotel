@@ -1,6 +1,6 @@
 ARG REGISTRY=docker.io/library
 
-FROM ${REGISTRY}/node:20.19-alpine AS build
+FROM ${REGISTRY}/node:22.19-alpine AS build
 
 ARG NUXT_PUBLIC_API_BASE
 ENV NUXT_PUBLIC_API_BASE=$NUXT_PUBLIC_API_BASE

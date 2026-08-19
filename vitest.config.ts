@@ -10,6 +10,11 @@ export default defineConfig({
     setupFiles: ["./tests/setup.ts"],
     include: ["tests/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}"],
     exclude: ["node_modules", ".nuxt", "dist"],
+    poolOptions: {
+      forks: {
+        execArgv: ["--localstorage-file=.vitest-localstorage"],
+      },
+    },
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html"],

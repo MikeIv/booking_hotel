@@ -41,6 +41,7 @@ Thumbs.db
 # Testing
 coverage
 .nyc_output
+.vitest-localstorage*
 
 # Playwright
 /test-results/

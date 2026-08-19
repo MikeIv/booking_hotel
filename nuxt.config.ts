@@ -173,16 +173,7 @@ export default defineNuxtConfig({
   vite: {
     build: {
       target: "esnext",
-      minify: "esbuild",
-      cssMinify: true,
       chunkSizeWarningLimit: 1600,
-      rollupOptions: {
-        output: {
-          manualChunks: {
-            vue: ["vue", "pinia", "vue-router"],
-          },
-        },
-      },
     },
     optimizeDeps: {
       exclude: ["@nuxt/ui"],

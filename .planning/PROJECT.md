@@ -10,7 +10,7 @@
 
 | Слой      | Технология                    |
 | --------- | ----------------------------- |
-| Frontend  | Nuxt 4, Vue 3, @nuxt/ui       |
+| Frontend  | Nuxt 4.5, Vue 3, @nuxt/ui     |
 | Состояние | Pinia (booking, auth)         |
 | API       | useApi → NUXT_PUBLIC_API_BASE |
 | Тесты     | Vitest                        |

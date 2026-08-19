@@ -43,14 +43,14 @@ function futureDateRange(): [Date, Date] {
 }
 
 function readStore(key: string): Record<string, unknown> {
-  const raw = localStorage.getItem(key);
+  const raw = window.localStorage.getItem(key);
   expect(raw).toBeTruthy();
   return JSON.parse(raw!) as Record<string, unknown>;
 }
 
 describe("store persist pick", () => {
   beforeEach(() => {
-    localStorage.clear();
+    window.localStorage.clear();
     vi.clearAllMocks();
     mockPost.mockResolvedValue({
       success: true,
@@ -71,7 +71,7 @@ describe("store persist pick", () => {
   });
 
   afterEach(() => {
-    localStorage.clear();
+    window.localStorage.clear();
   });
 
   it("после search() в booking-store нет эфемерных и объёмных полей", async () => {
@@ -114,7 +114,7 @@ describe("store persist pick", () => {
   });
 
   it("гидратация booking из слепка с loading: true даёт loading === false", () => {
-    localStorage.setItem(
+    window.localStorage.setItem(
       "booking-store",
       JSON.stringify({
         loading: true,
@@ -170,7 +170,7 @@ describe("store persist pick", () => {
     // Локальная полночь 15.08 → в UTC+ часто ISO с датой 14.08
     const localStart = new Date(2030, 7, 15, 0, 0, 0);
     const localEnd = new Date(2030, 7, 16, 0, 0, 0);
-    localStorage.setItem(
+    window.localStorage.setItem(
       "booking-store",
       JSON.stringify({
         date: [localStart.toISOString(), localEnd.toISOString()],

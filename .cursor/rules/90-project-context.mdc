@@ -15,7 +15,7 @@ alwaysApply: true
 
 | Слой      | Технология                                              |
 | --------- | ------------------------------------------------------- |
-| Framework | Nuxt 4.4, Vue 3.5, TypeScript strict                    |
+| Framework | Nuxt 4.5, Vue 3.5, TypeScript strict                    |
 | Состояние | Pinia (`booking`, `auth`)                               |
 | UI        | `@nuxt/ui`, `@headlessui/vue`                           |
 | Стили     | SCSS, CSS Modules (`$style`), токены `--ds-*` / `--a-*` |
