@@ -294,7 +294,7 @@
         :images="carouselImages"
         :alt-prefix="'Фото номера'"
         :alt-text="currentRoom.title"
-        height="326px"
+        height="100%"
       />
     </header>
 
@@ -428,19 +428,20 @@
   }
 
   .carouselWrapper {
-    display: flex;
+    flex-shrink: 0;
     width: 100%;
-    height: 100%;
+    height: rem(326);
     margin-bottom: rem(20);
-    min-height: rem(326);
-    justify-content: center;
-    align-items: flex-start;
+    overflow: hidden;
+    border-radius: rem(8);
   }
 
   .cardDetails {
     display: flex;
+    flex: 1;
     flex-direction: column;
     width: 100%;
+    min-height: 0;
   }
 
   .wrapperInfoBlock {

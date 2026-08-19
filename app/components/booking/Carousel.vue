@@ -125,6 +125,7 @@
 
 <style module lang="scss">
   .carouselBlock {
+    width: 100%;
     height: 100%;
     --ui-slider-control-side-offset: var(--a-space-1);
     --ui-slider-control-color: var(--a-accentDarkBg);
@@ -159,6 +160,7 @@
     align-items: center;
     justify-content: center;
     width: 100%;
+    height: 100%;
     border-radius: rem(8);
     background-color: var(--a-accentLightBg);
     color: var(--a-text-light);
@@ -171,9 +173,7 @@
 
   .skeletonLoader {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
+    inset: 0;
     background: linear-gradient(
       45deg,
       var(--a-lightBg) 25%,
