@@ -27,15 +27,6 @@
     emit("open-popup", event);
   };
 
-  const getCarouselHeight = computed(() => {
-    if (typeof window === "undefined") return "auto";
-    const width = window.innerWidth;
-    // Мобильный: < 768px
-    if (width < 768) return "202px";
-    // Планшет и выше: >= 768px - используем 100% для подстройки под высоту блока
-    return "100%";
-  });
-
   const { carouselImages } = useRoomCarousel(
     computed(() => props.room.photos || []),
     2,
@@ -69,14 +60,16 @@
     ]"
     class="section-shadow"
   >
-    <BookingCarousel
-      :images="carouselImages"
-      :alt-prefix="'Фото номера'"
-      :alt-text="room.title || ''"
-      :height="getCarouselHeight"
-      controls-visibility="hover"
-      :class="$style.roomImage"
-    />
+    <div :class="$style.roomImage">
+      <BookingCarousel
+        :images="carouselImages"
+        :alt-prefix="'Фото номера'"
+        :alt-text="room.title || ''"
+        height="100%"
+        controls-visibility="hover"
+        :class="$style.roomImageFill"
+      />
+    </div>
     <div :class="$style.roomInfo">
       <div :class="$style.roomHeader">
         <span :class="$style.title">{{ room.title || "Без названия" }}</span>
@@ -139,6 +132,7 @@
   .roomInfoSection {
     --room-card-gap: var(--a-space-4);
     --room-card-image-width: 45%;
+    --room-card-image-height-mobile: #{rem(202)};
     --room-card-content-width: 55%;
     --room-card-select-max-width: rem(320);
     --room-card-select-height: rem(40);
@@ -168,14 +162,25 @@
   }
 
   .roomImage {
+    position: relative;
+    width: 100%;
+    height: var(--room-card-image-height-mobile);
+    overflow: hidden;
+    border-radius: var(--ds-radius-md);
+
     @media (min-width: #{size.$tablet}) {
-      display: flex;
-      align-self: stretch;
+      flex: 0 0 var(--room-card-image-width);
       width: var(--room-card-image-width);
-      max-width: var(--room-card-image-width);
+      height: auto;
+      min-height: 0;
       margin-right: var(--room-card-gap);
-      height: 100%;
     }
+  }
+
+  /* Вне потока: высота карточки считается по тексту, фото только заполняет колонку */
+  .roomImageFill {
+    position: absolute;
+    inset: 0;
   }
 
   .roomInfo {
