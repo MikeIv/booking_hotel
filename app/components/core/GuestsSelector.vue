@@ -400,19 +400,7 @@ const MAX_ROOMS = 5;
 
   .guestSection {
     width: 100%;
-
-    @media (min-width: #{size.$desktopMin}) {
-      width: calc(50% - rem(12));
-    }
-
-    @media (min-width: #{size.$desktopMedium}) {
-      flex: 1;
-      min-width: rem(400);
-    }
-
-    @media (min-width: #{size.$desktop}) {
-      min-width: rem(500);
-    }
+    min-width: 0;
 
     :global {
       .p-select-label.p-placeholder {
@@ -423,6 +411,7 @@ const MAX_ROOMS = 5;
 
   .uiSelect {
     width: 100%;
+    min-width: 0;
   }
 
   .guestsDropdownContent {

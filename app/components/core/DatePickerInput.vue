@@ -34,22 +34,16 @@
 </template>
 
 <style module lang="scss">
-  @use "~/assets/styles/variables/resolutions" as size;
-
   .datepickerContainer {
     position: relative;
     display: flex;
     flex-direction: column;
     width: 100%;
+    min-width: 0;
   }
 
   .datepickerInput {
     width: 100%;
-
-    @media (min-width: #{size.$desktopMedium}) {
-      width: auto;
-      min-width: rem(340);
-    }
+    min-width: 0;
   }
 </style>
-

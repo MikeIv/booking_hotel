@@ -106,10 +106,12 @@
 
   .content {
     display: flex;
+    flex: 1 1 0;
     flex-direction: column;
     align-items: flex-start;
-    text-align: left;
     min-width: 0;
+    overflow: hidden;
+    text-align: left;
   }
 
   .label {
@@ -121,12 +123,13 @@
 
   .value {
     margin-top: rem(4);
+    width: 100%;
+    overflow: hidden;
     font-family: var(--a-font-body);
     font-size: rem(16);
     line-height: 1.2;
     color: var(--a-text-dark);
     white-space: nowrap;
-    overflow: hidden;
     text-overflow: ellipsis;
   }
 
@@ -164,6 +167,8 @@
   }
 
   .booking {
+    container-type: inline-size;
+
     .label {
       font-family: var(--a-font-heading);
       font-size: rem(16);
@@ -173,7 +178,7 @@
     .value {
       margin-top: rem(2);
       font-family: var(--a-font-select);
-      font-size: var(--ds-typo-size-select);
+      font-size: var(--ds-typo-size-select-fluid);
       line-height: var(--ds-typo-line-select);
       font-weight: var(--ds-typo-weight-select);
       color: var(--a-text-primary);
@@ -190,8 +195,8 @@
     }
 
     .iconCalendar {
-      width: rem(31);
-      height: rem(33);
+      width: clamp(rem(22), 8cqi, rem(31));
+      height: clamp(rem(22), 8.5cqi, rem(33));
     }
   }
 

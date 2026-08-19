@@ -27,27 +27,18 @@
 </template>
 
 <style module lang="scss">
-  @use "~/assets/styles/variables/resolutions" as size;
-
   .inputWrapper {
     position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
     width: 100%;
+    min-width: 0;
     gap: rem(4);
-
-    @media (min-width: #{size.$desktopMin}) {
-      width: calc(50% - rem(12));
-    }
-
-    @media (min-width: #{size.$desktopMedium}) {
-      width: auto;
-      min-width: rem(280);
-    }
   }
 
   .uiInput {
     width: 100%;
+    min-width: 0;
   }
 </style>

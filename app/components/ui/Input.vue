@@ -146,6 +146,8 @@
   }
 
   .booking {
+    container-type: inline-size;
+
     .label {
       font-family: var(--a-font-heading);
       font-size: rem(16);
@@ -154,8 +156,10 @@
 
     .input {
       margin-top: rem(2);
+      width: 100%;
+      min-width: 0;
       font-family: var(--a-font-select);
-      font-size: var(--ds-typo-size-select);
+      font-size: var(--ds-typo-size-select-fluid);
       line-height: var(--ds-typo-line-select);
       font-weight: var(--ds-typo-weight-select);
       color: var(--a-text-primary);

@@ -368,16 +368,8 @@
     display: flex;
     flex-direction: column;
     width: 100%;
+    min-width: 0;
     gap: rem(4);
-
-    @media (min-width: #{size.$desktopMin}) {
-      width: calc(50% - rem(12));
-    }
-
-    @media (min-width: #{size.$desktopMedium}) {
-      flex: 1;
-      min-width: rem(340);
-    }
   }
 
   .calendarPopup {

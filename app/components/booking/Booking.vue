@@ -280,7 +280,7 @@
     }
 
     @media (min-width: #{size.$desktopMedium}) {
-      grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.9fr) minmax(0, 0.9fr) rem(272);
+      grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 0.8fr) rem(272);
       padding: rem(32) rem(24);
     }
   }

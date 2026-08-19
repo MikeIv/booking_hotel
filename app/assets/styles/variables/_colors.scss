@@ -166,6 +166,7 @@
   --ds-typo-size-body-sm: 0.875rem; /* 14px */
   --ds-typo-size-caption: 0.75rem; /* 12px */
   --ds-typo-size-select: 1.625rem; /* 26px */
+  --ds-typo-size-select-fluid: clamp(1rem, 6.5cqi, var(--ds-typo-size-select));
 
   --ds-typo-line-h1: 2.625rem; /* 42px */
   --ds-typo-line-h2: 2.125rem; /* 34px */
