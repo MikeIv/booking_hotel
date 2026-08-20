@@ -41,13 +41,15 @@ const handlePrint = () => {
         <nav :class="$style.actionButtons" aria-label="Действия с бронированием">
           <Button
             v-if="hasPdf"
-            variant="danger"
+            class="btn__bs"
+            unstyled
             @click="handleDownload"
           >
             Скачать подтверждение
           </Button>
           <Button
-            variant="dark"
+            class="btn__bs"
+            unstyled
             @click="handlePrint"
           >
             Распечатать
@@ -181,4 +183,3 @@ const handlePrint = () => {
     }
   }
 </style>
-

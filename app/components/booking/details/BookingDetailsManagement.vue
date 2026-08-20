@@ -23,7 +23,7 @@ const emit = defineEmits<{
     <div :class="$style.managementButtons">
       <Button
         v-if="canEditDates"
-        class="btn__bs dark"
+        class="btn__bs"
         unstyled
         @click="emit('change-dates')"
       >
@@ -31,7 +31,7 @@ const emit = defineEmits<{
       </Button>
       <Button
         v-if="canEditRoom"
-        class="btn__bs dark"
+        class="btn__bs"
         unstyled
         @click="emit('change-room')"
       >
@@ -39,7 +39,7 @@ const emit = defineEmits<{
       </Button>
       <Button
         v-if="canEditPackages"
-        class="btn__bs dark"
+        class="btn__bs"
         unstyled
         @click="emit('change-services')"
       >
@@ -47,7 +47,7 @@ const emit = defineEmits<{
       </Button>
       <Button
         v-if="canEditContacts"
-        class="btn__bs dark"
+        class="btn__bs"
         unstyled
         @click="emit('change-contacts')"
       >

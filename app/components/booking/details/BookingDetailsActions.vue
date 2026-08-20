@@ -20,14 +20,14 @@ const emit = defineEmits<{
       >
         <Button
           v-if="canCancelBooking"
-          class="btn__bs danger"
+          class="btn__bs"
           unstyled
           @click="emit('cancel')"
         >
           Отменить бронирование
         </Button>
         <Button
-          class="btn__bs danger"
+          class="btn__bs"
           unstyled
           @click="emit('new-booking')"
         >
@@ -38,7 +38,7 @@ const emit = defineEmits<{
 
     <section :class="$style.section">
       <Button
-        class="btn__bs dark"
+        class="btn__bs"
         :class="$style.backButton"
         unstyled
         @click="emit('back-to-cabinet')"

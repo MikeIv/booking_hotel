@@ -41,7 +41,7 @@ const isServicesChangeSuccessful = computed(() =>
           <div :class="$style.actions">
             <Button
               label="Продолжить"
-              class="btn__bs dark"
+              class="btn__bs"
               unstyled
               @click="emit('close')"
             />
@@ -54,14 +54,14 @@ const isServicesChangeSuccessful = computed(() =>
           <div :class="$style.actions">
             <Button
               label="Изменить услуги"
-              class="btn__bs dark"
+              class="btn__bs"
               unstyled
               :disabled="isChangingServices"
               @click="emit('confirm')"
             />
             <Button
               label="Отмена"
-              class="btn__bs danger"
+              class="btn__bs"
               unstyled
               :disabled="isChangingServices"
               @click="emit('close')"

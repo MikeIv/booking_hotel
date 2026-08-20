@@ -436,7 +436,7 @@ const handleNewBooking = () => {
         </p>
         <Button
           label="Новое бронирование"
-          class="btn__bs danger"
+          class="btn__bs"
           unstyled
           @click="handleNewBooking"
         />
@@ -502,7 +502,7 @@ const handleNewBooking = () => {
                   <Button
                     v-if="canCancelBooking"
                     label="Отменить бронирование"
-                    class="btn__bs danger"
+                    class="btn__bs"
                     unstyled
                     :disabled="isCancellingBooking"
                     @click="openCancelBookingPopup"
@@ -510,7 +510,7 @@ const handleNewBooking = () => {
                 </div>
                 <Button
                   label="Новое бронирование"
-                  class="btn__bs danger"
+                  class="btn__bs"
                   unstyled
                   @click="handleNewBooking"
                 />

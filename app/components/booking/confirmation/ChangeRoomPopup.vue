@@ -41,7 +41,7 @@ const isRoomChangeSuccessful = computed(() =>
           <div :class="$style.actions">
             <Button
               label="Выход"
-              class="btn__bs dark"
+              class="btn__bs"
               unstyled
               @click="emit('close')"
             />
@@ -54,14 +54,14 @@ const isRoomChangeSuccessful = computed(() =>
           <div :class="$style.actions">
             <Button
               label="Изменить номер"
-              class="btn__bs dark"
+              class="btn__bs"
               unstyled
               :disabled="isChangingRoom"
               @click="emit('confirm')"
             />
             <Button
               label="Отмена"
-              class="btn__bs danger"
+              class="btn__bs"
               unstyled
               :disabled="isChangingRoom"
               @click="emit('close')"

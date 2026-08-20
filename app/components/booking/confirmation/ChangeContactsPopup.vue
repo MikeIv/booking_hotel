@@ -107,13 +107,15 @@
         <div :class="$style.changeContactsPopupActions">
           <Button
             label="Изменить"
-            variant="dark"
+            class="btn__bs"
+            unstyled
             :disabled="!canSubmitContactChange"
             @click="emit('confirm')"
           />
           <Button
             label="Отмена"
-            variant="danger"
+            class="btn__bs"
+            unstyled
             :disabled="isChangingContacts"
             @click="emit('close')"
           />
@@ -196,6 +198,10 @@
       flex-direction: row;
       justify-content: center;
       gap: rem(16);
+    }
+
+    :global(.btn__bs) {
+      width: 100%;
     }
   }
 

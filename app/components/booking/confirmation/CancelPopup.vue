@@ -34,14 +34,14 @@
         <div :class="$style.actions">
           <Button
             label="Нет"
-            class="btn__bs dark"
+            class="btn__bs"
             unstyled
             :disabled="isCancellingBooking"
             @click="emit('close')"
           />
           <Button
             label="Да, отменить"
-            class="btn__bs dark"
+            class="btn__bs"
             unstyled
             :disabled="isCancellingBooking"
             @click="emit('confirm')"

@@ -56,7 +56,7 @@ const isDateChangeSuccessful = computed(() =>
           <div :class="$style.changeDatesPopupActions">
             <Button
               label="Выход"
-              class="btn__bs dark"
+              class="btn__bs"
               unstyled
               @click="emit('close')"
             />
@@ -85,14 +85,14 @@ const isDateChangeSuccessful = computed(() =>
           <div :class="$style.changeDatesPopupActions">
             <Button
               label="Изменить"
-              class="btn__bs dark"
+              class="btn__bs"
               unstyled
               :disabled="!canSubmitDateChange"
               @click="emit('confirm')"
             />
             <Button
               label="Отмена"
-              class="btn__bs danger"
+              class="btn__bs"
               unstyled
               :disabled="isChangingDates"
               @click="emit('close')"
