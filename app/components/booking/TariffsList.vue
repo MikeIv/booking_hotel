@@ -1,7 +1,7 @@
 <script setup lang="ts">
   // @ts-nocheck - Vue автоматически преобразует kebab-case в camelCase в шаблонах
   import type { RoomTariff, TariffGroup } from "~/types/room";
-  import { toPricePerNight } from "~/utils/price";
+  import { formatPrice, toPricePerNight } from "~/utils/price";
 
   interface Props {
     tariffs: RoomTariff[];
@@ -191,7 +191,7 @@
                 :value="averagePricePerNight(tariff)"
                 itemprop="price"
               >
-                {{ averagePricePerNight(tariff).toLocaleString("ru-RU") }} руб.
+                {{ formatPrice(averagePricePerNight(tariff)) }} руб.
               </data>
               <span :class="$style.tariffPriceLabel"
                 >Средняя стоимость за 1 ночь
@@ -263,7 +263,7 @@
                 :value="averagePricePerNight(tariff)"
                 itemprop="price"
               >
-                {{ averagePricePerNight(tariff).toLocaleString("ru-RU") }} руб.
+                {{ formatPrice(averagePricePerNight(tariff)) }} руб.
               </data>
               <span :class="$style.tariffPriceLabel"
                 >Средняя стоимость за 1 ночь
@@ -525,7 +525,7 @@
     @media (min-width: #{size.$desktopMin}) {
       width: fit-content;
       margin-left: 0;
-      
+
       // Скрываем цену в footer на desktop (она отображается в header)
       .tariffPrice,
       .tariffPriceLabel {

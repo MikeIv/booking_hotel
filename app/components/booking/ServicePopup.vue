@@ -1,6 +1,7 @@
 <script setup lang="ts">
   import UIPopup from "~/components/ui/Popup.vue";
   import RoomPopupCarousel from "~/components/booking/RoomPopupCarousel.vue";
+  import { formatPrice } from "~/utils/price";
   import type { PackageResource } from "~/types/room";
 
   interface Props {
@@ -146,7 +147,7 @@
                 :value="servicePrice"
                 itemprop="price"
               >
-                От {{ servicePrice }} руб.
+                От {{ formatPrice(servicePrice) }} руб.
               </data>
             </div>
 
@@ -348,4 +349,3 @@
     }
   }
 </style>
-

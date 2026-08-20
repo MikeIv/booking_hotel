@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { SelectedEntry } from "~/types/booking";
 import type { SelectedService } from "~/stores/booking";
-import { toStayTotal } from "~/utils/price";
+import { formatPrice, toStayTotal } from "~/utils/price";
 
 defineProps<{
   entry: SelectedEntry;
@@ -55,7 +55,7 @@ const emit = defineEmits<{
         <div :class="$style.roomCategoryRow">
           <span :class="$style.roomType">{{ entry.roomTitle }}</span>
           <span :class="$style.roomPrice">
-            {{ toStayTotal(entry.price, nights).toLocaleString("ru-RU") }} ₽
+            {{ formatPrice(toStayTotal(entry.price, nights)) }} ₽
           </span>
         </div>
         <div :class="$style.roomDivider" />
@@ -84,7 +84,7 @@ const emit = defineEmits<{
                 <span :class="$style.serviceTitle">{{ service.title }}</span>
                 <div :class="$style.serviceActions">
                   <span :class="$style.servicePrice">
-                    {{ service.price.toLocaleString("ru-RU") }} ₽
+                    {{ formatPrice(service.price) }} ₽
                   </span>
                   <Button
                     v-if="editableServices"
@@ -103,7 +103,7 @@ const emit = defineEmits<{
         </template>
         <div v-if="!isSingleRoom" :class="$style.roomTotal">
           <span>Итого за Номер {{ entry.roomIdx + 1 }}:</span>
-          <strong>{{ roomTotal.toLocaleString("ru-RU") }} ₽</strong>
+          <strong>{{ formatPrice(roomTotal) }} ₽</strong>
         </div>
       </div>
     </Transition>

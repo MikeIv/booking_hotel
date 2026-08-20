@@ -2,7 +2,7 @@
   import type { Room, RoomTariff } from "~/types/room";
   import { formatCount } from "~/utils/declension";
   import { useBookingStore } from "~/stores/booking";
-  import { toPricePerNight } from "~/utils/price";
+  import { formatPrice, toPricePerNight } from "~/utils/price";
   import {
     getTariffStayTotalForRoom,
     getTariffRoomIndices,
@@ -241,7 +241,7 @@
                     />
                   </div>
                   <div :class="$style.confirmPrice">
-                    {{ getAveragePricePerNight(getTariffStayTotalForRoom(tar, roomIndex)).toLocaleString("ru-RU") }} ₽
+                    {{ formatPrice(getAveragePricePerNight(getTariffStayTotalForRoom(tar, roomIndex))) }} ₽
                   </div>
                 </div>
               </div>
@@ -274,7 +274,7 @@
                           )
                         }}
                         на основном месте -
-                        {{ getAveragePricePerNight(getTariffStayTotalForRoom(tar, roomIndex)).toLocaleString("ru-RU") }} ₽ за
+                        {{ formatPrice(getAveragePricePerNight(getTariffStayTotalForRoom(tar, roomIndex))) }} ₽ за
                         ночь
                       </div>
                       <div
@@ -295,7 +295,7 @@
                   <div :class="$style.priceDetailsTotal">
                     <span>Стоимость номера за весь период проживания</span>
                     <span :class="$style.priceDetailsTotalAmount">
-                      {{ getStayTotal(getTariffStayTotalForRoom(tar, roomIndex)).toLocaleString("ru-RU") }}
+                      {{ formatPrice(getStayTotal(getTariffStayTotalForRoom(tar, roomIndex))) }}
                       ₽
                     </span>
                   </div>

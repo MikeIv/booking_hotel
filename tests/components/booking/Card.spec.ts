@@ -139,7 +139,8 @@ describe("Card.vue", () => {
       expect(wrapper.find("article").exists()).toBe(true);
       expect(wrapper.text()).toContain("Делюкс номер");
       expect(wrapper.text()).toContain("25 м2");
-      expect(wrapper.text()).toContain("От 5000 руб.");
+      expect(wrapper.text()).toContain("За регистрацию 1 000 ₽");
+      expect(wrapper.text()).toContain("От 5 000 руб.");
     });
 
     it("должен отображать кнопку выбора номера", () => {
@@ -513,7 +514,7 @@ describe("Card.vue", () => {
       await nextTick();
 
       const vm = wrapper.vm as unknown as CardComponentInstance;
-      expect(vm.formattedMinPrice).toBe("5000 руб.");
+      expect(vm.formattedMinPrice).toBe("5 000 руб.");
     });
 
     it("должен возвращать null для formattedMinPrice, если цена null", async () => {

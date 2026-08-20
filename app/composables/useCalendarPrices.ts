@@ -1,4 +1,5 @@
 import { formatDateApi } from "~/utils/dateFormat";
+import { formatPrice as formatPriceNumber } from "~/utils/price";
 
 export interface PriceCalendarResource {
   date_at: string;
@@ -113,16 +114,8 @@ export const useCalendarPrices = () => {
     return price ?? null;
   };
 
-  // Мемоизированный форматтер для оптимизации производительности
-  const priceFormatter = new Intl.NumberFormat("ru-RU", {
-    style: "currency",
-    currency: "RUB",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  });
-
   const formatPrice = (price: number): string => {
-    return priceFormatter.format(price);
+    return `${formatPriceNumber(price)} ₽`;
   };
 
   // Принудительное обновление цен для месяца (игнорируя кэш)

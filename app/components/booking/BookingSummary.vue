@@ -5,7 +5,7 @@ import { formatCount } from "~/utils/declension";
 import type { DeclensionRules } from "~/utils/declension";
 import { useBookingStore, type SelectedService } from "~/stores/booking";
 import type { SelectedEntry } from "~/types/booking";
-import { toStayTotal } from "~/utils/price";
+import { formatPrice, toStayTotal } from "~/utils/price";
 import BookingSummaryDatesSection from "~/components/booking/summary/BookingSummaryDatesSection.vue";
 import BookingSummaryRoomItem from "~/components/booking/summary/BookingSummaryRoomItem.vue";
 
@@ -165,7 +165,7 @@ const handleRemoveService = (roomIdx: number, serviceId: number) => {
       <div :class="$style.pageSummaryDivider" />
       <div :class="$style.pageSummaryGrandTotal">
         <span>Итого:</span>
-        <strong>{{ bookingTotal.toLocaleString("ru-RU") }} ₽</strong>
+        <strong>{{ formatPrice(bookingTotal) }} ₽</strong>
       </div>
       <div v-if="isContinueVisible" :class="$style.pageSummaryFooter">
         <Button

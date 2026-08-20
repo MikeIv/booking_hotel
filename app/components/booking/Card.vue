@@ -1,6 +1,7 @@
 ﻿<script setup lang="ts">
   import { ref, computed, watch } from "vue";
   import { formatCount } from "~/utils/declension";
+  import { formatPrice } from "~/utils/price";
   import { useNights } from "~/composables/useNights";
   import { useRoomCarousel } from "~/composables/useRoomCarousel";
   import { useStructuredData } from "~/composables/useStructuredData";
@@ -189,7 +190,9 @@
 
   const formattedMinPrice = computed(() => {
     const price = currentRoom.value.min_price;
-    return price !== null && price !== undefined ? `${price} руб.` : null;
+    return price !== null && price !== undefined
+      ? `${formatPrice(price)} руб.`
+      : null;
   });
 
   const handleTariff = async () => {
@@ -354,7 +357,7 @@
         <div :class="$style.priceBlock">
           <p :class="$style.guestGift">
             <UIcon name="i-gift-line" :class="$style.icon" aria-hidden="true" />
-            За регистрацию {{ currentRoom.price_for_register }} ₽
+            За регистрацию {{ formatPrice(currentRoom.price_for_register) }} ₽
           </p>
           <p
             v-if="currentRoom.min_price !== null && currentRoom.min_price !== undefined"

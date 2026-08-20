@@ -1,5 +1,6 @@
 ﻿<script setup lang="ts">
   import { useBookingStore } from "~/stores/booking";
+  import { formatPrice } from "~/utils/price";
 
   interface Props {
     id: number;
@@ -111,7 +112,7 @@
             :value="price"
             itemprop="price"
           >
-            От {{ price }} руб.
+            От {{ formatPrice(price) }} руб.
           </data>
         </div>
 
@@ -297,4 +298,3 @@
     }
   }
 </style>
-
