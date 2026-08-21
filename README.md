@@ -2,51 +2,23 @@
 
 ## Деплой
 
-**Develop:** `git push origin develop` — CI выкатывает стенд с ветки `develop`.
+**Develop:** `git push origin develop` — CI выкатывает стенд https://ukraina-web.grandfs-develop.ru.
 
-**Production:** повесьте git-tag на нужный коммит и **запушьте тег**. CI собирает образ `${CI_REGISTRY_IMAGE}:${CI_COMMIT_TAG}` и деплоит `ukraina-prod`. Локальный `git tag` без push CI не видит.
+**Production:** `git push origin master` — CI собирает Docker-образ `prod-<short-sha>`, деплоит `ukraina-prod` (http://booking.ukraina-hotel.ru) и ставит git-tag с тем же именем. Ручные `v0.0.x` больше не нужны.
 
-Каждый релиз — следующая цифра: `v0.0.1` → `v0.0.2` → `v0.0.3` → `v0.0.4` → …
-
-### Выкатить текущий `develop` (тег на HEAD)
+Пайплайн на git-tag не запускается: тег — только метка релиза, повторного деплоя нет.
 
 ```bash
-git checkout develop
-git pull origin develop
+# dev
+git push origin develop
 
-git tag --sort=v:refname          # какие теги уже есть
-git tag v0.0.4                    # лёгкий annotated-less тег на HEAD
-git push origin v0.0.4            # без push CI не стартует
+# prod
+git checkout master
+git merge develop
+git push origin master
 ```
 
-Подставьте следующую свободную цифру вместо `v0.0.4`.
-
-### Тег на конкретный коммит (не HEAD)
-
-```bash
-git log --oneline -10
-git tag v0.0.4 bba6141            # SHA нужного коммита
-git push origin v0.0.4
-```
-
-Можно указать полный SHA: `git tag v0.0.4 bba6141a1b2c3…`
-
-### Проверка, куда сел тег
-
-```bash
-git show v0.0.4 --no-patch
-# или
-git log -1 --oneline v0.0.4
-```
-
-Должен совпасть коммит, который вы хотите выкатить.
-
-### Важно
-
-- Тег **должен быть запушен**: `git push origin v0.0.N`.
-- Имя — следующая цифра, не переиспользуйте существующий тег.
-- Не делайте `git push --force` тега: образ в registry завязан на имя (`${CI_REGISTRY_IMAGE}:${CI_COMMIT_TAG}`).
-- Prod едет с **коммита, на который указывает тег**, а не «с кончика develop» сам по себе.
+После успешного prod-деплоя в репозитории появится тег `prod-<short-sha>` (тот же, что у образа в registry). Плавающий тег образа `:prod` указывает на последнюю выкатку.
 
 Веб-приложение бронирования на базе Nuxt 4 (отдельная копия кодовой базы Varvarka для второго отеля). Поведение и API на этапе ввода совпадают с исходником; отличия — через `NUXT_PUBLIC_API_BASE`, домены `@nuxt/image` и контент/брендинг в приложении.
 

@@ -1,5 +1,11 @@
+workflow:
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop"
+    - if: $CI_COMMIT_BRANCH == "master"
+
 variables:
-  FRONTEND_IMAGE: "${CI_REGISTRY_IMAGE}:${CI_COMMIT_TAG}"
+  DEPLOY_TAG: "prod-${CI_COMMIT_SHORT_SHA}"
+  FRONTEND_IMAGE: "${CI_REGISTRY_IMAGE}:prod-${CI_COMMIT_SHORT_SHA}"
   BASE_REGISTRY: "dockerhub.timeweb.cloud/library"
 
 stages:
@@ -22,7 +28,7 @@ build frontend:
     paths:
       - .output
   rules:
-    - if: $CI_COMMIT_BRANCH && $CI_COMMIT_REF_PROTECTED == 'true'
+    - if: $CI_COMMIT_BRANCH == "develop"
   tags:
     - docker
     - $CI_JOB_STAGE
@@ -37,12 +43,15 @@ build production image:
       docker build --pull \
         --build-arg REGISTRY="$BASE_REGISTRY" \
         --build-arg NUXT_PUBLIC_API_BASE="$NUXT_PUBLIC_API_BASE" \
-        -t "$FRONTEND_IMAGE" .
+        -t "$FRONTEND_IMAGE" \
+        -t "${CI_REGISTRY_IMAGE}:prod" \
+        .
     - docker push "$FRONTEND_IMAGE"
+    - docker push "${CI_REGISTRY_IMAGE}:prod"
   after_script:
-    - docker image rm -f "$FRONTEND_IMAGE" || true
+    - docker image rm -f "$FRONTEND_IMAGE" "${CI_REGISTRY_IMAGE}:prod" || true
   rules:
-    - if: $CI_COMMIT_TAG
+    - if: $CI_COMMIT_BRANCH == "master"
   tags:
     - shell
     - grand208
@@ -50,23 +59,41 @@ build production image:
 deploy ukraina prod:
   stage: deploy
   image: docker:latest
+  resource_group: ukraina-prod
   environment:
     name: ukraina-prod
-    url: https://$APP_DOMAIN
+    url: http://booking.ukraina-hotel.ru
   variables:
     STACK_NAME: ukraina-front
     APP_DOMAIN: "booking.ukraina-hotel.ru"
+  needs:
+    - job: build production image
   script:
     - apk add --no-cache curl
     - printf '%s' "$CI_REGISTRY_PASSWORD" | docker login --username "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
     - docker stack deploy --with-registry-auth --prune -c .docker/docker-stack.yml "$STACK_NAME"
     - |
+      TAG_HTTP=$(curl -sS -o /tmp/deploy-tag.json -w "%{http_code}" --request POST \
+        --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
+        --data-urlencode "tag_name=${DEPLOY_TAG}" \
+        --data-urlencode "ref=${CI_COMMIT_SHA}" \
+        --data-urlencode "message=Production deploy ${CI_COMMIT_SHA}" \
+        "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/repository/tags")
+      if [ "$TAG_HTTP" = "201" ]; then
+        echo "Created git tag ${DEPLOY_TAG}"
+      elif [ "$TAG_HTTP" = "400" ] || [ "$TAG_HTTP" = "409" ]; then
+        echo "Git tag ${DEPLOY_TAG} already exists"
+      else
+        echo "Warning: could not create git tag ${DEPLOY_TAG} (HTTP ${TAG_HTTP})"
+        cat /tmp/deploy-tag.json || true
+      fi
+    - |
       # MM notification publish
       curl -s -X POST -H "Content-Type: application/json; charset=utf-8" -H "Authorization: Bearer ${MM_BOT}" \
-        -d "{\"channel_id\":\"${MM_GROUP}\",\"message\":\"Загружено [**${CI_PROJECT_NAME} / ${CI_ENVIRONMENT_NAME}**](${CI_ENVIRONMENT_URL})\nТег: ${CI_COMMIT_TAG}\nКоммит: [${CI_COMMIT_TITLE}](${CI_PROJECT_URL}/-/commit/${CI_COMMIT_SHA})\"}" \
+        -d "{\"channel_id\":\"${MM_GROUP}\",\"message\":\"Загружено [**${CI_PROJECT_NAME} / ${CI_ENVIRONMENT_NAME}**](${CI_ENVIRONMENT_URL})\nВетка: ${CI_COMMIT_BRANCH}\nТег: ${DEPLOY_TAG}\nКоммит: [${CI_COMMIT_TITLE}](${CI_PROJECT_URL}/-/commit/${CI_COMMIT_SHA})\"}" \
         https://mm.grandfs-develop.ru/api/v4/posts > /dev/null
   rules:
-    - if: $CI_COMMIT_TAG
+    - if: $CI_COMMIT_BRANCH == "master"
   tags:
     - swarm
     - grand206
@@ -76,6 +103,9 @@ deploy develop:
   environment:
     name: dev
     url: $BASE_URL
+  needs:
+    - job: build frontend
+      artifacts: true
   script:
     - cp -rf .output /var/www/ukraina/${CI_COMMIT_BRANCH}
     - cd /var/www/ukraina/${CI_COMMIT_BRANCH}
@@ -91,9 +121,8 @@ deploy develop:
       curl -s -X POST -H "Content-Type: application/json; charset=utf-8" -H "Authorization: Bearer ${MM_BOT}" \
         -d "{\"channel_id\":\"${MM_GROUP}\",\"message\":\"Загружено [**${CI_PROJECT_NAME} / ${CI_ENVIRONMENT_NAME}**](${CI_ENVIRONMENT_URL})\nВетка: ${CI_COMMIT_BRANCH}\nАвтор: ${CI_COMMIT_AUTHOR}\nПравка: [${CI_COMMIT_TITLE}](${CI_PROJECT_URL}/-/commit/${CI_COMMIT_SHA})\"}" \
         https://mm.grandfs-develop.ru/api/v4/posts > /dev/null
-  only:
-    refs:
-      - develop
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop"
   tags:
     - shell
     - grand208
