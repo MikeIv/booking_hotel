@@ -4,6 +4,9 @@ const API_BASE_URL =
   process.env.NUXT_PUBLIC_API_BASE ||
   "https://ukraina-api.grandfs-develop.ru/api";
 const IS_DEV = process.env.NODE_ENV === "development";
+const YANDEX_METRIKA_ID =
+  process.env.NUXT_PUBLIC_YANDEX_METRIKA_ID ?? "80902204";
+const YANDEX_METRIKA_ENABLED = !IS_DEV && Boolean(YANDEX_METRIKA_ID);
 
 export default defineNuxtConfig({
   modules: [
@@ -58,6 +61,29 @@ export default defineNuxtConfig({
   },
 
   ssr: false,
+
+  app: {
+    head: {
+      script: YANDEX_METRIKA_ENABLED
+        ? [
+            {
+              key: "yandex-metrika",
+              src: "https://mc.yandex.ru/metrika/tag.js",
+              async: true,
+              tagPosition: "bodyClose",
+            },
+          ]
+        : [],
+      noscript: YANDEX_METRIKA_ENABLED
+        ? [
+            {
+              innerHTML: `<div><img src="https://mc.yandex.ru/watch/${YANDEX_METRIKA_ID}" style="position:absolute;left:-9999px;" alt="" /></div>`,
+              tagPosition: "bodyOpen",
+            },
+          ]
+        : [],
+    },
+  },
 
   components: [{ path: "~/components/core", prefix: "Core" }, "~/components"],
 
@@ -132,6 +158,7 @@ export default defineNuxtConfig({
         process.env.NUXT_PUBLIC_API_BASE ||
         "https://ukraina-api.grandfs-develop.ru/api",
       isDev: IS_DEV,
+      yandexMetrikaId: YANDEX_METRIKA_ID,
     },
   },
 
