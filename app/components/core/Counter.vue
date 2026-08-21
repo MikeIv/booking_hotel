@@ -35,9 +35,10 @@ const canIncrease = computed(() => props.modelValue < props.max && !props.disabl
       unstyled
       :class="$style.setButton"
       :disabled="!canDecrease"
+      aria-label="Уменьшить"
       @click="updateValue(-1)"
     >
-      -
+      <span :class="$style.sign" aria-hidden="true" />
     </Button>
     <span :class="$style.count">{{ modelValue }}</span>
     <Button
@@ -45,9 +46,10 @@ const canIncrease = computed(() => props.modelValue < props.max && !props.disabl
       unstyled
       :class="$style.setButton"
       :disabled="!canIncrease"
+      aria-label="Увеличить"
       @click="updateValue(1)"
     >
-      +
+      <span :class="[$style.sign, $style.signPlus]" aria-hidden="true" />
     </Button>
   </div>
 </template>
@@ -56,8 +58,8 @@ const canIncrease = computed(() => props.modelValue < props.max && !props.disabl
 .counter {
   display: flex;
   align-items: center;
-  gap: 8px;
-  min-width: rem(124);
+  gap: rem(8);
+  min-width: rem(128);
   margin-left: rem(20);
 }
 
@@ -65,29 +67,59 @@ const canIncrease = computed(() => props.modelValue < props.max && !props.disabl
   display: flex;
   justify-content: center;
   align-items: center;
-  width: rem(34);
-  height: rem(34);
-  font-size: rem(24);
+  width: rem(36);
+  height: rem(36);
+  padding: 0;
   color: var(--a-white);
-  background-color: var(--a-accentLightBg);
+  background-color: var(--a-lightBg);
   border-radius: 50%;
   cursor: pointer;
   border: none;
 
-  &:hover {
-    background-color: var(--a-accentBg);
+  &:hover:not(:disabled),
+  &:focus-visible {
+    background-color: var(--ds-primary-300);
   }
 
-  &:disabled {
-    background-color: var(--a-accentLightBg);
+  &:disabled,
+  &[data-p-disabled="true"] {
     cursor: not-allowed;
-    opacity: 0.5;
+    opacity: 1;
   }
 
   &:focus-visible {
     outline: none;
-    background-color: var(--a-accentBg);
   }
+}
+
+.sign {
+  position: relative;
+  display: block;
+  width: rem(16);
+  height: rem(16);
+  flex-shrink: 0;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: rem(2);
+    background-color: currentColor;
+    transform: translateY(-50%);
+  }
+}
+
+.signPlus::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: rem(2);
+  height: 100%;
+  background-color: currentColor;
+  transform: translateX(-50%);
 }
 
 .count {
@@ -100,4 +132,3 @@ const canIncrease = computed(() => props.modelValue < props.max && !props.disabl
   color: var(--a-black);
 }
 </style>
-

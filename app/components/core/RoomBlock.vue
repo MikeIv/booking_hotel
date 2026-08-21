@@ -125,7 +125,7 @@ const roomTitle = computed(() =>
   font-family: var(--a-font-body);
   font-size: rem(18);
   color: var(--a-black);
-  background-color: var(--a-accentLightBg);
+  background-color: var(--a-lightBg);
 
   @media (min-width: #{size.$desktopMin}) {
     margin: 0 rem(-24) rem(12) rem(-24);
@@ -187,7 +187,7 @@ const roomTitle = computed(() =>
 .subName {
   font-family: var(--a-font-body);
   font-size: rem(14);
-  color: var(--a-text-primary);
+  color: var(--a-bookingModuleBg);
 }
 
 .line {
@@ -203,4 +203,3 @@ const roomTitle = computed(() =>
   margin-top: rem(8);
 }
 </style>
-

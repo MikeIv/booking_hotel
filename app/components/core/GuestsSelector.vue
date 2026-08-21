@@ -371,7 +371,7 @@ const MAX_ROOMS = 5;
 
         <UiButton
           :class="$style.applyButton"
-          variant="dark"
+          variant="primary"
           size="m"
           :loading="isApplying"
           :disabled="isApplying"
@@ -389,7 +389,7 @@ const MAX_ROOMS = 5;
     &.p-popover {
       background: var(--a-white);
       border-radius: rem(16);
-      box-shadow: 0 4px 23px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 4px 23px rgba(0, 0, 0, 0.25);
       border: none;
     }
   }
