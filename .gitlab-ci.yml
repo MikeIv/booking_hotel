@@ -36,7 +36,7 @@ build frontend:
 build production image:
   stage: build
   variables:
-    NUXT_PUBLIC_API_BASE: "https://booking.ukraina-hotel.ru/api"
+    NUXT_PUBLIC_API_BASE: "http://booking.ukraina-hotel.ru/api"
   script:
     - printf '%s' "$CI_REGISTRY_PASSWORD" | docker login --username "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
     - |
