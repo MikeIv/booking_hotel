@@ -73,27 +73,35 @@ deploy ukraina prod:
     - printf '%s' "$CI_REGISTRY_PASSWORD" | docker login --username "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
     - docker stack deploy --with-registry-auth --prune -c .docker/docker-stack.yml "$STACK_NAME"
     - |
-      TAG_HTTP=$(curl -sS -o /tmp/deploy-tag.json -w "%{http_code}" --request POST \
-        --header "JOB-TOKEN: ${CI_JOB_TOKEN}" \
-        --data-urlencode "tag_name=${DEPLOY_TAG}" \
-        --data-urlencode "ref=${CI_COMMIT_SHA}" \
-        --data-urlencode "message=Production deploy ${CI_COMMIT_SHA}" \
-        "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/repository/tags")
-      if [ "$TAG_HTTP" = "201" ]; then
-        echo "Created git tag ${DEPLOY_TAG}"
-      elif [ "$TAG_HTTP" = "400" ] || [ "$TAG_HTTP" = "409" ]; then
-        echo "Git tag ${DEPLOY_TAG} already exists"
-      else
-        echo "Warning: could not create git tag ${DEPLOY_TAG} (HTTP ${TAG_HTTP})"
-        cat /tmp/deploy-tag.json || true
-      fi
-    - |
       # MM notification publish
       curl -s -X POST -H "Content-Type: application/json; charset=utf-8" -H "Authorization: Bearer ${MM_BOT}" \
         -d "{\"channel_id\":\"${MM_GROUP}\",\"message\":\"Загружено [**${CI_PROJECT_NAME} / ${CI_ENVIRONMENT_NAME}**](${CI_ENVIRONMENT_URL})\nВетка: ${CI_COMMIT_BRANCH}\nТег: ${DEPLOY_TAG}\nКоммит: [${CI_COMMIT_TITLE}](${CI_PROJECT_URL}/-/commit/${CI_COMMIT_SHA})\"}" \
         https://mm.grandfs-develop.ru/api/v4/posts > /dev/null
   rules:
     - if: $CI_COMMIT_BRANCH == "master"
+  tags:
+    - swarm
+    - grand206
+
+create production tag:
+  stage: deploy
+  image: alpine:3.21
+  needs:
+    - job: deploy ukraina prod
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+  script:
+    - apk add --no-cache git
+    - git config --global --add safe.directory "$CI_PROJECT_DIR"
+    - git config user.email "ci@${CI_SERVER_FQDN}"
+    - git config user.name "GitLab CI"
+    - |
+      if git ls-remote --exit-code --tags "${CI_REPOSITORY_URL}" "refs/tags/${DEPLOY_TAG}" >/dev/null 2>&1; then
+        echo "Git tag ${DEPLOY_TAG} already exists"
+        exit 0
+      fi
+      git tag "${DEPLOY_TAG}" "${CI_COMMIT_SHA}"
+      git push -o ci.skip "${CI_REPOSITORY_URL}" "refs/tags/${DEPLOY_TAG}"
   tags:
     - swarm
     - grand206
