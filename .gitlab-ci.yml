@@ -75,7 +75,7 @@ deploy ukraina prod:
     - |
       # MM notification publish
       curl -s -X POST -H "Content-Type: application/json; charset=utf-8" -H "Authorization: Bearer ${MM_BOT}" \
-        -d "{\"channel_id\":\"${MM_GROUP}\",\"message\":\"Загружено [**${CI_PROJECT_NAME} / ${CI_ENVIRONMENT_NAME}**](${CI_ENVIRONMENT_URL})\nВетка: ${CI_COMMIT_BRANCH}\nТег: ${DEPLOY_TAG}\nКоммит: [${CI_COMMIT_TITLE}](${CI_PROJECT_URL}/-/commit/${CI_COMMIT_SHA})\"}" \
+        -d "{\"channel_id\":\"${MM_GROUP}\",\"message\":\"Загружено [**${CI_PROJECT_NAME} / ${CI_ENVIRONMENT_NAME}**](${CI_ENVIRONMENT_URL})\nВетка: ${CI_COMMIT_BRANCH}\nОбраз: ${DEPLOY_TAG}\nКоммит: [${CI_COMMIT_TITLE}](${CI_PROJECT_URL}/-/commit/${CI_COMMIT_SHA})\"}" \
         https://mm.grandfs-develop.ru/api/v4/posts > /dev/null
   rules:
     - if: $CI_COMMIT_BRANCH == "master"
@@ -86,6 +86,7 @@ deploy ukraina prod:
 create production tag:
   stage: deploy
   image: alpine:3.21
+  resource_group: ukraina-prod
   needs:
     - job: deploy ukraina prod
   rules:
@@ -95,13 +96,23 @@ create production tag:
     - git config --global --add safe.directory "$CI_PROJECT_DIR"
     - git config user.email "ci@${CI_SERVER_FQDN}"
     - git config user.name "GitLab CI"
+    - git fetch --tags --force "${CI_REPOSITORY_URL}"
     - |
-      if git ls-remote --exit-code --tags "${CI_REPOSITORY_URL}" "refs/tags/${DEPLOY_TAG}" >/dev/null 2>&1; then
-        echo "Git tag ${DEPLOY_TAG} already exists"
+      set -e
+      LATEST=$(git tag -l 'v0.0.*' --sort=-v:refname | head -n 1)
+      if [ -z "$LATEST" ]; then
+        NEXT="v0.0.1"
+      else
+        PATCH="${LATEST#v0.0.}"
+        NEXT="v0.0.$((PATCH + 1))"
+      fi
+      echo "Creating git tag ${NEXT} (previous ${LATEST:-none})"
+      if git ls-remote --exit-code --tags "${CI_REPOSITORY_URL}" "refs/tags/${NEXT}" >/dev/null 2>&1; then
+        echo "Git tag ${NEXT} already exists"
         exit 0
       fi
-      git tag "${DEPLOY_TAG}" "${CI_COMMIT_SHA}"
-      git push -o ci.skip "${CI_REPOSITORY_URL}" "refs/tags/${DEPLOY_TAG}"
+      git tag "${NEXT}" "${CI_COMMIT_SHA}"
+      git push -o ci.skip "${CI_REPOSITORY_URL}" "refs/tags/${NEXT}"
   tags:
     - swarm
     - grand206

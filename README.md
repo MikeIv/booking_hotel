@@ -4,9 +4,9 @@
 
 **Develop:** `git push origin develop` — CI выкатывает стенд https://ukraina-web.grandfs-develop.ru.
 
-**Production:** `git push origin master` — CI собирает Docker-образ `prod-<short-sha>`, деплоит `ukraina-prod` (http://booking.ukraina-hotel.ru) и ставит git-tag с тем же именем. Ручные `v0.0.x` больше не нужны.
+**Production:** `git push origin master` — CI собирает Docker-образ `prod-<short-sha>`, деплоит `ukraina-prod` (http://booking.ukraina-hotel.ru) и ставит git-tag `v0.0.N` (следующий после последнего `v0.0.*`). Ручные теги больше не нужны.
 
-Пайплайн на git-tag не запускается: тег — только метка релиза, повторного деплоя нет.
+Пайплайн на git-tag не запускается: тег — только метка релиза, повторного деплоя нет. Теги `v*` защищены правилом Protected tags.
 
 ```bash
 # dev
@@ -18,7 +18,7 @@ git merge develop
 git push origin master
 ```
 
-После успешного prod-деплоя в репозитории появится тег `prod-<short-sha>` (тот же, что у образа в registry). Плавающий тег образа `:prod` указывает на последнюю выкатку.
+После успешного prod-деплоя в репозитории появится тег `v0.0.N`. Образ в registry — `prod-<short-sha>`, плавающий `:prod` указывает на последнюю выкатку.
 
 Веб-приложение бронирования на базе Nuxt 4 (отдельная копия кодовой базы Varvarka для второго отеля). Поведение и API на этапе ввода совпадают с исходником; отличия — через `NUXT_PUBLIC_API_BASE`, домены `@nuxt/image` и контент/брендинг в приложении.
 
