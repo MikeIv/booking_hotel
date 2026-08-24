@@ -25,9 +25,8 @@ const emit = defineEmits<{
     <Button
       v-if="!isSingleRoom"
       type="button"
-      :class="$style.roomButton"
-      class="btn__bs dark round"
       unstyled
+      :class="$style.roomButton"
       :aria-expanded="isExpanded"
       @click="emit('toggle')"
     >
@@ -47,10 +46,7 @@ const emit = defineEmits<{
     <Transition name="fade">
       <div
         v-if="isSingleRoom || isExpanded"
-        :class="[
-          $style.roomDetails,
-          services.length === 0 ? $style.roomDetails_noServices : undefined,
-        ]"
+        :class="$style.roomDetails"
       >
         <div :class="$style.roomCategoryRow">
           <span :class="$style.roomType">{{ entry.roomTitle }}</span>
@@ -58,9 +54,8 @@ const emit = defineEmits<{
             {{ formatPrice(toStayTotal(entry.price, nights)) }} ₽
           </span>
         </div>
-        <div :class="$style.roomDivider" />
         <div :class="$style.roomTariff">{{ entry.title }}</div>
-        <div :class="$style.roomDivider" />
+        <div v-if="guestLines.length > 0" :class="$style.roomDivider" />
         <div
           v-for="(line, idx) in guestLines"
           :key="idx"
@@ -101,10 +96,13 @@ const emit = defineEmits<{
             </div>
           </div>
         </template>
-        <div v-if="!isSingleRoom" :class="$style.roomTotal">
-          <span>Итого за Номер {{ entry.roomIdx + 1 }}:</span>
-          <strong>{{ formatPrice(roomTotal) }} ₽</strong>
-        </div>
+        <template v-if="!isSingleRoom">
+          <div :class="$style.roomDivider" />
+          <div :class="$style.roomTotal">
+            <span>Итого за номер {{ entry.roomIdx + 1 }}:</span>
+            <strong>{{ formatPrice(roomTotal) }} ₽</strong>
+          </div>
+        </template>
       </div>
     </Transition>
   </div>
@@ -116,17 +114,29 @@ const emit = defineEmits<{
   .pageSummaryItem {
     display: flex;
     flex-direction: column;
-    gap: rem(8);
-    padding: rem(12) 0;
+    gap: var(--a-space-2);
   }
 
   .roomButton {
     display: flex;
     align-items: center;
-    gap: rem(8);
-    padding: 0 rem(20);
+    gap: var(--a-space-1);
+    padding: 0 var(--a-space-3);
     width: 100%;
-    height: rem(49);
+    height: rem(50);
+    border: none;
+    border-radius: var(--a-borderR--pill);
+    background-color: var(--a-primaryBg);
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      background-color: var(--a-blackBg);
+    }
+
+    &:focus-visible {
+      outline: rem(2) solid var(--a-border-primary);
+      outline-offset: rem(2);
+    }
   }
 
   .roomButtonText {
@@ -161,23 +171,19 @@ const emit = defineEmits<{
   .roomDetails {
     display: flex;
     flex-direction: column;
-    gap: rem(12);
-    padding: rem(16);
-  }
-
-  .roomDetails_noServices {
-    padding-bottom: 0;
+    gap: var(--a-space-2);
   }
 
   .roomCategoryRow {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    gap: rem(12);
+    gap: var(--a-space-2);
   }
 
   .roomType {
     flex: 1;
+    min-width: 0;
     @include typo.typo-h3;
     color: var(--a-text-dark);
   }
@@ -191,13 +197,13 @@ const emit = defineEmits<{
 
   .roomTariff {
     @include typo.typo-body-lg;
-    font-weight: 600;
+    font-weight: 700;
     color: var(--a-text-dark);
   }
 
   .roomDivider {
     width: 100%;
-    height: rem(1);
+    height: 1px;
     background-color: var(--a-border-dark);
   }
 
@@ -211,21 +217,19 @@ const emit = defineEmits<{
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: rem(12);
-    @include typo.typo-body-lg;
-    font-weight: 600;
+    gap: var(--a-space-2);
+    @include typo.typo-h3;
     color: var(--a-text-dark);
   }
 
   .roomTotal strong {
-    @include typo.typo-body-lg;
-    font-weight: 600;
+    @include typo.typo-h2;
   }
 
   .servicesSection {
     display: flex;
     flex-direction: column;
-    gap: rem(12);
+    gap: var(--a-space-2);
   }
 
   .servicesHeader {
@@ -237,15 +241,15 @@ const emit = defineEmits<{
   .servicesList {
     display: flex;
     flex-direction: column;
-    gap: rem(8);
+    gap: var(--a-space-1);
   }
 
   .serviceItem {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: rem(12);
-    padding: rem(8) 0;
+    gap: var(--a-space-2);
+    padding: var(--a-space-1) 0;
   }
 
   .serviceTitle {
@@ -258,7 +262,7 @@ const emit = defineEmits<{
   .serviceActions {
     display: flex;
     align-items: center;
-    gap: rem(12);
+    gap: var(--a-space-2);
   }
 
   .servicePrice {

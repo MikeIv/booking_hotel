@@ -118,6 +118,9 @@ watch(
     if (length === 1) {
       expandedRooms.value[roomEntries.value[0]?.roomIdx] = true;
     }
+    if (length > 0) {
+      isDatesDetailsOpen.value = true;
+    }
   },
   { immediate: true },
 );
@@ -141,6 +144,7 @@ const handleRemoveService = (roomIdx: number, serviceId: number) => {
         v-model:open="isDatesDetailsOpen"
         :date="date"
         :nights="nights"
+        :show-toggle="hasRoomEntries"
       />
 
       <div v-if="hasRoomEntries" :class="$style.pageSummaryList">
@@ -168,12 +172,13 @@ const handleRemoveService = (roomIdx: number, serviceId: number) => {
         <strong>{{ formatPrice(bookingTotal) }} ₽</strong>
       </div>
       <div v-if="isContinueVisible" :class="$style.pageSummaryFooter">
-        <Button
+        <UiButton
           unstyled
           :class="$style.pageContinueButton"
           @click="handleContinue"
-          >Продолжить</Button
         >
+          Продолжить
+        </UiButton>
       </div>
     </div>
   </aside>
@@ -190,9 +195,9 @@ const handleRemoveService = (roomIdx: number, serviceId: number) => {
     left: 0;
     right: 0;
     bottom: 0;
-    width: calc(100% - #{rem(40)});
+    width: calc(100% - var(--a-space-6));
     max-width: 100%;
-    margin: 0 rem(20);
+    margin: 0 var(--a-space-3);
     padding: 0;
     background: var(--a-whiteBg);
     box-shadow: var(--a-shadow-summary);
@@ -217,46 +222,40 @@ const handleRemoveService = (roomIdx: number, serviceId: number) => {
     background: var(--a-whiteBg);
     box-shadow: none;
     border-radius: var(--a-borderR--dialog) var(--a-borderR--dialog) 0 0;
-    padding: rem(30) rem(30) rem(16);
+    padding: var(--a-space-3) var(--a-space-4);
 
     @media (min-width: #{size.$desktopMin}) {
       position: sticky;
-      top: calc(var(--header-height, #{rem(95)}) + #{rem(20)});
-      box-shadow: var(--a-shadow-summary-inner);
+      top: calc(var(--header-height, #{rem(96)}) + var(--a-space-3));
+      box-shadow: var(--a-shadow-summary);
       border-radius: var(--a-borderR--card);
-      padding: rem(16);
+      padding: var(--a-space-3);
     }
   }
 
   .pageSummaryList {
-    display: flex;
+    display: none;
     flex-direction: column;
-    gap: rem(10);
-
-    @media (max-width: calc(#{size.$desktopMin} - #{rem(1)})) {
-      display: none;
-    }
+    gap: var(--a-space-3);
   }
 
   .pageSummaryInner_expanded .pageSummaryList {
-    @media (max-width: calc(#{size.$desktopMin} - #{rem(1)})) {
-      display: flex;
-    }
+    display: flex;
   }
 
   .pageSummaryDivider {
     width: 100%;
-    height: rem(1);
+    height: 1px;
     background-color: var(--a-border-dark);
-    margin: rem(12) 0;
+    margin: var(--a-space-2) 0;
   }
 
   .pageSummaryGrandTotal {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: rem(12);
-    margin-bottom: rem(12);
+    gap: var(--a-space-2);
+    margin-bottom: var(--a-space-3);
     @include typo.typo-h3;
     color: var(--a-text-dark);
   }
@@ -269,24 +268,36 @@ const handleRemoveService = (roomIdx: number, serviceId: number) => {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: rem(12);
-    flex-wrap: wrap;
   }
 
   .pageContinueButton {
     box-sizing: border-box;
-    flex: 0 0 rem(275);
-    width: rem(275);
-    height: rem(67);
-    padding: 0;
-    border: none;
-    border-radius: var(--a-borderR--x20);
-    background-color: var(--a-blackBg);
-    color: var(--a-white);
-    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    @include typo.typo-body-lg;
+    flex: 0 0 rem(276);
+    width: rem(276);
+    max-width: 100%;
+    min-height: rem(68);
+    height: rem(68);
+    padding: 0;
+    border: none;
+    border-radius: var(--a-borderR--booking-module);
+    background-color: var(--a-primaryBg);
+    color: var(--a-white);
+    font-family: var(--a-font-body);
+    font-size: rem(24);
+    font-weight: 400;
+    line-height: 1;
+    cursor: pointer;
+
+    &:hover:not(:disabled) {
+      background-color: var(--a-blackBg);
+    }
+
+    &:focus-visible {
+      outline: rem(2) solid var(--a-border-primary);
+      outline-offset: rem(2);
+    }
   }
 </style>

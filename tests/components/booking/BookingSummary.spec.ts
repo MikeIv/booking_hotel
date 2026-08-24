@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { ref } from "vue";
 import BookingSummary from "~/components/booking/BookingSummary.vue";
+import BookingSummaryDatesSection from "~/components/booking/summary/BookingSummaryDatesSection.vue";
 import { setupPinia, mountComponent } from "../../utils/test-utils";
 import type { SelectedEntry } from "~/types/booking";
 
@@ -72,6 +73,12 @@ describe("BookingSummary.vue", () => {
     expect(wrapper.text()).toContain("Базовый тариф");
   });
 
+  it("показывает стандартное время заезда и выезда", () => {
+    const wrapper = mountSummary();
+    expect(wrapper.text()).toContain("с 15:00");
+    expect(wrapper.text()).toContain("до 11:00");
+  });
+
   it("показывает CTA Продолжить и эмитит continue", async () => {
     const wrapper = mountSummary();
     const buttons = wrapper.findAll("button");
@@ -87,5 +94,19 @@ describe("BookingSummary.vue", () => {
       .findAll("button")
       .find((b) => b.text().includes("Продолжить"));
     expect(continueBtn).toBeUndefined();
+  });
+
+  it("показывает кнопку состава бронирования, если номер выбран", () => {
+    const wrapper = mountSummary();
+    const dates = wrapper.findComponent(BookingSummaryDatesSection);
+    expect(dates.props("showToggle")).toBe(true);
+    expect(dates.props("open")).toBe(true);
+  });
+
+  it("скрывает кнопку состава бронирования, если номер не выбран", () => {
+    const wrapper = mountSummary({ selectedEntries: {} });
+    expect(
+      wrapper.findComponent(BookingSummaryDatesSection).props("showToggle"),
+    ).toBe(false);
   });
 });

@@ -38,15 +38,20 @@
 
 <style module lang="scss">
   .infoButton {
-    flex-shrink: 0;
-    flex-grow: 0;
+    line-height: 0;
+
+    :global(span) {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 0;
+    }
   }
 
   .icon {
     display: block;
     width: rem(26);
     height: rem(26);
-    color: currentColor;
-    transform: translateY(rem(2));
+    color: currentcolor;
   }
 </style>
