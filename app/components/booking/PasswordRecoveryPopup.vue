@@ -135,24 +135,22 @@ defineExpose({ resetForm });
 
     <template #footer>
       <div :class="$style.footerRow">
-        <Button
+        <UiButton
           v-if="isSuccess"
           label="Назад к входу"
-          :class="$style.btnGrow"
+          variant="dark"
           @click="emit('switch-to-login')"
         />
         <template v-else>
-          <Button
+          <UiButton
             label="Восстановить"
-            :class="$style.btnGrow"
+            variant="dark"
             :loading="loading"
-            :disabled="loading"
             @click="handleRecovery"
           />
-          <Button
+          <UiButton
             label="Назад к входу"
-            severity="secondary"
-            :class="$style.btnGrow"
+            variant="ghost"
             @click="emit('switch-to-login')"
           />
         </template>
@@ -202,9 +200,9 @@ defineExpose({ resetForm });
     display: flex;
     gap: rem(8);
     width: 100%;
-  }
 
-  .btnGrow {
-    flex: 1;
+    > * {
+      flex: 1;
+    }
   }
 </style>

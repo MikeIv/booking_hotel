@@ -65,28 +65,37 @@ const label = computed(() => childAgeLabel(props.totalChildren, props.childIndex
 }
 
 .ageSelect {
-  display: flex;
-  align-items: center;
-  width: rem(120);
-  height: rem(36);
-  padding: 0 var(--ds-space-200);
-  font-size: var(--ds-typo-size-h3);
-  line-height: var(--ds-typo-line-select);
-  font-family: var(--a-font-body);
-  color: var(--a-text-dark);
-  background-color: var(--a-whiteBg);
-  border: rem(1) solid var(--a-border-primary);
-  border-radius: var(--a-borderR--input);
-  cursor: pointer;
-  transition: border-color 0.3s ease;
-
-  @media (min-width: #{size.$desktopMin}) {
-    width: rem(148);
-  }
-
-  &:focus {
+  &:global(.p-select) {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    width: rem(120);
+    height: rem(36);
+    padding: 0 var(--ds-space-200);
+    font-size: var(--ds-typo-size-h3);
+    line-height: var(--ds-typo-line-select);
+    font-family: var(--a-font-body);
+    color: var(--a-text-dark);
+    background-color: var(--a-whiteBg);
+    border: rem(1) solid var(--a-border-primary);
+    border-radius: var(--a-borderR--select);
     outline: none;
-    border-color: var(--a-accentBg);
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+
+    @media (min-width: #{size.$desktopMin}) {
+      width: rem(148);
+    }
+
+    &:hover {
+      border-color: var(--a-border-primary);
+    }
+
+    &:focus,
+    &:global(.p-focus) {
+      outline: none;
+      border-color: var(--a-accentBg);
+    }
   }
 
   :global(.p-select-label) {

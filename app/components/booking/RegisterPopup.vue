@@ -315,13 +315,10 @@
 
     <template #footer>
       <div :class="$style.btnGroup">
-        <Button
+        <UiButton
           label="Зарегистрироваться"
-          severity="secondary"
           variant="dark"
-          :class="$style.button"
           :loading="loading"
-          :disabled="loading"
           @click="handleRegister"
         />
       </div>
@@ -507,25 +504,9 @@
     width: 100%;
     margin-top: rem(24);
     gap: rem(12);
-  }
 
-  .button {
-    flex: 1;
-    height: rem(48);
-    padding: 0 rem(16);
-    border: rem(1) solid transparent;
-    border-radius: var(--a-borderR--input);
-    font-size: rem(16);
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    &:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
+    > * {
+      flex: 1;
     }
   }
 
