@@ -12,7 +12,6 @@
     authDialogType,
     recoveryEmail,
     showMyBookingPopup,
-    hasUnauthenticatedBooking,
     showMyBookingDialog,
     hideMyBookingDialog,
     handleMyBookingLoginSuccess,
@@ -140,7 +139,7 @@
 
       <div :class="$style.buttonsGroup">
         <Button
-          v-if="!authStore.isAuthenticated && hasUnauthenticatedBooking"
+          v-if="!authStore.isAuthenticated"
           :class="[$style.headerButton, $style.headerButtonWide]"
           unstyled
           @click="showMyBookingDialog"

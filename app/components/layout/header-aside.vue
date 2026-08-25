@@ -3,6 +3,13 @@
 
   import LayoutAuthSection from "~/components/layout/LayoutAuthSection.vue";
 
+  const props = withDefaults(
+    defineProps<{
+      variant?: "solid" | "overlay";
+    }>(),
+    { variant: "solid" },
+  );
+
   const { locale, setLocale } = useI18n();
   const router = useRouter();
 
@@ -11,7 +18,6 @@
     authDialogType,
     recoveryEmail,
     showMyBookingPopup,
-    hasUnauthenticatedBooking,
     showMyBookingDialog,
     hideMyBookingDialog,
     handleMyBookingLoginSuccess,
@@ -66,6 +72,16 @@
   };
 
   const localeLabel = computed(() => (locale.value === "ru" ? "Рус" : "Eng"));
+  const isOverlay = computed(() => props.variant === "overlay");
+  const isScrolled = ref(false);
+
+  const updateScroll = () => {
+    if (!isOverlay.value) {
+      isScrolled.value = false;
+      return;
+    }
+    isScrolled.value = window.scrollY > 48;
+  };
 
   // --- Search ---
   const isSearchOpen = ref(false);
@@ -106,6 +122,11 @@
     if (typeof document !== "undefined") {
       document.addEventListener("click", closeDropdownsOnClickOutside);
     }
+
+    if (isOverlay.value) {
+      updateScroll();
+      window.addEventListener("scroll", updateScroll, { passive: true });
+    }
   });
 
   onUnmounted(() => {
@@ -114,11 +135,17 @@
     if (typeof document !== "undefined") {
       document.removeEventListener("click", closeDropdownsOnClickOutside);
     }
+    if (typeof window !== "undefined") {
+      window.removeEventListener("scroll", updateScroll);
+    }
   });
 </script>
 
 <template>
-  <aside ref="asideRef" :class="$style.aside">
+  <aside
+    ref="asideRef"
+    :class="[$style.aside, isOverlay && !isScrolled && $style.overlay]"
+  >
     <div :class="$style.wrapper">
       <!-- Бургер (скрыт на ≥$desktop) -->
       <button
@@ -153,7 +180,7 @@
       <!-- Кнопки: Моё бронирование + Войти / Личный кабинет -->
       <div :class="$style.buttonsGroup">
         <Button
-          v-if="!authStore.isAuthenticated && hasUnauthenticatedBooking"
+          v-if="!authStore.isAuthenticated"
           :class="[$style.headerButton, $style.headerButtonWide]"
           unstyled
           @click="showMyBookingDialog"
@@ -423,6 +450,7 @@
     @media (min-width: #{size.$desktop}) {
       display: flex;
       align-items: center;
+      min-height: rem(44);
       gap: var(--ds-space-500);
       grid-row: 1;
       grid-column: 2;
@@ -517,6 +545,7 @@
   .utilityGroup {
     display: flex;
     align-items: center;
+    min-height: rem(44);
     gap: var(--ds-space-200);
     grid-row: 1;
     grid-column: 3;
@@ -700,6 +729,57 @@
   .searchCloseIcon {
     width: rem(20);
     height: rem(20);
+  }
+
+  /* =====================
+     OVERLAY (главная поверх героя)
+  ===================== */
+  .overlay {
+    background-color: transparent;
+
+    @media (max-width: #{size.$desktopMin - 1px}) {
+      background-color: color-mix(in srgb, var(--a-black) 40%, transparent);
+    }
+
+    .burgerBtn,
+    .searchBtn,
+    .navLink,
+    .langPill {
+      color: var(--a-white);
+    }
+
+    .burgerBtn:hover,
+    .searchBtn:hover {
+      color: var(--a-white);
+      opacity: 0.75;
+    }
+
+    .navLink:hover {
+      color: var(--a-white);
+    }
+
+    .logo :global(path),
+    .logo :global(rect),
+    .logo :global(polygon) {
+      fill: var(--a-white);
+    }
+
+    .logoBtn:focus-visible {
+      outline-color: var(--a-white);
+    }
+
+    .headerButton {
+      border-color: transparent;
+    }
+
+    .langPill {
+      border-color: var(--a-white);
+
+      &:hover {
+        border-color: var(--a-white);
+        color: var(--a-white);
+      }
+    }
   }
 </style>
 

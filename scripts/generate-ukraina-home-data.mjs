@@ -354,10 +354,8 @@ const extractData = (homeMarkupRaw, homeCssRaw) => {
 @font-face{font-family:GothaProMed;src:url("/fonts/ukraina/GothaProMed.woff") format("woff");font-style:normal;font-weight:500;font-display:swap;}
 @font-face{font-family:GothaProBol;src:url("/fonts/ukraina/GothaProBol.woff") format("woff");font-style:normal;font-weight:700;font-display:swap;}
 @font-face{font-family:GothaProBla;src:url("/fonts/ukraina/GothaProBla.woff") format("woff");font-style:normal;font-weight:900;font-display:swap;}
-#header,#header .menu a,#header .header__block,#header .language-select,#header #lang-curr,#header #lang-curr .selected-lang,#header #lang-curr .lang_li,#header #lang-list .lang_li,#header #lang-list a{font-family:GothaProReg,Arial,Helvetica,sans-serif;font-style:normal;font-weight:400;}
 #header h1{font-family:GothaProBol,Arial,Helvetica,sans-serif;}
-#lang-curr .icon-down-open-big{display:inline-block;width:0;height:0;margin-left:6px;vertical-align:middle;border-left:4px solid transparent;border-right:4px solid transparent;border-top:5px solid #fff;font-size:0;line-height:0;}
-#lang-curr .icon-down-open-big:before{content:none !important;}
+#topbar,.burger,nav.hamburger,#header > .header__logo,#header > .header__block,#header > .menu{display:none;}
 /* fallback for shadow fragments without legacy slick JS */
 .slick-slide,.slick-slide img{display:block;}
 `;

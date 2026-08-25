@@ -21,7 +21,7 @@
 
 <template>
   <div :class="$style.main">
-    <MainUkrainaHtmlFragment
+    <MainUkrainaHomeHero
       :html="UKRAINA_HOME_DATA.homeMarkupBeforeBooking"
       :css-text="UKRAINA_HOME_DATA.homeCss"
     />

@@ -3,8 +3,7 @@ import type { Meta, StoryObj } from "@nuxtjs/storybook";
 import LayoutHeaderAside from "~/components/layout/header-aside.vue";
 
 /**
- * Хэдер внутренних страниц сайта.
- * Отображается на всех страницах кроме главной (main layout).
+ * Хэдер сайта.
  *
  * Figma: https://www.figma.com/design/SN6tow6sTWtt6ITX3io7ss/Bronirovanie-R%D0%B0disson-Collection?node-id=4585-1652&m=dev
  *
@@ -48,8 +47,8 @@ const meta = {
     docs: {
       description: {
         component:
-          "Хэдер внутренних страниц. Используется в лейаутах `default` и `steps`. " +
-          "Главная страница использует отдельный `LayoutAside` (без изменений).",
+          "Адаптивный хедер сайта. Лейауты `default` и `steps` используют вариант `solid`. " +
+          "Главная — вариант `overlay` поверх героя.",
       },
     },
   },
@@ -118,4 +117,22 @@ export const Mobile430: Story = {
   parameters: {
     viewport: { defaultViewport: "figmaMobile430" },
   },
+};
+
+/**
+ * Главная: прозрачный хедер поверх тёмного героя.
+ */
+export const OverlayDesktop1920: Story = {
+  name: "Overlay — главная 1920px",
+  parameters: {
+    viewport: { defaultViewport: "figmaDesktop1920" },
+  },
+  render: () => ({
+    components: { LayoutHeaderAside },
+    template: `
+      <div style="min-height: 240px; background: var(--ds-neutral-900, #000);">
+        <LayoutHeaderAside variant="overlay" />
+      </div>
+    `,
+  }),
 };
