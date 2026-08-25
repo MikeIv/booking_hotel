@@ -28,9 +28,10 @@ const label = computed(() => childAgeLabel(props.totalChildren, props.childIndex
         option-value="value"
         placeholder="Возраст"
         :pt="{
-          root: { class: $style.ageSelect },
+          overlay: { class: 'child-age-select-overlay' },
+          panel: { class: 'child-age-select-overlay' },
+          option: { class: $style.ageOption },
           item: { class: $style.ageOption },
-          panel: { class: $style.selectPanel },
         }"
         @update:model-value="emit('update:modelValue', $event)"
       />
@@ -49,48 +50,35 @@ const label = computed(() => childAgeLabel(props.totalChildren, props.childIndex
 
 .name {
   font-family: var(--a-font-body);
-  font-size: rem(18);
+  font-size: var(--ds-typo-size-body-lg);
   color: var(--a-text-dark);
   text-wrap: wrap;
 
   @media (min-width: #{size.$desktopMin}) {
-    font-size: rem(22);
+    font-size: var(--ds-typo-size-h3);
   }
 }
 
 .selectBlock {
   display: flex;
   align-items: center;
-
-  :global {
-    .p-select {
-      display: flex;
-      align-items: center;
-      padding: 0 rem(16);
-      font-size: rem(16);
-      color: var(--a-text-dark);
-      background-color: var(--a-whiteBg);
-      border-radius: var(--a-borderR--input);
-      transition: border-color 0.3s ease;
-      border: rem(1) solid var(--a-border-primary);
-    }
-
-    .p-select-label.p-placeholder {
-      color: var(--a-text-light);
-    }
-  }
 }
 
 .ageSelect {
+  display: flex;
+  align-items: center;
   width: rem(120);
   height: rem(36);
-  font-size: rem(16);
+  padding: 0 var(--ds-space-200);
+  font-size: var(--ds-typo-size-h3);
+  line-height: var(--ds-typo-line-select);
   font-family: var(--a-font-body);
+  color: var(--a-text-dark);
   background-color: var(--a-whiteBg);
   border: rem(1) solid var(--a-border-primary);
   border-radius: var(--a-borderR--input);
-  color: var(--a-text-dark);
   cursor: pointer;
+  transition: border-color 0.3s ease;
 
   @media (min-width: #{size.$desktopMin}) {
     width: rem(148);
@@ -100,12 +88,30 @@ const label = computed(() => childAgeLabel(props.totalChildren, props.childIndex
     outline: none;
     border-color: var(--a-accentBg);
   }
+
+  :global(.p-select-label) {
+    font-size: inherit;
+    line-height: inherit;
+    font-family: inherit;
+  }
+
+  :global(.p-select-label.p-placeholder) {
+    color: var(--a-text-light);
+  }
 }
 
 .ageOption {
-  padding: rem(8);
-  font-family: var(--a-font-body);
-  font-size: rem(16);
+  padding: var(--ds-space-100);
 }
 </style>
 
+<style lang="scss">
+.child-age-select-overlay {
+  .p-select-list-container,
+  .p-select-option-label {
+    font-size: var(--ds-typo-size-h3);
+    line-height: var(--ds-typo-line-default);
+    font-family: var(--a-font-body);
+  }
+}
+</style>

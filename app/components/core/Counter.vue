@@ -126,9 +126,10 @@ const canIncrease = computed(() => props.modelValue < props.max && !props.disabl
   display: flex;
   justify-content: center;
   align-items: center;
-  width: rem(40);
-  height: rem(40);
-  font-size: rem(24);
+  width: var(--ds-space-500);
+  height: var(--ds-space-500);
+  font-size: var(--ds-typo-size-h3);
+  line-height: var(--ds-typo-line-tight);
   color: var(--a-black);
 }
 </style>
