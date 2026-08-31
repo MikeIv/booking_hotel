@@ -1,6 +1,6 @@
 ---
-description: Verify — проверка и критерии «готово» (Superpowers review)
-alwaysApply: true
+description: Verify, security (Nuxt/Nitro), code-review — чеклист «готово»
+alwaysApply: false
 ---
 
 # Verify: не объявлять готово без проверки
@@ -9,17 +9,36 @@ alwaysApply: true
 
 - [ ] Соответствует **brief** / плану
 - [ ] Пройдены проверки по **классу задачи** (таблица ниже)
-- [ ] Тесты прогнаны для scope изменений (`yarn test`)
-- [ ] Для UI — проверка в `yarn dev` (SPA `ssr: false`)
+- [ ] Тесты — по политике (ниже)
+- [ ] Для UI — проверка в `yarn dev` (SPA `ssr: false`); сверка с кадром Figma (MCP screenshot/context), если волна про макет
+- [ ] **Browser MCP** — не по умолчанию; класс **M**: lint/typecheck или «проверьте в dev»; browser — только если пользователь явно попросил
+- [ ] Security (ниже)
 - [ ] Нет секретов в diff (`.env`)
 - [ ] Нет отладочного мусора (`console.log`, `debugger`)
+
+## Тесты
+
+- **S/M** без новой бизнес-логики — не требуются
+- **M+** API/auth/booking logic — smoke или unit, если инфраструктура есть
+- **L+** — `yarn test` обязателен или явное «нет тестов, потому что…»
+
+## Security (Nuxt / Nitro)
+
+- [ ] секреты не в diff; `.env` не в git; ключи через `runtimeConfig`
+- [ ] `NUXT_PUBLIC_*` — только публичные ключи (`apiBase`)
+- [ ] `server/routes/*`: валидация body/query; ошибки без токенов и stack trace наружу
+- [ ] composables с HTTP: нормализация ответа; ошибки без токенов в UI
+- [ ] API-типы в `shared/types/`
+- [ ] `v-html` — санитизация
+- [ ] auth/booking-flow — по согласованию (`00`)
+- [ ] HTTP: `useApi`, не ручной `baseURL`
 
 ## Проверки по классу
 
 | Класс  | Минимум перед «готово»                                                        |
 | ------ | ----------------------------------------------------------------------------- |
 | **S**  | ReadLints или `yarn lint` по затронутым файлам                                |
-| **M**  | `yarn lint`; при изменении типов/API — typecheck (`nuxi typecheck` / vue-tsc) |
+| **M**  | `yarn lint` **один раз**; при изменении типов/API — typecheck (`nuxi typecheck` / vue-tsc); без browser MCP |
 | **L+** | `yarn lint` + `yarn test` + `yarn build`                                      |
 
 Не объявляй задачу выполненной, пока обязательные для класса проверки не пройдены (если агент может их запустить).

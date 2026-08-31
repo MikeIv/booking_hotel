@@ -1,23 +1,18 @@
 # Agent workflow — Booking_ukr
 
-Дисциплина работы Cursor Agent (GSD + Superpowers) + стек Nuxt Booking_ukr.
+Правила: `.cursor/rules/` и `.planning/` (локально, в gitignore) · Продукт: `90-project-context.mdc`, `.planning/PROJECT.md`.
 
-## Правила (`.cursor/rules/`)
+## Карта правил
 
-| Файл                        | Назначение                               |
-| --------------------------- | ---------------------------------------- |
-| `00-workflow-core`          | Классы S/M/L/XL, фазы, стоп-сигналы      |
-| `01-discuss-before-code`    | Уточнение до кода                        |
-| `02-planning-gsd`           | План, волны, `.planning/`                |
-| `03-execution-discipline`   | Минимальный diff, порядок работ          |
-| `04-verify-and-done`        | Lint, тесты, критерии «готово»           |
-| `05-context-hygiene`        | Узкий контекст, `state.md`               |
-| `06-fundamental-principles` | Мета-принципы                            |
-| `07-commit-messages`        | Формат git-коммитов (англ., без scope)   |
-| `90-project-context`        | Контекст этого репозитория               |
-| `nuxt-template`             | Nuxt 4, Vue, SCSS, API, Storybook, hotel |
-| `pinia-store-patterns`      | Pinia: persist, storeToRefs, ошибки      |
-| `figma`                     | Токены и округление из Figma             |
+| Правило                | Режим                                  | Назначение                                          |
+| ---------------------- | -------------------------------------- | --------------------------------------------------- |
+| `00`                   | **always**                             | GSD: классы, фазы, стоп, краткий Verify             |
+| `08`                   | **always**                             | Экономия токенов (чат + контекст + MCP)             |
+| `90`                   | **always**                             | Стек, команды, зоны, MCP                            |
+| `nuxt-template`        | **globs** `app/`, `server/`, `shared/` | TS, Vue, SCSS, API, Storybook, hotel                |
+| `figma`                | **globs** `app/**/*.vue,scss`, stories | Токены и округление из Figma                        |
+| `pinia-store-patterns` | **globs** `app/**/*.{ts,vue}`          | Pinia: persist, storeToRefs, ошибки                 |
+| `01`–`07`              | **requestable**                        | Discuss, Plan, Execute, Verify, Context, Principles, Commits |
 
 ## Планирование (`.planning/`)
 
@@ -27,13 +22,15 @@
 
 Рабочие `brief.md`, `plan.md`, `state.md` не коммитятся (см. `.gitignore`).
 
-## Пример запроса в чат
+## Промпт агенту
 
 ```text
-Класс M. Задача: доработать карточку тарифа — кнопка выбора.
-Done when: кнопка в UI, запись через action стора, yarn lint зелёный.
+Класс M. Задача: … Done when: …
+Figma: один node для get_design_context; остальные — screenshot. Browser MCP не использовать.
 ```
+
+Новая сессия L+: `@.planning/PROJECT.md` `@.planning/brief.md`
 
 ## Проверка перед коммитом
 
-`yarn lint` (+ `yarn test` по scope) — см. `04-verify-and-done.mdc` и `nuxt-template.mdc`. Коммит — только по явной просьбе; формат — `07-commit-messages.mdc`.
+`yarn lint` (+ `yarn test` по scope) — см. `04-verify-and-done.mdc`. Коммит — только по явной просьбе; формат — `07-commit-messages.mdc`.

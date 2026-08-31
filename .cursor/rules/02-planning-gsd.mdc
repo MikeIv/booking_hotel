@@ -1,6 +1,6 @@
 ---
-description: Plan — артефакты планирования и волны (GSD)
-alwaysApply: true
+description: Plan — .planning/, волны, порядок слоёв Nuxt (L/XL)
+alwaysApply: false
 ---
 
 # Plan: структура и артефакты

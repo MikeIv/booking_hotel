@@ -1,6 +1,6 @@
 ---
-description: Формат сообщений git-коммитов (Conventional Commits без scope)
-alwaysApply: true
+description: Формат git-коммитов (Conventional Commits без scope) — только при commit
+alwaysApply: false
 ---
 
 # Commit messages

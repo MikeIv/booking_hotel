@@ -1,6 +1,6 @@
 ---
-description: Execute — дисциплина реализации (Superpowers)
-alwaysApply: true
+description: Execute — дисциплина реализации, порядок слоёв, минимальный diff
+alwaysApply: false
 ---
 
 # Execute: как писать код

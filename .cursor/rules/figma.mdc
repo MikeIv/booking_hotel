@@ -1,6 +1,7 @@
 ---
 description: Figma → код — токены проекта и округление размеров
-alwaysApply: true
+globs: app/**/*.{vue,scss},app/components/storybook/**/*
+alwaysApply: false
 ---
 
 # Стили из Figma

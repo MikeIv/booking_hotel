@@ -1,6 +1,7 @@
 ---
-description: Стек Nuxt 4 Booking_ukr — TS, Vue SFC, стили, API, Storybook, hotel
-alwaysApply: true
+description: Nuxt 4.5 / Vue 3 — TS, SFC, SCSS, API, Storybook, hotel, линты
+globs: app/**/*.{ts,vue,scss},server/**/*.{ts,vue},shared/**/*.{ts,vue}
+alwaysApply: false
 ---
 
 # Nuxt — правила для агента

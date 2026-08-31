@@ -1,6 +1,6 @@
 ---
-description: Контекст — борьба с context rot (GSD)
-alwaysApply: true
+description: Гигиена контекста — узкий input, handoff через .planning/
+alwaysApply: false
 ---
 
 # Контекст: узко и по делу
@@ -33,3 +33,18 @@ alwaysApply: true
 - Фазы в `plan.md`
 - Начало сессии: прочитать `state.md`, назвать волну
 - Конец: обновить `state.md`
+
+## MCP
+
+Лимиты — `08-token-economy.mdc`.
+
+**Figma (вёрстка секции):**
+
+1. Skill `figma-design-to-code` — один раз
+2. **`get_design_context`** — один primary node (mobile-first)
+3. **`get_screenshot`** — tablet/desktop/UI-kit, если в промпте несколько URL
+4. Не параллелить несколько `get_design_context` — главный источник перерасхода токенов
+
+**Browser MCP** — только по явному запросу пользователя; не для Verify класса **M** (`04`).
+
+**Nuxt/context7** — точечный запрос; не `list-documentation-pages` без конкретного docs-path.

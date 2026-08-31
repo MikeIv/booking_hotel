@@ -58,12 +58,24 @@ yarn storybook
 
 ## Соглашения
 
-- Правила Nuxt/стилей: **`nuxt-template.mdc`**
-- Workflow GSD/Superpowers: **`00-workflow-core`** … **`06-fundamental-principles`**
+- **Always:** `00`, `08`, `90`
+- **Requestable:** `01`–`07` (подгружаются по фазе/задаче)
+- **Globs:** `nuxt-template`, `figma`, `pinia-store-patterns` — при правках matching-файлов
+- Стек Nuxt/стилей: **`nuxt-template.mdc`**
+- Workflow GSD: **`01`–`06`**
+- Экономия токенов: **`08-token-economy.mdc`**
 - Коммиты: **`07-commit-messages.mdc`**
 - Pinia: **`pinia-store-patterns.mdc`**
 - Figma: **`figma.mdc`**
 - `.cursor/` в git — только `rules/`
+
+## MCP
+
+- Доки библиотек → **context7**
+- Nuxt API / модули → **nuxt** MCP
+- Макет → **figma** MCP; перед вёрсткой: skill `figma-design-to-code` → **1×** `get_design_context` (primary node) + `get_screenshot` для остальных брейкпоинтов
+- Несколько URL/node-id в задаче — **не** вызывать `get_design_context` на каждый; лимиты — `08`
+- Код проекта → read/grep; широкий поиск → Task explore (не для точечных путей)
 
 ## Не трогать без согласования
 
