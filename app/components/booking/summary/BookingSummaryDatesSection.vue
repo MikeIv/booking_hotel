@@ -76,6 +76,7 @@ const toggle = () => emit("update:open", !props.open);
   .section {
     display: flex;
     flex-direction: column;
+    container-type: inline-size;
   }
 
   .pageSummaryHeader {
@@ -109,10 +110,7 @@ const toggle = () => emit("update:open", !props.open);
 
   .datesBlock {
     display: none;
-    grid-template-columns: minmax(0, 1fr) minmax(rem(64), rem(188)) minmax(
-        0,
-        1fr
-      );
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
     align-items: center;
     column-gap: var(--a-space-2);
     row-gap: var(--a-space-3);
@@ -152,7 +150,43 @@ const toggle = () => emit("update:open", !props.open);
     min-width: 0;
     @include typo.typo-body-md;
     color: var(--a-text-dark);
-    overflow-wrap: anywhere;
+  }
+
+  @container (max-width: 420px) {
+    .datesBlock {
+      grid-template-columns: 1fr 1fr;
+      row-gap: var(--a-space-2);
+    }
+
+    .detailIcon {
+      display: none;
+    }
+
+    .bookingDetailLabel:first-child {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .bookingDetailLabel.dayRight {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    .dayMeta:first-of-type {
+      grid-column: 1;
+      grid-row: 3;
+    }
+
+    .dayMeta.dayRight {
+      grid-column: 2;
+      grid-row: 3;
+    }
+
+    .weekday {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      justify-self: center;
+    }
   }
 
   .dayRight {
@@ -166,7 +200,7 @@ const toggle = () => emit("update:open", !props.open);
     justify-content: center;
     justify-self: center;
     box-sizing: border-box;
-    width: 100%;
+    width: auto;
     max-width: rem(162);
     height: rem(24);
     padding: rem(4) var(--a-space-2);

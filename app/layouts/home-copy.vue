@@ -28,6 +28,7 @@
 <style lang="scss">
   body.home-copy-body {
     margin: 0;
+    overflow-x: clip;
     font-family: GothaProReg, Arial, Helvetica, sans-serif;
   }
 </style>

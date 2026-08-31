@@ -108,5 +108,15 @@
 </script>
 
 <template>
-  <div ref="host" />
+  <div ref="host" :class="$style.host" />
 </template>
+
+<style module lang="scss">
+  .host {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: clip;
+  }
+</style>

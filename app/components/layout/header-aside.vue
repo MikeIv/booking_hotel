@@ -313,6 +313,8 @@
     top: 0;
     left: 0;
     width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
     background-color: var(--a-whiteBg);
     z-index: z.z("header");
   }
@@ -336,14 +338,22 @@
     column-gap: var(--ds-space-200);
     row-gap: var(--ds-space-200);
 
-    /* medium desktop: 1024–1641px — одна строка */
+    /* medium desktop: 1024–1329px — две строки, кнопки под логотипом */
     @media (min-width: #{size.$desktopMin}) {
+      grid-template-rows: rem(94) auto;
+      min-height: rem(150);
+      row-gap: var(--ds-space-200);
+      align-content: start;
+      padding: 0 var(--ds-space-300);
+    }
+
+    /* ≥1330px — одна строка, кнопки справа от логотипа */
+    @media (min-width: #{size.$headerDesktopMin}) {
       grid-template-columns: auto 1fr auto auto;
       grid-template-rows: rem(94);
       min-height: rem(94);
       row-gap: 0;
       align-content: center;
-      padding: 0 var(--ds-space-300);
     }
 
     /* large desktop: ≥1642px — одна строка с навигацией */
@@ -404,6 +414,10 @@
     border: none;
 
     @media (min-width: #{size.$desktopMin}) {
+      top: rem(47);
+    }
+
+    @media (min-width: #{size.$headerDesktopMin}) {
       top: 50%;
     }
 
@@ -495,11 +509,13 @@
     gap: var(--ds-space-200);
     align-items: center;
     justify-content: center;
+    max-width: 100%;
+    min-width: 0;
     /* мобайл/планшет: вторая строка на всю ширину */
     grid-row: 2;
     grid-column: 1 / -1;
 
-    @media (min-width: #{size.$desktopMin}) {
+    @media (min-width: #{size.$headerDesktopMin}) {
       grid-row: 1;
       grid-column: 3;
       justify-self: end;
@@ -539,6 +555,20 @@
     min-width: rem(150);
   }
 
+  /* Узкие экраны (~S24, 360px): min-width кнопок шире контента → горизонтальный скролл в части моб. браузеров */
+  @media (max-width: 480px) {
+    .headerButtonWide,
+    .headerButtonNarrow {
+      min-width: 0;
+      flex: 1 1 0;
+    }
+
+    .headerButton {
+      padding-inline: var(--ds-space-200);
+      font-size: var(--ds-typo-size-body-md);
+    }
+  }
+
   /* =====================
      ГРУППА УТИЛИТ (Поиск + Язык)
   ===================== */
@@ -551,7 +581,7 @@
     grid-column: 3;
     justify-self: end;
 
-    @media (min-width: #{size.$desktopMin}) {
+    @media (min-width: #{size.$headerDesktopMin}) {
       grid-column: 4;
       gap: var(--ds-space-300);
     }
@@ -581,6 +611,7 @@
   .searchIcon {
     width: rem(35);
     height: rem(35);
+    color: inherit;
   }
 
   /* =====================

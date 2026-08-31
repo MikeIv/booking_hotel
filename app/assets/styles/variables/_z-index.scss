@@ -1,5 +1,6 @@
 @use "sass:map";
 
+$z-header: 3000;
 $z-index: (
   modal: (
     overlay: 5100,
@@ -7,9 +8,10 @@ $z-index: (
     nav-menu: 1000,
   ),
   dropdown: 4000,
-  header: 3000,
+  header: $z-header,
   booking-label: 11,
-  booking-summary: 1100,
+  booking-summary: $z-header + 100,
+  // mobile fixed panel above header
   intro: 10,
   default: 1,
   behind: -1,
