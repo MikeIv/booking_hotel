@@ -4,7 +4,9 @@
 
 **Develop:** `git push origin develop` — CI выкатывает стенд https://ukraina-web.grandfs-develop.ru.
 
-**Production:** `git push origin master` — CI собирает Docker-образ `prod-<short-sha>`, деплоит `ukraina-prod` (http://booking.ukraina-hotel.ru) и ставит git-tag `v0.0.N` (следующий после последнего `v0.0.*`). Ручные теги больше не нужны.
+**Production:** `git push origin master` — CI собирает Docker-образ `prod-<short-sha>`, деплоит `ukraina-prod` (https://booking.ukraina-hotel.ru) и ставит git-tag `v0.0.N` (следующий после последнего `v0.0.*`). Ручные теги больше не нужны.
+
+Со старого сайта `ukraina-hotel.ru` форма бронирования редиректит на production с query-параметрами `check_in`, `check_out`, `adults`, `children` — главная предзаполняет поиск номеров без автозапуска.
 
 Пайплайн на git-tag не запускается: тег — только метка релиза, повторного деплоя нет. Теги `v*` защищены правилом Protected tags.
 
