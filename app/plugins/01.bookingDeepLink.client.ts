@@ -1,34 +1,48 @@
 import {
   applyBookingDeepLinkPayload,
+  getRouteQueryWithLocationFallback,
   hasBookingDeepLinkParams,
   omitBookingDeepLinkQuery,
   parseBookingDeepLink,
 } from "~/utils/bookingDeepLink";
+import { useBookingSearchSubmit } from "~/composables/useBookingSearchSubmit";
+import { useBookingStore } from "~/stores/booking";
 
 /**
  * Редирект со старого ukraina-hotel.ru: query → store → автопоиск номеров.
  */
-export default defineNuxtPlugin(async () => {
-  const route = useRoute();
-  const router = useRouter();
+export default defineNuxtPlugin({
+  name: "booking-deep-link",
+  dependsOn: ["pinia-plugin-persistedstate"],
+  async setup() {
+    const router = useRouter();
+    await router.isReady();
 
-  if (!hasBookingDeepLinkParams(route.query)) return;
+    const route = useRoute();
+    const query = getRouteQueryWithLocationFallback(route.query);
 
-  const payload = parseBookingDeepLink(route.query);
-  const shouldAutoSearch = Boolean(payload && route.path === "/");
+    if (!hasBookingDeepLinkParams(query)) return;
 
-  if (payload) {
-    applyBookingDeepLinkPayload(useBookingStore(), payload);
-  }
+    const payload = parseBookingDeepLink(query);
+    const shouldAutoSearch = Boolean(payload && route.path === "/");
 
-  await router.replace({
-    path: route.path,
-    hash: route.hash || undefined,
-    query: omitBookingDeepLinkQuery(route.query),
-  });
+    await router.replace({
+      path: route.path,
+      hash: route.hash || undefined,
+      query: omitBookingDeepLinkQuery(query),
+    });
 
-  if (!shouldAutoSearch) return;
+    if (!payload) return;
 
-  const { submitBookingSearch } = useBookingSearchSubmit();
-  await submitBookingSearch();
+    // После replace: persist hydrate и booking.reset middleware уже отработали
+    await nextTick();
+
+    const bookingStore = useBookingStore();
+    applyBookingDeepLinkPayload(bookingStore, payload);
+
+    if (!shouldAutoSearch) return;
+
+    const { submitBookingSearch } = useBookingSearchSubmit();
+    await submitBookingSearch();
+  },
 });

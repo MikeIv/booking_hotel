@@ -1,3 +1,5 @@
+import { isBookingDeepLinkNavigation } from "~/utils/bookingDeepLink";
+
 /**
  * Глобальный middleware управления состоянием бронирования.
  *
@@ -8,6 +10,10 @@
  */
 export default defineNuxtRouteMiddleware((to, from) => {
   const bookingStore = useBookingStore();
+  const isDeepLinkNavigation = isBookingDeepLinkNavigation(
+    to.query,
+    from.query,
+  );
 
   // Сброс флагов загрузки на страницах вне флоу бронирования
   const nonBookingPages = [
@@ -24,14 +30,14 @@ export default defineNuxtRouteMiddleware((to, from) => {
   // При переходе на главную сбрасываем всё состояние бронирования.
   // from.path === "/" исключает повторный сброс при навигации внутри /
   let didReset = false;
-  if (to.path === "/" && from.path !== "/") {
+  if (to.path === "/" && from.path !== "/" && !isDeepLinkNavigation) {
     bookingStore.setLoading(false);
     bookingStore.setServerRequest(false);
     bookingStore.forceReset();
     didReset = true;
   }
 
-  if (!didReset && typeof window !== "undefined") {
+  if (!didReset && !isDeepLinkNavigation && typeof window !== "undefined") {
     const lastActivity = sessionStorage.getItem("last-activity");
     if (lastActivity && Date.now() - parseInt(lastActivity) > 30 * 60 * 1000) {
       bookingStore.forceReset();
