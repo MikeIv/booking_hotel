@@ -1,5 +1,31 @@
 ﻿<script setup lang="ts">
+  import {
+    BOOKING_DEEP_LINK_LOADING_MESSAGE,
+    BOOKING_DEEP_LINK_PENDING_KEY,
+    getRouteQueryWithLocationFallback,
+    shouldHoldDeepLinkSearchOverlay,
+  } from "~/utils/bookingDeepLink";
+
   const ready = useState<boolean>("app-initial-load-ready", () => false);
+  const deepLinkPending = useState<boolean>(
+    BOOKING_DEEP_LINK_PENDING_KEY,
+    () => false,
+  );
+  const route = useRoute();
+
+  if (
+    shouldHoldDeepLinkSearchOverlay(
+      getRouteQueryWithLocationFallback(route.query),
+      route.path,
+    )
+  ) {
+    deepLinkPending.value = true;
+  }
+
+  const visible = computed(() => !ready.value || deepLinkPending.value);
+  const label = computed(() =>
+    deepLinkPending.value ? BOOKING_DEEP_LINK_LOADING_MESSAGE : "Загрузка",
+  );
 
   onMounted(() => {
     nextTick(() => {
@@ -20,18 +46,18 @@
   <Teleport to="body">
     <Transition name="initial-loader-fade" mode="out-in">
       <div
-        v-show="!ready"
+        v-show="visible"
         :class="$style.overlay"
         role="status"
         aria-live="polite"
-        aria-label="Загрузка страницы"
+        :aria-label="label"
       >
         <div :class="$style.content">
           <div :class="$style.spinner" aria-hidden="true">
             <span :class="$style.ring" />
             <span :class="[$style.ring, $style.ringInner]" />
           </div>
-          <p :class="$style.label">Загрузка</p>
+          <p :class="$style.label">{{ label }}</p>
         </div>
       </div>
     </Transition>
