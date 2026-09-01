@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
+  getRouteQueryWithLocationFallback,
   hasBookingDeepLinkParams,
+  isBookingDeepLinkNavigation,
   omitBookingDeepLinkQuery,
   parseBookingDeepLink,
 } from "~/utils/bookingDeepLink";
@@ -75,6 +77,38 @@ describe("bookingDeepLink", () => {
       { adults: 2, children: 0, childrenAges: [] },
       { adults: 1, children: 1, childrenAges: [5] },
     ]);
+  });
+
+  it("isBookingDeepLinkNavigation учитывает query в from при replace", () => {
+    expect(
+      isBookingDeepLinkNavigation(
+        {},
+        { check_in: "2026-09-15", check_out: "2026-09-17" },
+      ),
+    ).toBe(true);
+    expect(
+      isBookingDeepLinkNavigation(
+        { check_in: "2026-09-15", check_out: "2026-09-17" },
+        {},
+      ),
+    ).toBe(true);
+    expect(isBookingDeepLinkNavigation({}, {})).toBe(false);
+  });
+
+  it("getRouteQueryWithLocationFallback читает window.location.search", () => {
+    const { pathname, search } = window.location;
+    window.history.replaceState(
+      {},
+      "",
+      "/?check_in=2026-09-15&check_out=2026-09-17",
+    );
+
+    expect(getRouteQueryWithLocationFallback({})).toEqual({
+      check_in: "2026-09-15",
+      check_out: "2026-09-17",
+    });
+
+    window.history.replaceState({}, "", `${pathname}${search}`);
   });
 
   it("omitBookingDeepLinkQuery сохраняет прочие параметры", () => {

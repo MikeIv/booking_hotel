@@ -130,6 +130,29 @@ export function hasBookingDeepLinkParams(
   return getDeepLinkDateStrings(query) !== null;
 }
 
+export function isBookingDeepLinkNavigation(
+  toQuery: Record<string, unknown>,
+  fromQuery: Record<string, unknown>,
+): boolean {
+  return (
+    hasBookingDeepLinkParams(toQuery) || hasBookingDeepLinkParams(fromQuery)
+  );
+}
+
+/** На cold start route.query может опаздывать — читаем window.location.search. */
+export function getRouteQueryWithLocationFallback(
+  routeQuery: Record<string, unknown>,
+): Record<string, unknown> {
+  if (hasBookingDeepLinkParams(routeQuery)) return routeQuery;
+  if (typeof window === "undefined") return routeQuery;
+
+  const params = new URLSearchParams(window.location.search);
+  if (!params.toString()) return routeQuery;
+
+  const fromLocation = Object.fromEntries(params.entries());
+  return hasBookingDeepLinkParams(fromLocation) ? fromLocation : routeQuery;
+}
+
 export function parseBookingDeepLink(
   query: Record<string, unknown>,
 ): BookingDeepLinkPayload | null {
