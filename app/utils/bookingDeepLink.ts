@@ -182,3 +182,20 @@ export function omitBookingDeepLinkQuery(
 
   return next;
 }
+
+type BookingDeepLinkStore = {
+  setDate: (value: [Date, Date] | null) => void;
+  setGuests: (value: BookingDeepLinkPayload["guests"]) => void;
+  setPromoCode: (value: string) => void;
+};
+
+export function applyBookingDeepLinkPayload(
+  store: BookingDeepLinkStore,
+  payload: BookingDeepLinkPayload,
+) {
+  store.setDate(payload.date);
+  store.setGuests(payload.guests);
+  if (payload.promoCode) {
+    store.setPromoCode(payload.promoCode);
+  }
+}

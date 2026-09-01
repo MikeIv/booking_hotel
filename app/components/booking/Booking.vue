@@ -1,14 +1,6 @@
 <script setup lang="ts">
   import { useBookingStore } from "~/stores/booking";
-  import type { ApiError } from "~/composables/useApi";
-  import { getRequestErrorContent } from "~/components/common/RequestErrorMessage.vue";
-  import { useNotificationToast } from "~/composables/useToast";
-  import {
-    getExpectedRoomCount,
-    getUnavailableRoomIndices,
-    MULTI_BOOKING_UNAVAILABLE_TOAST,
-  } from "~/utils/multiBooking";
-  import { isStaleSearchError } from "~/utils/staleSearchError";
+  import { useBookingSearchSubmit } from "~/composables/useBookingSearchSubmit";
 
   type BookingMode = "home" | "inner";
 
@@ -26,8 +18,12 @@
   const toast = useNotificationToast();
   const bookingStore = useBookingStore();
   const { date, guests, promoCode, loading } = storeToRefs(bookingStore);
-  const router = useRouter();
-  const route = useRoute();
+  const { submitBookingSearch, validateSearchForm } = useBookingSearchSubmit();
+
+  defineExpose({
+    validateForm: validateSearchForm,
+    handleSearch: submitBookingSearch,
+  });
 
   const { getBannersByVisibility, loading: bannersLoading } = useBanners();
 
@@ -47,34 +43,6 @@
     }
     return result;
   });
-
-  const validateForm = () => {
-    if (!date.value) {
-      toast.add({
-        severity: "warn",
-        summary: "Некорректные данные",
-        detail: "Пожалуйста, выберите даты",
-        life: 3000,
-      });
-      return false;
-    }
-
-    const totalAdults = guests.value.roomList
-      ? guests.value.roomList.reduce((sum, room) => sum + room.adults, 0)
-      : 0;
-
-    if (totalAdults === 0) {
-      toast.add({
-        severity: "warn",
-        summary: "Некорректные данные",
-        detail: "Пожалуйста, укажите количество взрослых",
-        life: 3000,
-      });
-      return false;
-    }
-
-    return true;
-  };
 
   // Уведомление о медленной загрузке: показываем один раз, если баннеры грузятся дольше 5 сек
   const SLOW_NETWORK_THRESHOLD_MS = 5000;
@@ -102,69 +70,6 @@
   onUnmounted(() => {
     if (slowNetworkTimer) clearTimeout(slowNetworkTimer);
   });
-
-  const handleSearch = async () => {
-    if (!validateForm()) return;
-
-    bookingStore.setLoading(true, "Загружаем данные о номерах...");
-    bookingStore.setServerRequest(true);
-
-    let skipOverlayReset = false;
-
-    try {
-      const result = await bookingStore.search({ skipReset: true });
-
-      // Проверяем, что сервер вернул данные о номерах
-      if (!result || !result.rooms || result.rooms.length === 0) {
-        toast.add({
-          severity: "warn",
-          summary: "Повторите запрос позже",
-          detail: "Временные неполадки. Повторите запрос немного позже",
-          life: 5000,
-        });
-        return;
-      }
-
-      const roomsCount = getExpectedRoomCount(guests.value);
-
-      if (roomsCount > 1) {
-        const unavailable = getUnavailableRoomIndices(result.rooms, roomsCount);
-        if (unavailable.length > 0) {
-          bookingStore.setMultiBookingUnavailableRooms(unavailable);
-          toast.add(MULTI_BOOKING_UNAVAILABLE_TOAST);
-          return;
-        }
-        bookingStore.clearMultiBookingUnavailableRooms();
-      }
-
-      const target = roomsCount > 1 ? "/multi-rooms" : "/rooms";
-      if (route.path !== target) {
-        await router.push(target);
-        await nextTick();
-      }
-    } catch (error: unknown) {
-      // Устаревший search: активный запрос ещё идёт — не тостим и не гасим overlay
-      if (isStaleSearchError(error)) {
-        skipOverlayReset = true;
-        return;
-      }
-
-      const { status, message } = (error || {}) as ApiError;
-      const { summary, detail } = getRequestErrorContent(status, message);
-
-      toast.add({
-        severity: "warn",
-        summary,
-        detail,
-        life: 3000,
-      });
-    } finally {
-      if (!skipOverlayReset) {
-        bookingStore.setLoading(false);
-        bookingStore.setServerRequest(false);
-      }
-    }
-  };
 
   const resolvedMode = computed<BookingMode>(
     () => props.mode ?? props.buttonContext ?? "home",
@@ -202,7 +107,7 @@
         size="xl"
         :loading="loading"
         :disabled="loading"
-        @click="handleSearch"
+        @click="submitBookingSearch"
       >
         {{ loading ? "Поиск..." : "Поиск" }}
       </UiButton>

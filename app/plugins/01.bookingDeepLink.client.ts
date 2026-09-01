@@ -1,32 +1,34 @@
 import {
+  applyBookingDeepLinkPayload,
   hasBookingDeepLinkParams,
   omitBookingDeepLinkQuery,
   parseBookingDeepLink,
 } from "~/utils/bookingDeepLink";
 
 /**
- * Предзаполнение формы бронирования из query (редирект со старого ukraina-hotel.ru).
- * Поиск номеров не запускается — только setDate / setGuests / setPromoCode.
+ * Редирект со старого ukraina-hotel.ru: query → store → автопоиск номеров.
  */
-export default defineNuxtPlugin(() => {
+export default defineNuxtPlugin(async () => {
   const route = useRoute();
   const router = useRouter();
 
   if (!hasBookingDeepLinkParams(route.query)) return;
 
   const payload = parseBookingDeepLink(route.query);
+  const shouldAutoSearch = Boolean(payload && route.path === "/");
+
   if (payload) {
-    const bookingStore = useBookingStore();
-    bookingStore.setDate(payload.date);
-    bookingStore.setGuests(payload.guests);
-    if (payload.promoCode) {
-      bookingStore.setPromoCode(payload.promoCode);
-    }
+    applyBookingDeepLinkPayload(useBookingStore(), payload);
   }
 
-  void router.replace({
+  await router.replace({
     path: route.path,
     hash: route.hash || undefined,
     query: omitBookingDeepLinkQuery(route.query),
   });
+
+  if (!shouldAutoSearch) return;
+
+  const { submitBookingSearch } = useBookingSearchSubmit();
+  await submitBookingSearch();
 });
