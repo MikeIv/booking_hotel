@@ -1,48 +1,53 @@
 import {
-  applyBookingDeepLinkPayload,
+  BOOKING_DEEP_LINK_PENDING_KEY,
   getRouteQueryWithLocationFallback,
   hasBookingDeepLinkParams,
-  omitBookingDeepLinkQuery,
-  parseBookingDeepLink,
+  prepareBookingDeepLinkOverlay,
+  runBookingDeepLinkSearch,
 } from "~/utils/bookingDeepLink";
 import { useBookingSearchSubmit } from "~/composables/useBookingSearchSubmit";
 import { useBookingStore } from "~/stores/booking";
 
 /**
  * Редирект со старого ukraina-hotel.ru: query → store → автопоиск номеров.
+ * Оверлей включается до router.isReady(), иначе после InitialLoadOverlay — белый экран.
  */
 export default defineNuxtPlugin({
   name: "booking-deep-link",
   dependsOn: ["pinia-plugin-persistedstate"],
   async setup() {
+    const pending = useState<boolean>(
+      BOOKING_DEEP_LINK_PENDING_KEY,
+      () => false,
+    );
+    const bookingStore = useBookingStore();
+    const route = useRoute();
+
+    prepareBookingDeepLinkOverlay(
+      getRouteQueryWithLocationFallback(route.query),
+      route.path,
+      pending,
+      bookingStore,
+    );
+
     const router = useRouter();
     await router.isReady();
 
-    const route = useRoute();
-    const query = getRouteQueryWithLocationFallback(route.query);
+    const readyRoute = useRoute();
+    const query = getRouteQueryWithLocationFallback(readyRoute.query);
 
-    if (!hasBookingDeepLinkParams(query)) return;
-
-    const payload = parseBookingDeepLink(query);
-    const shouldAutoSearch = Boolean(payload && route.path === "/");
-
-    await router.replace({
-      path: route.path,
-      hash: route.hash || undefined,
-      query: omitBookingDeepLinkQuery(query),
-    });
-
-    if (!payload) return;
-
-    // После replace: persist hydrate и booking.reset middleware уже отработали
-    await nextTick();
-
-    const bookingStore = useBookingStore();
-    applyBookingDeepLinkPayload(bookingStore, payload);
-
-    if (!shouldAutoSearch) return;
+    if (!pending.value && !hasBookingDeepLinkParams(query)) return;
 
     const { submitBookingSearch } = useBookingSearchSubmit();
-    await submitBookingSearch();
+
+    await runBookingDeepLinkSearch({
+      query,
+      path: readyRoute.path,
+      hash: readyRoute.hash || undefined,
+      pending,
+      store: bookingStore,
+      routerReplace: (location) => router.replace(location),
+      submitSearch: submitBookingSearch,
+    });
   },
 });
