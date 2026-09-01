@@ -20,9 +20,7 @@ yarn-error.log
 # IDE
 .idea
 .vscode
-.cursor/*
-!.cursor/rules/
-!.cursor/rules/**
+.cursor/
 .cursorrules
 CURSOR_RULES_EXPORT.md
 
