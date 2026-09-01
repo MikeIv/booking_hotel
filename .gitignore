@@ -20,16 +20,14 @@ yarn-error.log
 # IDE
 .idea
 .vscode
-.cursor/*
-!.cursor/rules/
-!.cursor/rules/**
+.cursor/
 .cursorrules
 CURSOR_RULES_EXPORT.md
 
-# Planning — робочі файли сесії (в git: PROJECT.md, шаблони)
-.planning/brief.md
-.planning/plan.md
-.planning/state.md
+# Agent / planning (local only)
+AGENTS.md
+.planning/
+
 *.swp
 *.swo
 *~
