@@ -19,6 +19,7 @@ describe("Booking.vue", () => {
   beforeEach(() => {
     // Создаем новый экземпляр Pinia для каждого теста
     setupPinia();
+    vi.stubGlobal("useBookingStore", () => mockBookingStore);
 
     // Сбрасываем моки перед каждым тестом
     vi.clearAllMocks();
