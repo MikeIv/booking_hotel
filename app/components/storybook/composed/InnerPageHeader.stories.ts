@@ -8,9 +8,10 @@ import LayoutHeaderAside from "~/components/layout/header-aside.vue";
  * Figma: https://www.figma.com/design/SN6tow6sTWtt6ITX3io7ss/Bronirovanie-R%D0%B0disson-Collection?node-id=4585-1652&m=dev
  *
  * Брейкпоинты по макету (Figma 4585:1652) + защита от overlap:
- * - ≥ 1880px — логотип + горизонтальная навигация + кнопки + поиск + язык
+ * - ≥ 1880px — логотип + nav (space-between, max 962px как в Figma) + кнопки + утилиты
  * - 1024–1879px — бургер + логотип (слева) + кнопки + поиск + язык (одна строка, 93px)
  * - < 1024px — строка 1: бургер + логотип (центр) + поиск + язык; строка 2: кнопки (150px)
+ * - < 460px — компакт: меньше лого / утилит / текста кнопок
  */
 
 const VIEWPORTS = {

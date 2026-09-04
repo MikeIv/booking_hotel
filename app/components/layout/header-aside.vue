@@ -349,10 +349,10 @@
       column-gap: var(--ds-space-200);
     }
 
-    /* ≥1880: logo | nav | buttons | utility */
+    /* ≥1880: logo | nav | buttons | utility — отступы как в Figma 93:13278 (90 / 49) */
     @media (min-width: #{size.$headerNavMin}) {
-      grid-template-columns: auto 1fr auto auto;
-      padding: 0 var(--ds-space-500);
+      grid-template-columns: auto minmax(0, 1fr) auto auto;
+      padding: 0 rem(49) 0 rem(90);
       column-gap: var(--ds-space-500);
     }
   }
@@ -458,15 +458,18 @@
   .desktopNav {
     display: none;
 
+    /* Figma 93:13278 — track 962px, justify-between (не фиксированный gap) */
     @media (min-width: #{size.$headerNavMin}) {
       display: flex;
       align-items: center;
+      justify-content: space-between;
+      justify-self: stretch;
+      width: 100%;
+      max-width: rem(962);
       min-width: 0;
       min-height: rem(44);
-      gap: var(--ds-space-500);
       grid-row: 1;
       grid-column: 2;
-      justify-self: start;
     }
   }
 
@@ -476,9 +479,9 @@
     font-weight: var(--ds-typo-weight-body);
     text-transform: uppercase;
     text-decoration: none;
-    letter-spacing: rem(1);
     color: var(--ds-neutral-900);
     white-space: nowrap;
+    flex-shrink: 0;
     transition: color 0.2s ease;
 
     &:hover {
