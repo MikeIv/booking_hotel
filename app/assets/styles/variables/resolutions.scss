@@ -3,7 +3,9 @@ $tabletMin: 670px;
 $tablet: 768px;
 $tabletMax: 992px;
 $desktopMin: 1024px;
-$headerDesktopMin: 1330px; // перестроение сетки хедера: блок кнопок не наезжает на логотип
+$headerDesktopMin: 1330px; // legacy aside.vue; header-aside переключается на $desktopMin (1024)
 $desktopMedium: 1366px;
 $desktop: 1642px;
+$headerNavMin: 1880px; // горизонтальное меню хедера; ниже — бургер (nav не наезжает на кнопки)
+$headerCompactMax: 459px; // компактный хедер: меньше лого / утилит / текста кнопок
 $desktopMax: 1920px;

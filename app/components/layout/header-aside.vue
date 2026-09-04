@@ -147,7 +147,7 @@
     :class="[$style.aside, isOverlay && !isScrolled && $style.overlay]"
   >
     <div :class="$style.wrapper">
-      <!-- Бургер (скрыт на ≥$desktop) -->
+      <!-- Бургер: скрыт ≥$headerNavMin -->
       <button
         :class="$style.burgerBtn"
         aria-label="Открыть меню"
@@ -157,12 +157,10 @@
         <UIcon name="iconamoon:menu-burger-horizontal-bold" :class="$style.burgerIcon" />
       </button>
 
-      <!-- Логотип: ссылка на главную; центрируется абсолютно на <$desktop, статичен слева на ≥$desktop -->
       <NuxtLink :class="$style.logoBtn" to="/" aria-label="На главную">
         <LogoRadisson :class="$style.logo" />
       </NuxtLink>
 
-      <!-- Десктопная навигация (только ≥$desktop) -->
       <nav :class="$style.desktopNav" aria-label="Основная навигация">
         <a
           v-for="link in navLinks"
@@ -174,7 +172,6 @@
         >{{ link.text }}</a>
       </nav>
 
-      <!-- Плейсхолдер для центрирования логотипа на <$desktop -->
       <span :class="$style.logoPlaceholder" aria-hidden="true" />
 
       <!-- Кнопки: Моё бронирование + Войти / Личный кабинет -->
@@ -321,43 +318,40 @@
 
   /* =====================
      WRAPPER — базовая сетка
+     Figma 4585:1652:
+     <1024 — две строки (150); ≥1024 — одна строка (93);
+     ≥1880 — лого + nav вместо бургера
   ===================== */
   .wrapper {
     position: relative;
     display: grid;
-    /* mobile/tablet default: burger | placeholder | utility */
+    /* <1024: burger | placeholder | utility */
     grid-template-columns: auto 1fr auto;
     grid-template-rows: rem(70) auto;
     align-items: center;
     align-content: start;
     width: 100%;
-    max-width: rem(1920);
+    max-width: #{size.$desktopMax};
     min-height: rem(150);
     margin: 0 auto;
     padding: var(--ds-space-200);
     column-gap: var(--ds-space-200);
     row-gap: var(--ds-space-200);
 
-    /* medium desktop: 1024–1329px — две строки, кнопки под логотипом */
+    /* ≥1024: burger | logo | spacer | buttons | utility — одна строка */
     @media (min-width: #{size.$desktopMin}) {
-      grid-template-rows: rem(94) auto;
-      min-height: rem(150);
-      row-gap: var(--ds-space-200);
-      align-content: start;
-      padding: 0 var(--ds-space-300);
-    }
-
-    /* ≥1330px — одна строка, кнопки справа от логотипа */
-    @media (min-width: #{size.$headerDesktopMin}) {
-      grid-template-columns: auto 1fr auto auto;
-      grid-template-rows: rem(94);
-      min-height: rem(94);
+      grid-template-columns: auto auto 1fr auto auto;
+      grid-template-rows: rem(93);
+      min-height: rem(93);
       row-gap: 0;
       align-content: center;
+      padding: 0 var(--ds-space-600);
+      column-gap: var(--ds-space-200);
     }
 
-    /* large desktop: ≥1642px — одна строка с навигацией */
-    @media (min-width: #{size.$desktop}) {
+    /* ≥1880: logo | nav | buttons | utility */
+    @media (min-width: #{size.$headerNavMin}) {
+      grid-template-columns: auto 1fr auto auto;
       padding: 0 var(--ds-space-500);
       column-gap: var(--ds-space-500);
     }
@@ -385,7 +379,7 @@
       opacity: 0.7;
     }
 
-    @media (min-width: #{size.$desktop}) {
+    @media (min-width: #{size.$headerNavMin}) {
       display: none;
     }
   }
@@ -399,6 +393,7 @@
      ЛОГОТИП
   ===================== */
   .logoBtn {
+    /* <1024: абсолютный центр верхней строки (не пересекается с кнопками на row 2) */
     position: absolute;
     left: 50%;
     top: rem(35);
@@ -412,21 +407,19 @@
     cursor: pointer;
     background: transparent;
     border: none;
+    flex-shrink: 0;
 
+    /* ≥1024: в потоке сетки слева от spacer — иначе наползает на кнопки */
     @media (min-width: #{size.$desktopMin}) {
-      top: rem(47);
-    }
-
-    @media (min-width: #{size.$headerDesktopMin}) {
-      top: 50%;
-    }
-
-    @media (min-width: #{size.$desktop}) {
       position: static;
       transform: none;
       grid-row: 1;
-      grid-column: 1;
+      grid-column: 2;
       justify-self: start;
+    }
+
+    @media (min-width: #{size.$headerNavMin}) {
+      grid-column: 1;
     }
 
     &:hover .logo {
@@ -446,6 +439,10 @@
     height: auto;
     transition: opacity 0.3s ease;
 
+    @media (max-width: #{size.$headerCompactMax}) {
+      width: rem(118);
+    }
+
     @media (min-width: #{size.$desktopMin}) {
       width: rem(182);
     }
@@ -456,14 +453,15 @@
   }
 
   /* =====================
-     ДЕСКТОПНАЯ НАВИГАЦИЯ (≥$desktop только)
+     ДЕСКТОПНАЯ НАВИГАЦИЯ (≥$headerNavMin)
   ===================== */
   .desktopNav {
     display: none;
 
-    @media (min-width: #{size.$desktop}) {
+    @media (min-width: #{size.$headerNavMin}) {
       display: flex;
       align-items: center;
+      min-width: 0;
       min-height: rem(44);
       gap: var(--ds-space-500);
       grid-row: 1;
@@ -496,7 +494,7 @@
     grid-row: 1;
     grid-column: 2;
 
-    @media (min-width: #{size.$desktop}) {
+    @media (min-width: #{size.$desktopMin}) {
       display: none;
     }
   }
@@ -511,14 +509,19 @@
     justify-content: center;
     max-width: 100%;
     min-width: 0;
-    /* мобайл/планшет: вторая строка на всю ширину */
+    flex-shrink: 0;
+    /* <1024: вторая строка на всю ширину */
     grid-row: 2;
     grid-column: 1 / -1;
 
-    @media (min-width: #{size.$headerDesktopMin}) {
+    @media (min-width: #{size.$desktopMin}) {
       grid-row: 1;
-      grid-column: 3;
+      grid-column: 4;
       justify-self: end;
+    }
+
+    @media (min-width: #{size.$headerNavMin}) {
+      grid-column: 3;
     }
   }
 
@@ -555,8 +558,8 @@
     min-width: rem(150);
   }
 
-  /* Узкие экраны (~S24, 360px): min-width кнопок шире контента → горизонтальный скролл в части моб. браузеров */
-  @media (max-width: 480px) {
+  /* <$headerCompactMax / ~360: кнопки и текст сжимаются, чтобы «Моё бронирование» не выпадало */
+  @media (max-width: #{size.$headerCompactMax}) {
     .headerButtonWide,
     .headerButtonNarrow {
       min-width: 0;
@@ -564,8 +567,12 @@
     }
 
     .headerButton {
-      padding-inline: var(--ds-space-200);
-      font-size: var(--ds-typo-size-body-md);
+      padding-inline: rem(8);
+      font-size: var(--ds-typo-size-body-sm);
+    }
+
+    .buttonsGroup {
+      gap: rem(8);
     }
   }
 
@@ -580,8 +587,18 @@
     grid-row: 1;
     grid-column: 3;
     justify-self: end;
+    flex-shrink: 0;
 
-    @media (min-width: #{size.$headerDesktopMin}) {
+    @media (max-width: #{size.$headerCompactMax}) {
+      gap: rem(8);
+      min-height: rem(32);
+    }
+
+    @media (min-width: #{size.$desktopMin}) {
+      grid-column: 5;
+    }
+
+    @media (min-width: #{size.$headerNavMin}) {
       grid-column: 4;
       gap: var(--ds-space-300);
     }
@@ -596,6 +613,7 @@
     align-items: center;
     width: rem(35);
     height: rem(35);
+    flex-shrink: 0;
     background: transparent;
     border: none;
     cursor: pointer;
@@ -603,15 +621,26 @@
     color: var(--ds-neutral-700);
     transition: color 0.2s ease;
 
+    @media (max-width: #{size.$headerCompactMax}) {
+      width: rem(24);
+      height: rem(24);
+    }
+
     &:hover {
       color: var(--ds-neutral-900);
     }
   }
 
   .searchIcon {
+    display: block;
     width: rem(35);
     height: rem(35);
     color: inherit;
+
+    @media (max-width: #{size.$headerCompactMax}) {
+      width: rem(24);
+      height: rem(24);
+    }
   }
 
   /* =====================
@@ -619,6 +648,7 @@
   ===================== */
   .langWrap {
     position: relative;
+    flex-shrink: 0;
   }
 
   .langPill {
@@ -638,6 +668,13 @@
     white-space: nowrap;
     transition: border-color 0.2s ease, color 0.2s ease;
 
+    @media (max-width: #{size.$headerCompactMax}) {
+      gap: rem(4);
+      padding: rem(3) rem(8);
+      font-size: rem(12);
+      border-radius: rem(12);
+    }
+
     &:hover {
       border-color: var(--ds-neutral-900);
       color: var(--ds-neutral-900);
@@ -648,6 +685,11 @@
     width: rem(11);
     height: rem(11);
     transition: transform 0.2s ease;
+
+    @media (max-width: #{size.$headerCompactMax}) {
+      width: rem(9);
+      height: rem(9);
+    }
   }
 
   .chevronOpen {
