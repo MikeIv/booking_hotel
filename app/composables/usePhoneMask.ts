@@ -61,6 +61,12 @@ const normalizePhoneDigits = (raw: string): string => {
   return digits.slice(0, MAX_PHONE_DIGITS);
 };
 
+/** Номер для API: +7 и 10 цифр, например +79991231234 */
+export const formatPhoneForApi = (raw: string): string => {
+  const digits = normalizePhoneDigits(raw);
+  return digits ? `+7${digits}` : "";
+};
+
 const clamp = (n: number, min: number, max: number) =>
   Math.min(max, Math.max(min, n));
 

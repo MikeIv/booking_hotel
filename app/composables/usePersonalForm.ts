@@ -9,6 +9,7 @@ import {
   type ValidationErrors,
   type ValidationRules,
 } from "~/composables/useFormValidation";
+import { formatPhoneForApi } from "~/composables/usePhoneMask";
 
 const HH_MM_TIME_REGEX = /^([0-1]?[0-9]|2[0-3]):([0-5][0-9])$/;
 
@@ -88,6 +89,20 @@ const mapValidationErrorsToGuest = (
   }
   return guestErrors;
 };
+
+const toBookingGuestPayload = (
+  guest: GuestData,
+  options: { sms_confirmation: boolean; email_subscribe: boolean },
+) => ({
+  name: guest.firstName,
+  surname: guest.lastName,
+  middle_name: guest.middleName || null,
+  phone: formatPhoneForApi(guest.phone),
+  email: guest.email,
+  nationality: guest.citizenship || "",
+  sms_confirmation: options.sms_confirmation,
+  email_subscribe: options.email_subscribe,
+});
 
 export const validateGuestField = (
   guest: GuestData,
@@ -308,26 +323,16 @@ export const usePersonalForm = () => {
     if (!date || !selectedRoomType || !selectedTariff) return null;
 
     const allGuests = [
-      {
-        name: formData.mainGuest.firstName,
-        surname: formData.mainGuest.lastName,
-        middle_name: formData.mainGuest.middleName || null,
-        phone: formData.mainGuest.phone,
-        email: formData.mainGuest.email,
-        nationality: formData.mainGuest.citizenship || "",
+      toBookingGuestPayload(formData.mainGuest, {
         sms_confirmation: formData.smsConfirmation,
         email_subscribe: formData.specialOffers,
-      },
-      ...formData.additionalGuests.map((guest) => ({
-        name: guest.firstName,
-        surname: guest.lastName,
-        middle_name: guest.middleName || null,
-        phone: guest.phone,
-        email: guest.email,
-        nationality: guest.citizenship || "",
-        sms_confirmation: false,
-        email_subscribe: false,
-      })),
+      }),
+      ...formData.additionalGuests.map((guest) =>
+        toBookingGuestPayload(guest, {
+          sms_confirmation: false,
+          email_subscribe: false,
+        }),
+      ),
     ];
 
     const adults = guestsData?.adults ?? 1;
@@ -420,34 +425,18 @@ export const usePersonalForm = () => {
       const mainGuest = roomGuestData?.mainGuest ?? initialGuestData();
       const additionalGuests = roomGuestData?.additionalGuests || [];
 
-      // Базовый массив гостей: основной гость номера
-      const baseGuests = [
-        {
-          name: mainGuest.firstName,
-          surname: mainGuest.lastName,
-          middle_name: mainGuest.middleName || null,
-          phone: mainGuest.phone,
-          email: mainGuest.email,
-          nationality: mainGuest.citizenship || "",
+      const guests = [
+        toBookingGuestPayload(mainGuest, {
           sms_confirmation: isFirstRoom ? formData.smsConfirmation : false,
           email_subscribe: isFirstRoom ? formData.specialOffers : false,
-        },
+        }),
+        ...additionalGuests.map((guest) =>
+          toBookingGuestPayload(guest, {
+            sms_confirmation: false,
+            email_subscribe: false,
+          }),
+        ),
       ];
-
-      // Добавляем дополнительных гостей для этого номера
-      const additionalGuestsData = additionalGuests.map((guest) => ({
-        name: guest.firstName,
-        surname: guest.lastName,
-        middle_name: guest.middleName || null,
-        phone: guest.phone,
-        email: guest.email,
-        nationality: guest.citizenship || "",
-        sms_confirmation: false,
-        email_subscribe: false,
-      }));
-
-      // Объединяем гостей
-      const guests = [...baseGuests, ...additionalGuestsData];
 
       // Получаем состав гостей для этого номера из guestsList
       const roomGuests = guestsList?.[entry.roomIdx];
