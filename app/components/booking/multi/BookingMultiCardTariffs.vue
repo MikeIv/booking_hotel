@@ -3,6 +3,7 @@
   import { formatCount } from "~/utils/declension";
   import { useBookingStore } from "~/stores/booking";
   import { formatPrice, toPricePerNight } from "~/utils/price";
+  import type { ChildAge } from "~/utils/age";
   import {
     getTariffStayTotalForRoom,
     getTariffRoomIndices,
@@ -118,7 +119,7 @@
 
   const getRoomGuests = (
     roomIdx: number,
-  ): { adults: number; children: number; childrenAges: number[] } => {
+  ): { adults: number; children: number; childrenAges: ChildAge[] } => {
     const roomList = guests.value?.roomList || [];
     if (roomIdx >= 0 && roomIdx < roomList.length) {
       const room = roomList[roomIdx];

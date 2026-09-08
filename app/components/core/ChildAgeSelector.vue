@@ -1,8 +1,8 @@
 ﻿<script setup lang="ts">
-import { getAgeOptions, childAgeLabel } from "~/utils/age";
+import { getAgeOptions, childAgeLabel, type ChildAge } from "~/utils/age";
 
 interface Props {
-  modelValue: number;
+  modelValue: ChildAge;
   totalChildren: number;
   childIndex: number; // 1-based index
 }
@@ -26,7 +26,7 @@ const label = computed(() => childAgeLabel(props.totalChildren, props.childIndex
         :options="ageOptions"
         option-label="label"
         option-value="value"
-        placeholder="Возраст"
+        placeholder="выбрать"
         :pt="{
           overlay: { class: 'child-age-select-overlay' },
           panel: { class: 'child-age-select-overlay' },

@@ -4,12 +4,15 @@ interface Props {
   min?: number;
   max?: number;
   disabled?: boolean;
+  /** Текст вместо числа при modelValue === 0 (например «–» для детей) */
+  emptyLabel?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   min: 0,
   max: Infinity,
   disabled: false,
+  emptyLabel: "",
 });
 
 const emit = defineEmits<{
@@ -26,6 +29,12 @@ function updateValue(delta: number) {
 
 const canDecrease = computed(() => props.modelValue > props.min && !props.disabled);
 const canIncrease = computed(() => props.modelValue < props.max && !props.disabled);
+
+const displayCount = computed(() =>
+  props.emptyLabel && props.modelValue === 0
+    ? props.emptyLabel
+    : props.modelValue,
+);
 </script>
 
 <template>
@@ -40,7 +49,7 @@ const canIncrease = computed(() => props.modelValue < props.max && !props.disabl
     >
       <span :class="$style.sign" aria-hidden="true" />
     </Button>
-    <span :class="$style.count">{{ modelValue }}</span>
+    <span :class="$style.count">{{ displayCount }}</span>
     <Button
       type="button"
       unstyled

@@ -2,6 +2,7 @@ import { nextTick } from "vue";
 import { MAX_GUESTS_PER_ROOM } from "~/utils/bookingSearch";
 import { parseDateApi } from "~/utils/dateFormat";
 import { getRouteQueryString } from "~/utils/routeQuery";
+import { normalizeChildAges, type ChildAge } from "~/utils/age";
 
 export const BOOKING_DEEP_LINK_QUERY_KEYS = [
   "check_in",
@@ -22,7 +23,7 @@ export const BOOKING_DEEP_LINK_LOADING_MESSAGE =
 export type BookingDeepLinkGuestRoom = {
   adults: number;
   children: number;
-  childrenAges: number[];
+  childrenAges: ChildAge[];
 };
 
 export type BookingDeepLinkPayload = {
@@ -61,11 +62,16 @@ function splitCsv(value: string | null): string[] {
   return value.split(",").map((part) => part.trim());
 }
 
-function parseChildAges(raw: string | null, childrenCount: number): number[] {
+function parseChildAges(raw: string | null, childrenCount: number): ChildAge[] {
   if (childrenCount === 0) return [];
-  const ages = splitCsv(raw).map((part) => parseNonNegativeInt(part, 0));
-  while (ages.length < childrenCount) ages.push(0);
-  return ages.slice(0, childrenCount);
+  return normalizeChildAges(
+    splitCsv(raw).map((part) => {
+      if (!part) return null;
+      const parsed = Number.parseInt(part, 10);
+      return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
+    }),
+    childrenCount,
+  );
 }
 
 function clampRoomGuests(adults: number, children: number) {

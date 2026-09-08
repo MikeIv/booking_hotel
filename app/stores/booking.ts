@@ -32,6 +32,7 @@ import {
   slimTariffForPersist,
   type ShrinkMultiHints,
 } from "~/utils/bookingPersist";
+import type { ChildAge } from "~/utils/age";
 
 export interface SelectedService {
   id: number;
@@ -46,7 +47,11 @@ export const useBookingStore = defineStore(
     const date = ref<[Date, Date] | null>(null);
     const guests = ref<{
       rooms: number;
-      roomList: { adults: number; children: number; childrenAges: number[] }[];
+      roomList: {
+        adults: number;
+        children: number;
+        childrenAges: ChildAge[];
+      }[];
     }>({
       rooms: 1,
       roomList: [{ adults: 1, children: 0, childrenAges: [] }],
@@ -184,7 +189,7 @@ export const useBookingStore = defineStore(
         roomList: {
           adults: number;
           children: number;
-          childrenAges: number[];
+          childrenAges: ChildAge[];
         }[];
       },
       hints?: ShrinkMultiHints,

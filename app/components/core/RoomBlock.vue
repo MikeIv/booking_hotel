@@ -1,6 +1,5 @@
 ﻿<script setup lang="ts">
 import type { RoomGuests } from "~/components/core/GuestsSelector.vue";
-import { AGE_MIN } from "~/utils/age";
 
 interface Props {
   room: RoomGuests;
@@ -81,6 +80,7 @@ const roomTitle = computed(() =>
         :model-value="room.children"
         :min="0"
         :max="maxChildren"
+        empty-label="–"
         @update:model-value="updateChildren"
       />
     </div>
@@ -89,7 +89,7 @@ const roomTitle = computed(() =>
       <CoreChildAgeSelector
         v-for="(_, childIdx) in Array.from({ length: room.children })"
         :key="`child-${roomIndex}-${childIdx}`"
-        :model-value="room.childrenAges[childIdx] ?? AGE_MIN"
+        :model-value="room.childrenAges[childIdx] ?? null"
         :total-children="room.children"
         :child-index="childIdx + 1"
         @update:model-value="(age: number) => updateChildAge(childIdx, age)"

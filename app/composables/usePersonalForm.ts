@@ -1,5 +1,6 @@
 import type { BookingData } from "~/types/booking";
 import { countriesRu } from "~/utils/countries";
+import { isChildAgeSelected, type ChildAge } from "~/utils/age";
 import {
   additionalGuestFieldsRules,
   guestFieldsRules,
@@ -316,7 +317,7 @@ export const usePersonalForm = () => {
     guestsData?: {
       adults: number;
       children: number;
-      childrenAges: number[];
+      childrenAges: ChildAge[];
     },
     packages?: string[],
   ): BookingData | null => {
@@ -337,7 +338,9 @@ export const usePersonalForm = () => {
 
     const adults = guestsData?.adults ?? 1;
     const children = guestsData?.children ?? 0;
-    const childrenAges = guestsData?.childrenAges ?? [];
+    const childrenAges = (guestsData?.childrenAges ?? []).filter(
+      isChildAgeSelected,
+    );
 
     return {
       for_self: formData.forSelf,
@@ -389,7 +392,7 @@ export const usePersonalForm = () => {
     guestsList?: Array<{
       adults: number;
       children: number;
-      childrenAges: number[];
+      childrenAges: ChildAge[];
     }>,
     /** Пакеты (package_code) по индексу номера для мультибронирования */
     packagesPerRoom?: Record<number, string[]>,
@@ -414,7 +417,9 @@ export const usePersonalForm = () => {
 
     const allChildrenAges = sortedEntries.reduce((ages, entry) => {
       const roomGuests = guestsList?.[entry.roomIdx];
-      return ages.concat(roomGuests?.childrenAges || []);
+      return ages.concat(
+        (roomGuests?.childrenAges || []).filter(isChildAgeSelected),
+      );
     }, [] as number[]);
 
     // Создаем массив комнат с гостями из данных по номерам
@@ -442,7 +447,9 @@ export const usePersonalForm = () => {
       const roomGuests = guestsList?.[entry.roomIdx];
       const roomAdults = roomGuests?.adults || 0;
       const roomChildren = roomGuests?.children || 0;
-      const roomChildrenAges = roomGuests?.childrenAges || [];
+      const roomChildrenAges = (roomGuests?.childrenAges || []).filter(
+        isChildAgeSelected,
+      );
 
       const roomPackages = packagesPerRoom?.[entry.roomIdx];
       return {

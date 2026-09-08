@@ -11,6 +11,7 @@ import type {
 } from "~/types/booking";
 import { normalizeRoomIndex } from "~/utils/multiBooking";
 import { formatDateApi } from "~/utils/dateFormat";
+import { isChildAgeSelected, type ChildAge } from "~/utils/age";
 
 /** Максимум гостей (взрослые + дети) в одном номере — синхрон с GuestsSelector */
 export const MAX_GUESTS_PER_ROOM = 15;
@@ -18,7 +19,7 @@ export const MAX_GUESTS_PER_ROOM = 15;
 export type SearchGuestRoom = {
   adults: number;
   children: number;
-  childrenAges: number[];
+  childrenAges: ChildAge[];
 };
 
 export type PrepareSearchDataInput = {
@@ -36,10 +37,11 @@ const EMPTY_FILTERS: SearchResponse["filters"] = {
   balconies: [],
 };
 
-function ensureChildAges(count: number, ages: number[]): number[] {
+function ensureChildAges(count: number, ages: ChildAge[]): number[] {
   if (count === 0) return [];
-  if (ages.length === count) return ages;
-  return Array.from({ length: count }, (_, index) => ages[index] ?? 0);
+  return Array.from({ length: count }, (_, index) =>
+    isChildAgeSelected(ages[index]) ? ages[index] : 0,
+  );
 }
 
 function clampRoomGuests(adults: number, children: number) {

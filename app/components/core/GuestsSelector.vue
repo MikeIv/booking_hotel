@@ -1,5 +1,12 @@
 <script setup lang="ts">
-import { AGE_MIN, AGE_MAX } from "~/utils/age";
+import {
+  AGE_MIN,
+  AGE_MAX,
+  CHILD_AGE_REQUIRED_DETAIL,
+  hasUnsetChildAges,
+  normalizeChildAges,
+  type ChildAge,
+} from "~/utils/age";
 import { declension } from "~/utils/declension";
 import { useBookingStore } from "~/stores/booking";
 import type { ApiError } from "~/composables/useApi";
@@ -17,7 +24,7 @@ import type { ShrinkMultiHints } from "~/utils/bookingPersist";
 export interface RoomGuests {
   adults: number;
   children: number;
-  childrenAges: number[];
+  childrenAges: ChildAge[];
 }
 
 interface GuestsValue {
@@ -69,31 +76,17 @@ const MAX_ROOMS = 5;
         Array.isArray(props.modelValue.roomList)
       ) {
         const normalized = (props.modelValue as GuestsValue).roomList.map(
-          (r) => {
-            const room = r as RoomGuests & { childrenAges?: number[] };
+          (room) => {
             let adults = room.adults;
             let children = room.children;
             if (adults + children > MAX_GUESTS_PER_ROOM) {
               adults = Math.min(adults, MAX_GUESTS_PER_ROOM);
               children = Math.max(0, MAX_GUESTS_PER_ROOM - adults);
             }
-            const childrenAges = Array.isArray(room.childrenAges)
-              ? room.childrenAges.slice(0, children).concat(
-                  Array.from(
-                    {
-                      length: Math.max(
-                        0,
-                        children - (room.childrenAges?.length ?? 0),
-                      ),
-                    },
-                    () => AGE_MIN,
-                  ),
-                )
-              : Array.from({ length: children }, () => AGE_MIN);
             return {
               adults,
               children,
-              childrenAges,
+              childrenAges: normalizeChildAges(room.childrenAges, children),
             };
           },
         );
@@ -116,10 +109,7 @@ const MAX_ROOMS = 5;
           return {
             adults,
             children,
-            childrenAges: Array.from(
-              { length: children },
-              () => AGE_MIN,
-            ),
+            childrenAges: normalizeChildAges(undefined, children),
           };
         }),
       };
@@ -193,9 +183,11 @@ const MAX_ROOMS = 5;
       if (idx !== roomIdx) return room;
       const maxChildren = MAX_GUESTS_PER_ROOM - room.adults;
       const count = Math.max(0, Math.min(value, maxChildren));
-      const ages = room.childrenAges?.slice(0, count) ?? [];
-      while (ages.length < count) ages.push(AGE_MIN);
-      return { ...room, children: count, childrenAges: ages };
+      return {
+        ...room,
+        children: count,
+        childrenAges: normalizeChildAges(room.childrenAges, count),
+      };
     });
     guests.value = { ...guests.value, roomList };
   }
@@ -229,6 +221,16 @@ const MAX_ROOMS = 5;
   });
 
   async function applyChanges(event: Event) {
+    if (hasUnsetChildAges(guests.value.roomList)) {
+      toast.add({
+        severity: "warn",
+        summary: "Некорректные данные",
+        detail: CHILD_AGE_REQUIRED_DETAIL,
+        life: 3000,
+      });
+      return;
+    }
+
     const shrinkHints = takeShrinkHints();
     emit("update:modelValue", guests.value, shrinkHints);
 

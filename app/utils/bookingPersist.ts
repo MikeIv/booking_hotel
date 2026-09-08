@@ -1,10 +1,11 @@
 import type { RoomTariff } from "~/types/room";
 import type { SelectedEntry } from "~/types/booking";
+import type { ChildAge } from "~/utils/age";
 
 export type GuestRoomSlot = {
   adults: number;
   children: number;
-  childrenAges: number[];
+  childrenAges: ChildAge[];
 };
 
 /** Подсказки shrink из GuestsSelector (точнее эвристики по составу). */

@@ -7,6 +7,7 @@ import {
   createMockBookingStore,
   resetMockBookingStore,
 } from "../../mocks/stores";
+import { CHILD_AGE_REQUIRED_DETAIL } from "~/utils/age";
 
 // Мокируем store
 const mockBookingStore = createMockBookingStore();
@@ -86,6 +87,29 @@ describe("Booking.vue", () => {
 
       expect(result).toBe(true);
       expect(mockToastAdd).not.toHaveBeenCalled();
+    });
+
+    it("должен показывать ошибку, если возраст ребёнка не выбран", async () => {
+      const wrapper = mountComponent(Booking);
+
+      mockBookingStore.date.value = [
+        new Date("2024-12-01"),
+        new Date("2024-12-05"),
+      ];
+      mockBookingStore.guests.value = {
+        rooms: 1,
+        roomList: [{ adults: 2, children: 1, childrenAges: [null] }],
+      };
+
+      const result = await wrapper.vm.validateForm();
+
+      expect(result).toBe(false);
+      expect(mockToastAdd).toHaveBeenCalledWith({
+        severity: "warn",
+        summary: "Некорректные данные",
+        detail: CHILD_AGE_REQUIRED_DETAIL,
+        life: 3000,
+      });
     });
   });
 

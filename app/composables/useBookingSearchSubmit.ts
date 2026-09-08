@@ -10,10 +10,15 @@ import {
   MULTI_BOOKING_UNAVAILABLE_TOAST,
 } from "~/utils/multiBooking";
 import { isStaleSearchError } from "~/utils/staleSearchError";
+import {
+  CHILD_AGE_REQUIRED_DETAIL,
+  hasUnsetChildAges,
+  type ChildAge,
+} from "~/utils/age";
 
 type BookingGuestsState = {
   rooms: number;
-  roomList: { adults: number; children: number; childrenAges: number[] }[];
+  roomList: { adults: number; children: number; childrenAges: ChildAge[] }[];
 };
 
 export function useBookingSearchSubmit() {
@@ -48,6 +53,16 @@ export function useBookingSearchSubmit() {
         severity: "warn",
         summary: "Некорректные данные",
         detail: "Пожалуйста, укажите количество взрослых",
+        life: 3000,
+      });
+      return false;
+    }
+
+    if (hasUnsetChildAges(guestsValue.roomList ?? [])) {
+      toast.add({
+        severity: "warn",
+        summary: "Некорректные данные",
+        detail: CHILD_AGE_REQUIRED_DETAIL,
         life: 3000,
       });
       return false;

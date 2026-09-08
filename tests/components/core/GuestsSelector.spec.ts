@@ -146,7 +146,7 @@ describe("GuestsSelector.vue", () => {
       expect(wrapper.vm.guests.roomList[0]).toEqual({
         adults: 3,
         children: 2,
-        childrenAges: [AGE_MIN, AGE_MIN],
+        childrenAges: [null, null],
       });
       expect(wrapper.vm.guests.roomList[1]).toEqual({
         adults: 1,
@@ -167,8 +167,8 @@ describe("GuestsSelector.vue", () => {
 
       expect(wrapper.vm.guests.roomList[0].childrenAges).toHaveLength(3);
       expect(wrapper.vm.guests.roomList[0].childrenAges[0]).toBe(5);
-      expect(wrapper.vm.guests.roomList[0].childrenAges[1]).toBe(AGE_MIN);
-      expect(wrapper.vm.guests.roomList[0].childrenAges[2]).toBe(AGE_MIN);
+      expect(wrapper.vm.guests.roomList[0].childrenAges[1]).toBe(null);
+      expect(wrapper.vm.guests.roomList[0].childrenAges[2]).toBe(null);
     });
   });
 
@@ -357,8 +357,8 @@ describe("GuestsSelector.vue", () => {
       expect(emitted).toBeTruthy();
       expect(emitted![0][0].roomList[0].children).toBe(2);
       expect(emitted![0][0].roomList[0].childrenAges).toHaveLength(2);
-      expect(emitted![0][0].roomList[0].childrenAges[0]).toBe(AGE_MIN);
-      expect(emitted![0][0].roomList[0].childrenAges[1]).toBe(AGE_MIN);
+      expect(emitted![0][0].roomList[0].childrenAges[0]).toBe(null);
+      expect(emitted![0][0].roomList[0].childrenAges[1]).toBe(null);
     });
 
     it("должен сохранять существующие возрасты при увеличении количества детей", async () => {
@@ -376,8 +376,8 @@ describe("GuestsSelector.vue", () => {
       expect(emitted![0][0].roomList[0].children).toBe(3);
       expect(emitted![0][0].roomList[0].childrenAges).toHaveLength(3);
       expect(emitted![0][0].roomList[0].childrenAges[0]).toBe(5);
-      expect(emitted![0][0].roomList[0].childrenAges[1]).toBe(AGE_MIN);
-      expect(emitted![0][0].roomList[0].childrenAges[2]).toBe(AGE_MIN);
+      expect(emitted![0][0].roomList[0].childrenAges[1]).toBe(null);
+      expect(emitted![0][0].roomList[0].childrenAges[2]).toBe(null);
     });
 
     it("должен обрезать возрасты при уменьшении количества детей", async () => {
