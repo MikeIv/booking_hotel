@@ -23,9 +23,10 @@ export default defineNuxtConfig({
   ],
 
   fonts: {
-    // Отключаем все внешние провайдеры - используются только локальные шрифты
+    // Только локальные шрифты — без запросов к Google/CDN на старте
     providers: {
       google: false,
+      googleicons: false,
       fontshare: false,
       bunny: false,
       fontsource: false,
