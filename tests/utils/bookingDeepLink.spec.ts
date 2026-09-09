@@ -1,15 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
-import { ref } from "vue";
 import {
-  BOOKING_DEEP_LINK_LOADING_MESSAGE,
+  applyBookingDeepLinkFromQuery,
   getRouteQueryWithLocationFallback,
   hasBookingDeepLinkParams,
   isBookingDeepLinkNavigation,
   omitBookingDeepLinkQuery,
   parseBookingDeepLink,
-  prepareBookingDeepLinkOverlay,
-  runBookingDeepLinkSearch,
-  shouldHoldDeepLinkSearchOverlay,
 } from "~/utils/bookingDeepLink";
 import { formatDateApi } from "~/utils/dateFormat";
 
@@ -126,53 +122,14 @@ describe("bookingDeepLink", () => {
       }),
     ).toEqual({ uuid: "abc" });
   });
-
-  it("shouldHoldDeepLinkSearchOverlay только на главной с датами", () => {
-    const query = { check_in: "2026-09-15", check_out: "2026-09-17" };
-    expect(shouldHoldDeepLinkSearchOverlay(query, "/")).toBe(true);
-    expect(shouldHoldDeepLinkSearchOverlay(query, "")).toBe(true);
-    expect(shouldHoldDeepLinkSearchOverlay(query, "/rooms")).toBe(false);
-    expect(shouldHoldDeepLinkSearchOverlay({}, "/")).toBe(false);
-  });
-
-  it("prepareBookingDeepLinkOverlay включает pending и loading", () => {
-    const pending = { value: false };
-    const store = {
-      setLoading: vi.fn(),
-      setServerRequest: vi.fn(),
-    };
-
-    expect(
-      prepareBookingDeepLinkOverlay(
-        { check_in: "2026-09-15", check_out: "2026-09-17" },
-        "/",
-        pending,
-        store,
-      ),
-    ).toBe(true);
-    expect(pending.value).toBe(true);
-    expect(store.setLoading).toHaveBeenCalledWith(
-      true,
-      BOOKING_DEEP_LINK_LOADING_MESSAGE,
-    );
-    expect(store.setServerRequest).toHaveBeenCalledWith(true);
-  });
-
-  it("prepareBookingDeepLinkOverlay не трогает стор без дат", () => {
-    const pending = { value: false };
-    const store = {
-      setLoading: vi.fn(),
-      setServerRequest: vi.fn(),
-    };
-
-    expect(prepareBookingDeepLinkOverlay({}, "/", pending, store)).toBe(false);
-    expect(pending.value).toBe(false);
-    expect(store.setLoading).not.toHaveBeenCalled();
-  });
 });
 
-describe("runBookingDeepLinkSearch", () => {
-  const dates = { check_in: "2026-09-15", check_out: "2026-09-17" };
+describe("applyBookingDeepLinkFromQuery", () => {
+  const dates = {
+    check_in: "2026-09-15",
+    check_out: "2026-09-17",
+    adults: "2",
+  };
 
   function createDeps(
     overrides: {
@@ -180,92 +137,62 @@ describe("runBookingDeepLinkSearch", () => {
       path?: string;
     } = {},
   ) {
-    const pending = ref(true);
     const store = {
       setDate: vi.fn(),
       setGuests: vi.fn(),
       setPromoCode: vi.fn(),
-      setLoading: vi.fn(),
-      setServerRequest: vi.fn(),
     };
     const routerReplace = vi.fn().mockResolvedValue(undefined);
-    const submitSearch = vi.fn().mockResolvedValue(undefined);
 
     return {
-      pending,
       store,
       routerReplace,
-      submitSearch,
       deps: {
         query: dates,
         path: "/",
-        pending,
         store,
         routerReplace,
-        submitSearch,
         ...overrides,
       },
     };
   }
 
-  it("автопоиск на / держит оверлей до submit и снимает pending", async () => {
-    const { pending, store, submitSearch, routerReplace, deps } = createDeps();
+  it("чистит query и заполняет store без поиска", async () => {
+    const { store, routerReplace, deps } = createDeps();
 
-    await runBookingDeepLinkSearch(deps);
+    await applyBookingDeepLinkFromQuery(deps);
 
-    expect(routerReplace).toHaveBeenCalled();
-    expect(store.setDate).toHaveBeenCalled();
-    expect(store.setGuests).toHaveBeenCalled();
-    expect(submitSearch).toHaveBeenCalledOnce();
-    expect(pending.value).toBe(false);
-    expect(store.setLoading).not.toHaveBeenCalledWith(false);
-  });
-
-  it("пустой path считает главной и запускает автопоиск", async () => {
-    const { submitSearch, deps } = createDeps({ path: "" });
-
-    await runBookingDeepLinkSearch(deps);
-
-    expect(submitSearch).toHaveBeenCalledOnce();
-  });
-
-  it("без дат не вызывает replace и гасит pending", async () => {
-    const { pending, store, routerReplace, submitSearch, deps } = createDeps({
+    expect(routerReplace).toHaveBeenCalledWith({
+      path: "/",
+      hash: undefined,
       query: {},
     });
-    pending.value = false;
+    expect(store.setDate).toHaveBeenCalledOnce();
+    expect(store.setGuests).toHaveBeenCalledOnce();
+    expect(store.setPromoCode).not.toHaveBeenCalled();
+  });
 
-    await runBookingDeepLinkSearch(deps);
+  it("без дат ничего не делает", async () => {
+    const { store, routerReplace, deps } = createDeps({ query: {} });
+
+    await applyBookingDeepLinkFromQuery(deps);
 
     expect(routerReplace).not.toHaveBeenCalled();
-    expect(submitSearch).not.toHaveBeenCalled();
     expect(store.setDate).not.toHaveBeenCalled();
-    expect(pending.value).toBe(false);
   });
 
-  it("без автопоиска (не /) снимает loading", async () => {
-    const { pending, store, submitSearch, deps } = createDeps({
-      path: "/personal",
+  it("невалидные даты чистит URL, store не трогает", async () => {
+    const { store, routerReplace, deps } = createDeps({
+      query: { check_in: "invalid", check_out: "2026-09-17", uuid: "keep" },
     });
 
-    await runBookingDeepLinkSearch(deps);
+    await applyBookingDeepLinkFromQuery(deps);
 
-    expect(submitSearch).not.toHaveBeenCalled();
-    expect(pending.value).toBe(false);
-    expect(store.setLoading).toHaveBeenCalledWith(false);
-    expect(store.setServerRequest).toHaveBeenCalledWith(false);
-  });
-
-  it("невалидные даты не стартуют поиск и гасят оверлей", async () => {
-    const { pending, store, submitSearch, deps } = createDeps({
-      query: { check_in: "invalid", check_out: "2026-09-17" },
+    expect(routerReplace).toHaveBeenCalledWith({
+      path: "/",
+      hash: undefined,
+      query: { uuid: "keep" },
     });
-
-    await runBookingDeepLinkSearch(deps);
-
-    expect(submitSearch).not.toHaveBeenCalled();
     expect(store.setDate).not.toHaveBeenCalled();
-    expect(pending.value).toBe(false);
-    expect(store.setLoading).toHaveBeenCalledWith(false);
   });
 });

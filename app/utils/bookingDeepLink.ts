@@ -1,4 +1,3 @@
-import { nextTick } from "vue";
 import { MAX_GUESTS_PER_ROOM } from "~/utils/bookingSearch";
 import { parseDateApi } from "~/utils/dateFormat";
 import { getRouteQueryString } from "~/utils/routeQuery";
@@ -15,10 +14,6 @@ export const BOOKING_DEEP_LINK_QUERY_KEYS = [
   "checkInDate",
   "checkOutDate",
 ] as const;
-
-export const BOOKING_DEEP_LINK_PENDING_KEY = "booking-deep-link-pending";
-export const BOOKING_DEEP_LINK_LOADING_MESSAGE =
-  "Загружаем данные о номерах...";
 
 export type BookingDeepLinkGuestRoom = {
   adults: number;
@@ -223,11 +218,6 @@ type BookingDeepLinkStore = {
   setPromoCode: (value: string) => void;
 };
 
-type BookingDeepLinkLoadingStore = {
-  setLoading: (visible: boolean, message?: string) => void;
-  setServerRequest: (value: boolean) => void;
-};
-
 export function applyBookingDeepLinkPayload(
   store: BookingDeepLinkStore,
   payload: BookingDeepLinkPayload,
@@ -239,87 +229,36 @@ export function applyBookingDeepLinkPayload(
   }
 }
 
-function isHomePath(path: string): boolean {
-  return path === "/" || path === "";
-}
-
-/** Автопоиск со спиннером — только главная с датами из query. */
-export function shouldHoldDeepLinkSearchOverlay(
-  query: Record<string, unknown>,
-  path: string,
-): boolean {
-  return isHomePath(path) && hasBookingDeepLinkParams(query);
-}
-
-export function prepareBookingDeepLinkOverlay(
-  query: Record<string, unknown>,
-  path: string,
-  pending: { value: boolean },
-  store: BookingDeepLinkLoadingStore,
-): boolean {
-  if (!shouldHoldDeepLinkSearchOverlay(query, path)) return false;
-  pending.value = true;
-  store.setLoading(true, BOOKING_DEEP_LINK_LOADING_MESSAGE);
-  store.setServerRequest(true);
-  return true;
-}
-
-type BookingDeepLinkSearchDeps = {
+type ApplyBookingDeepLinkDeps = {
   query: Record<string, unknown>;
   path: string;
   hash?: string;
-  pending: { value: boolean };
-  store: BookingDeepLinkStore & BookingDeepLinkLoadingStore;
+  store: BookingDeepLinkStore;
   routerReplace: (location: {
     path: string;
     hash?: string;
     query: Record<string, string>;
   }) => Promise<unknown>;
-  submitSearch: () => Promise<void>;
 };
 
 /**
- * Query уже прочитан; оверлей желательно включить до router.isReady().
- * pending снимается всегда; loading стора — если поиск не стартовал.
+ * Query с ukraina-hotel.ru → store формы на текущем path.
+ * Без автопоиска /rooms — поиск только по кнопке «Поиск».
  */
-export async function runBookingDeepLinkSearch(
-  deps: BookingDeepLinkSearchDeps,
+export async function applyBookingDeepLinkFromQuery(
+  deps: ApplyBookingDeepLinkDeps,
 ): Promise<void> {
-  const armed =
-    prepareBookingDeepLinkOverlay(
-      deps.query,
-      deps.path,
-      deps.pending,
-      deps.store,
-    ) || deps.pending.value;
-  let searchStarted = false;
+  if (!hasBookingDeepLinkParams(deps.query)) return;
 
-  try {
-    if (!hasBookingDeepLinkParams(deps.query)) return;
+  const payload = parseBookingDeepLink(deps.query);
 
-    const payload = parseBookingDeepLink(deps.query);
-    const shouldAutoSearch = Boolean(payload && isHomePath(deps.path));
+  await deps.routerReplace({
+    path: deps.path,
+    hash: deps.hash || undefined,
+    query: omitBookingDeepLinkQuery(deps.query),
+  });
 
-    await deps.routerReplace({
-      path: deps.path,
-      hash: deps.hash || undefined,
-      query: omitBookingDeepLinkQuery(deps.query),
-    });
-
-    if (!payload) return;
-
-    await nextTick();
+  if (payload) {
     applyBookingDeepLinkPayload(deps.store, payload);
-
-    if (!shouldAutoSearch) return;
-
-    searchStarted = true;
-    await deps.submitSearch();
-  } finally {
-    deps.pending.value = false;
-    if (armed && !searchStarted) {
-      deps.store.setLoading(false);
-      deps.store.setServerRequest(false);
-    }
   }
 }
