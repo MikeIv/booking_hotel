@@ -208,15 +208,15 @@ Z-index значения определены в `app/assets/styles/variables/_z
 }
 ```
 
-**Доступные значения z-index:**
-- `modal.overlay`, `modal.content`, `modal.nav-menu`
-- `dropdown`
+**Доступные значения z-index (снизу вверх):**
+- `behind`, `default`
+- `intro`, `booking-label`
+- `modal.nav-menu` — slide-меню под `header` (бургер остаётся кликабельным)
 - `header`
-- `footer`
-- `booking-label`, `booking-summary`
-- `intro`
-- `default`
-- `behind`
+- `booking-summary` — mobile bottom sheet над header
+- `dropdown`
+- `modal.overlay`, `modal.content`
+- `toast` — всегда сверху (ошибки поверх header/модалок)
 
 **Важно:** Используйте `@use` вместо `@import` для импорта SCSS модулей. Это обеспечивает правильную изоляцию и предотвращает конфликты.
 
@@ -320,4 +320,3 @@ app/assets/styles/
 6. **Импортируйте переменные через `@use`** с правильными алиасами (`size` для resolutions, `z` для z-index)
 7. **Используйте функцию `z.z()`** для z-index значений вместо хардкода чисел
 8. **Используйте компонент `UIcon`** с префиксом `i-` для иконок из `app/assets/icons`
-

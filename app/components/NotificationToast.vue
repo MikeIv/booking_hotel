@@ -46,12 +46,16 @@
     position: "top-right",
     maxWidth: "500px",
     minWidth: "300px",
-    zIndex: 50,
+    zIndex: undefined,
     teleportTo: "body",
     customIcons: () => ({}),
     containerAriaLabel: "Уведомления",
     closeButtonAriaLabel: "Закрыть уведомление",
   });
+
+  const containerStyle = computed(() =>
+    props.zIndex != null ? { zIndex: props.zIndex } : undefined,
+  );
 
   const $style = useCssModule();
 
@@ -166,7 +170,7 @@
     <div
       :class="[$style.container, positionClassMap[props.position]]"
       :data-position="props.position"
-      :style="{ zIndex: props.zIndex }"
+      :style="containerStyle"
       role="region"
       :aria-label="props.containerAriaLabel"
       aria-live="polite"
@@ -268,12 +272,14 @@
   </Teleport>
 </template>
 
-<style module>
+<style module lang="scss">
+  @use "~/assets/styles/variables/z-index" as z;
+
   /* Контейнер уведомлений */
   .container {
     position: fixed;
     pointer-events: none;
-    z-index: var(--notification-z-index, 50);
+    z-index: var(--notification-z-index, #{z.z("toast")});
   }
 
   .list {

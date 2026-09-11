@@ -41,8 +41,6 @@
     background: none;
     border: none;
     cursor: pointer;
-
-    z-index: 1001;
     transition: transform 0.3s ease;
 
     @media (max-width: #{size.$desktopMin - 1px}) {
