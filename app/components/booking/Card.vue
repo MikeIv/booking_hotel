@@ -389,6 +389,10 @@
             option-label="title"
             option-value="id"
             placeholder="Тип кровати"
+            :pt="{
+              overlay: { class: 'bed-type-select-overlay' },
+              panel: { class: 'bed-type-select-overlay' },
+            }"
           />
         </div>
 
@@ -480,12 +484,21 @@
 
   .infoButton {
     flex: none;
+
+    > :global(span) {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 0;
+    }
   }
 
   .chevronIcon {
+    display: block;
     width: rem(26);
     height: rem(26);
     color: currentColor;
+    transform: translateY(rem(1));
   }
 
   .description {
@@ -535,18 +548,35 @@
     padding: 0 rem(16);
 
     :global(.p-select) {
+      display: flex;
+      align-items: center;
+      box-sizing: border-box;
       flex: 1 1 rem(220);
       min-width: rem(200);
       width: 100%;
       max-width: 100%;
-      min-height: rem(44);
-      padding: rem(8) rem(16);
+      height: rem(44);
+      padding: 0 rem(16);
       font-family: var(--a-font-body);
       font-size: rem(14);
+      line-height: 1.2;
       color: var(--a-text-dark);
       background: var(--a-text-white);
       border: rem(1) solid var(--a-border-primary);
       border-radius: var(--a-borderR--input);
+    }
+
+    :global(.p-select-label) {
+      display: flex;
+      align-items: center;
+      padding: 0;
+      font-size: inherit;
+      line-height: inherit;
+    }
+
+    :global(.p-select-dropdown) {
+      display: flex;
+      align-items: center;
     }
   }
 
@@ -646,5 +676,23 @@
     transform: translateY(-50%);
     z-index: z.z("behind");
     pointer-events: none;
+  }
+</style>
+
+<style lang="scss">
+  @use "~/assets/styles/tools/functions" as *;
+
+  .bed-type-select-overlay {
+    .p-select-list-container,
+    .p-select-option-label {
+      font-family: var(--a-font-body);
+      font-size: rem(14);
+      line-height: 1.2;
+    }
+
+    .p-select-list-container {
+      min-height: 0;
+      padding: rem(8) rem(16);
+    }
   }
 </style>
