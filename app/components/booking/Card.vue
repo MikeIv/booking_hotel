@@ -22,6 +22,8 @@
   const CAROUSEL_MIN_PHOTOS = 2;
   const CAROUSEL_TARGET_ITEMS = 3;
   const CAROUSEL_PLACEHOLDER_LABEL = "Room Photo";
+  /** TODO: временно скрыт блок «За регистрацию» — вернуть `true` */
+  const SHOW_GUEST_GIFT = false;
 
   const isValidDateRange = computed(() => {
     return (
@@ -355,7 +357,10 @@
         </dl>
 
         <div :class="$style.priceBlock">
-          <p :class="$style.guestGift">
+          <p
+            v-if="SHOW_GUEST_GIFT"
+            :class="$style.guestGift"
+          >
             <UIcon name="i-gift-line" :class="$style.icon" aria-hidden="true" />
             За регистрацию {{ formatPrice(currentRoom.price_for_register) }} ₽
           </p>

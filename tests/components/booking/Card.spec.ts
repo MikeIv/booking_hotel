@@ -139,7 +139,8 @@ describe("Card.vue", () => {
       expect(wrapper.find("article").exists()).toBe(true);
       expect(wrapper.text()).toContain("Делюкс номер");
       expect(wrapper.text()).toContain("25 м2");
-      expect(wrapper.text()).toContain("За регистрацию 1 000 ₽");
+      // TODO: временно скрыт блок «За регистрацию»
+      expect(wrapper.text()).not.toContain("За регистрацию");
       expect(wrapper.text()).toContain("От 5 000 руб.");
     });
 
