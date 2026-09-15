@@ -3,6 +3,7 @@
  */
 
 const DATE_ONLY_RE = /^(\d{4})-(\d{2})-(\d{2})$/;
+const HH_MM_TIME_RE = /^([0-1]?[0-9]|2[0-3]):([0-5][0-9])$/;
 
 function toLocalYmd(date: Date): string {
   const year = date.getFullYear();
@@ -60,6 +61,21 @@ export function formatDateApi(value: Date | string): string {
   }
 
   return toLocalYmd(value);
+}
+
+/**
+ * API additional.start_at / end_at: локальное время отеля (YYYY-MM-DDTHH:mm:ss),
+ * без суффикса Z — иначе бэкенд/PDF сдвигает время на offset часового пояса.
+ */
+export function formatDateTimeApi(date: Date, time: string): string | null {
+  if (!date || !time) return null;
+  if (!HH_MM_TIME_RE.test(time)) {
+    if (import.meta.dev) {
+      console.warn(`Неверный формат времени: ${time}. Ожидается HH:mm.`);
+    }
+    return null;
+  }
+  return `${formatDateApi(date)}T${time}:00`;
 }
 
 function parseDateString(dateString: string | undefined): Date | null {

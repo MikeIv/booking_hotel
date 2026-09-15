@@ -76,7 +76,7 @@ describe("BookingSummary.vue", () => {
   it("показывает стандартное время заезда и выезда", () => {
     const wrapper = mountSummary();
     expect(wrapper.text()).toContain("с 15:00");
-    expect(wrapper.text()).toContain("до 11:00");
+    expect(wrapper.text()).toContain("до 12:00");
   });
 
   it("показывает CTA Продолжить и эмитит continue", async () => {
