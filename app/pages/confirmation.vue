@@ -400,6 +400,7 @@ const handleChangeRoom = () => {
   bookingStore.setSearchResults(null);
   bookingStore.setSelectedRoomType(null);
   bookingStore.setSelectedTariff(null);
+  bookingStore.setSelectedServicesByRoom({});
   bookingStore.setChangeRoomUuid(currentBookingUuid.value);
   router.push("/rooms");
 };

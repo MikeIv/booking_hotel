@@ -1,7 +1,10 @@
 import { useBookingStore } from "~/stores/booking";
 import { storeToRefs } from "pinia";
 import type { ComputedRef } from "vue";
-import { buildBookingRoomRefs } from "~/utils/bookingChangeRequest";
+import {
+  buildBookingRoomRefs,
+  pickSelectedPackageCodes,
+} from "~/utils/bookingChangeRequest";
 
 type ChangeBookingRoomResponse = {
   success: boolean;
@@ -18,7 +21,7 @@ export const useBookingChangeRoom = (
   const { createdBooking, selectedRoomType, selectedTariff } =
     storeToRefs(bookingStore);
 
-  const { setChangeRoomUuid } = bookingStore;
+  const { setChangeRoomUuid, getSelectedServicesForRoom } = bookingStore;
 
   const isChangeRoomPopupOpen = ref(false);
   const isChangingRoom = ref(false);
@@ -68,16 +71,22 @@ export const useBookingChangeRoom = (
 
       const rooms =
         roomRecords.length > 0
-          ? buildBookingRoomRefs(roomRecords).map((room) => ({
+          ? buildBookingRoomRefs(roomRecords).map((room, index) => ({
               ...room,
               room_type_code: roomTypeCode,
               rate_plan_code: ratePlanCode,
+              packages: pickSelectedPackageCodes(
+                getSelectedServicesForRoom(index),
+              ),
             }))
           : [
               {
                 booking_id: null,
                 room_type_code: roomTypeCode,
                 rate_plan_code: ratePlanCode,
+                packages: pickSelectedPackageCodes(
+                  getSelectedServicesForRoom(0),
+                ),
               },
             ];
 

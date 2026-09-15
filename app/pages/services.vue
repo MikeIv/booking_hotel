@@ -162,18 +162,25 @@ const onUpgradeRoom = () => {
   });
 };
 
+const isEditingExistingBooking = computed(
+  () =>
+    Boolean(bookingStore.changeServicesUuid || bookingStore.changeRoomUuid),
+);
+
 /** Показывать блок «Повысить комфорт» только пока выбран базовый номер (не улучшенный) */
 const showUpgradeBlock = computed(
   () =>
-    !bookingStore.changeServicesUuid &&
+    !isEditingExistingBooking.value &&
     !isMultiRoomsMode.value &&
     (upgradeRoomLoading.value || !!upgradeRoom.value) &&
     selectedRoom.value?.room_type_code !== upgradeRoom.value?.room_type_code,
 );
 
 const handleContinue = async () => {
-  if (bookingStore.changeServicesUuid) {
-    await router.push(`/confirmation?uuid=${bookingStore.changeServicesUuid}`);
+  const existingBookingUuid =
+    bookingStore.changeServicesUuid || bookingStore.changeRoomUuid;
+  if (existingBookingUuid) {
+    await router.push(`/confirmation?uuid=${existingBookingUuid}`);
     return;
   }
 
@@ -235,7 +242,7 @@ onMounted(async () => {
   if (
     !isMultiRoomsMode.value &&
     selectedRoom.value &&
-    !bookingStore.changeServicesUuid
+    !isEditingExistingBooking.value
   ) {
     await fetchUpgradeRoom();
   }

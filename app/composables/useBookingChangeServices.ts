@@ -10,6 +10,7 @@ import {
   mapBookingUpdateRoomsPackages,
   pickChildrenAges,
   pickRoomRatePlanCode,
+  pickSelectedPackageCodes,
   resolveBookingNights,
 } from "~/utils/bookingChangeRequest";
 import { mapBookingRoomsServicesToByRoom } from "~/utils/mapBookingRoomServices";
@@ -50,14 +51,6 @@ function buildRoomFromBookingRecord(
       },
     ],
   };
-}
-
-function pickSelectedPackageCodes(services: SelectedService[]): string[] {
-  return services
-    .map((service) => service.packageCode)
-    .filter(
-      (code): code is string => typeof code === "string" && code.trim() !== "",
-    );
 }
 
 export const useBookingChangeServices = (
