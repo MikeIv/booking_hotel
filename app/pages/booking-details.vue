@@ -108,6 +108,7 @@ const {
   isChangingRoom,
   changeRoomError,
   changeRoomSuccess,
+  startChangeRoomFlow,
   openChangeRoomPopup,
   closeChangeRoomPopup,
   confirmChangeRoom,
@@ -128,12 +129,25 @@ const {
   canEditPackages,
   canEditContacts,
   canCancelBooking,
-  hasManagementActions,
 } = useBookingAllowedActions(() => bookingDetails.value?.allowed);
 
 const rooms = computed<BookingDetailsRoom[] | undefined>(
   () => bookingDetails.value?.rooms,
 );
+
+const canChangeRoom = computed(() => {
+  const list = rooms.value;
+  return canEditRoom.value && Array.isArray(list) && list.length === 1;
+});
+
+const hasVisibleManagementActions = computed(
+  () =>
+    canEditDates.value ||
+    canChangeRoom.value ||
+    canEditPackages.value ||
+    canEditContacts.value,
+);
+
 const totalPrice = computed(() => bookingDetails.value?.total_price || 0);
 const nights = computed(() => bookingDetails.value?.order?.nights || 0);
 const hasPdf = computed(() => !!bookingDetails.value?.order?.pdf);
@@ -170,14 +184,55 @@ const handleBackToCabinet = async () => {
   await router.push("/cabinet");
 };
 
-const handleChangeRoom = () => {
+const handleChangeRoom = async () => {
+  const uuid = currentBookingUuid.value;
+  if (!uuid) {
+    toast.add({
+      severity: "error",
+      summary: "Не удалось изменить номер",
+      detail: "UUID бронирования не найден. Обновите страницу.",
+      life: 5000,
+    });
+    return;
+  }
+
+  if (bookingStore.createdBooking?.uuid !== uuid) {
+    try {
+      await bookingStore.getBookingByUuid(uuid);
+    } catch (err: unknown) {
+      if (await handleBookingAccessDeniedIfNeeded(err)) {
+        return;
+      }
+
+      toast.add({
+        severity: "error",
+        summary: "Не удалось изменить номер",
+        detail:
+          getErrorMessage(err).trim() ||
+          "Не удалось загрузить данные бронирования",
+        life: 5000,
+      });
+      return;
+    }
+  }
+
+  const flowError = startChangeRoomFlow();
+  if (flowError) {
+    toast.add({
+      severity: "error",
+      summary: "Не удалось изменить номер",
+      detail: flowError,
+      life: 5000,
+    });
+    return;
+  }
+
   if (bookingDate.value) {
     bookingStore.setDate([...bookingDate.value] as [Date, Date]);
   }
   bookingStore.setSearchResults(null);
   bookingStore.setSelectedRoomType(null);
   bookingStore.setSelectedTariff(null);
-  bookingStore.setChangeRoomUuid(currentBookingUuid.value);
   void router.push("/rooms");
 };
 
@@ -296,12 +351,12 @@ onMounted(async () => {
         @print="handlePrint"
       />
 
-      <template v-if="hasManagementActions">
+      <template v-if="hasVisibleManagementActions">
         <hr :class="$style.divider" />
 
         <BookingDetailsManagement
           :can-edit-dates="canEditDates"
-          :can-edit-room="canEditRoom"
+          :can-edit-room="canChangeRoom"
           :can-edit-packages="canEditPackages"
           :can-edit-contacts="canEditContacts"
           @change-dates="openChangeDatesPopup"

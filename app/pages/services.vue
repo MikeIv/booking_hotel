@@ -2,6 +2,7 @@
 import { useBookingStore } from "~/stores/booking";
 import { useNotificationToast } from "~/composables/useToast";
 import { getSortedMultiRoomEntries } from "~/utils/multiBooking";
+import { pruneSelectedServicesByAvailableCodes } from "~/utils/mapBookingRoomServices";
 
 definePageMeta({
   layout: "steps",
@@ -16,6 +17,7 @@ const {
   isServerRequest,
   selectedMultiRooms,
   guests,
+  selectedServicesByRoom,
 } = storeToRefs(bookingStore);
 
 const guestsCount = computed(() => {
@@ -162,22 +164,46 @@ const onUpgradeRoom = () => {
   });
 };
 
+const isEditingExistingBooking = computed(
+  () =>
+    Boolean(bookingStore.changeServicesUuid || bookingStore.changeRoomUuid),
+);
+
 /** Показывать блок «Повысить комфорт» только пока выбран базовый номер (не улучшенный) */
 const showUpgradeBlock = computed(
   () =>
-    !bookingStore.changeServicesUuid &&
+    !isEditingExistingBooking.value &&
     !isMultiRoomsMode.value &&
     (upgradeRoomLoading.value || !!upgradeRoom.value) &&
     selectedRoom.value?.room_type_code !== upgradeRoom.value?.room_type_code,
 );
 
 const handleContinue = async () => {
-  if (bookingStore.changeServicesUuid) {
-    await router.push(`/confirmation?uuid=${bookingStore.changeServicesUuid}`);
+  const existingBookingUuid =
+    bookingStore.changeServicesUuid || bookingStore.changeRoomUuid;
+  if (existingBookingUuid) {
+    await router.push(`/confirmation?uuid=${existingBookingUuid}`);
     return;
   }
 
   await router.push("/personal");
+};
+
+const pruneSelectedServicesForChangeRoom = () => {
+  if (!bookingStore.changeRoomUuid) return;
+
+  const availableCodes = new Set(
+    packages.value
+      .map((pkg) => pkg.package_code?.trim())
+      .filter((code): code is string => Boolean(code)),
+  );
+
+  bookingStore.setSelectedServicesByRoom(
+    pruneSelectedServicesByAvailableCodes(
+      selectedServicesByRoom.value,
+      availableCodes,
+    ),
+  );
 };
 
 // --- Инициализация ---
@@ -222,6 +248,7 @@ onMounted(async () => {
       ? (multiRoomEntriesSorted.value[0]?.roomIdx ?? 0)
       : undefined;
     await bookingStore.searchPackages(firstRoomIdx);
+    pruneSelectedServicesForChangeRoom();
   } catch (err: unknown) {
     toast.add({
       severity: "error",
@@ -235,7 +262,7 @@ onMounted(async () => {
   if (
     !isMultiRoomsMode.value &&
     selectedRoom.value &&
-    !bookingStore.changeServicesUuid
+    !isEditingExistingBooking.value
   ) {
     await fetchUpgradeRoom();
   }

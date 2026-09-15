@@ -1,18 +1,17 @@
 import { useBookingStore } from "~/stores/booking";
 import { storeToRefs } from "pinia";
 import type { ComputedRef } from "vue";
-import type { BookingByUuidRoom } from "~/types/booking";
 import type { Room } from "~/types/room";
-import type { SelectedService } from "~/stores/booking";
 import { pickNumber, pickString } from "~/utils/pick";
 import {
   buildSelectedMultiRoomsFromBookingRooms,
   mapBookingUpdateRoomsPackages,
   pickChildrenAges,
   pickRoomRatePlanCode,
+  pickSelectedPackageCodes,
   resolveBookingNights,
 } from "~/utils/bookingChangeRequest";
-import { mapBookingRoomsServicesToByRoom } from "~/utils/mapBookingRoomServices";
+import { selectedServicesByRoomFromBookingRooms } from "~/utils/mapBookingRoomServices";
 import { parseDateApi } from "~/utils/dateFormat";
 
 type ChangeServicesResponse = {
@@ -52,14 +51,6 @@ function buildRoomFromBookingRecord(
   };
 }
 
-function pickSelectedPackageCodes(services: SelectedService[]): string[] {
-  return services
-    .map((service) => service.packageCode)
-    .filter(
-      (code): code is string => typeof code === "string" && code.trim() !== "",
-    );
-}
-
 export const useBookingChangeServices = (
   currentBookingUuid: ComputedRef<string | null>,
 ) => {
@@ -70,6 +61,7 @@ export const useBookingChangeServices = (
 
   const {
     setChangeServicesUuid,
+    setChangeRoomUuid,
     setSelectedServicesByRoom,
     setRoomTariffs,
     setSelectedMultiRooms,
@@ -82,17 +74,8 @@ export const useBookingChangeServices = (
   const changeServicesSuccess = ref<string | null>(null);
 
   function syncSelectedServicesFromBooking(): void {
-    const rooms = createdBooking.value?.rooms;
-    if (!Array.isArray(rooms) || rooms.length === 0) {
-      setSelectedServicesByRoom({});
-      return;
-    }
-
     setSelectedServicesByRoom(
-      mapBookingRoomsServicesToByRoom(rooms as BookingByUuidRoom[]) as Record<
-        string,
-        SelectedService[]
-      >,
+      selectedServicesByRoomFromBookingRooms(createdBooking.value?.rooms),
     );
   }
 
@@ -203,6 +186,7 @@ export const useBookingChangeServices = (
     const prepareError = prepareStoreForServicesChange();
     if (prepareError) return prepareError;
 
+    setChangeRoomUuid(null);
     setChangeServicesUuid(uuid);
     return null;
   };

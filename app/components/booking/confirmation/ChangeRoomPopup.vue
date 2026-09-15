@@ -49,7 +49,10 @@ const isRoomChangeSuccessful = computed(() =>
         </template>
 
         <template v-else>
-          <p :class="$style.text">Вы подтверждаете смену номера?</p>
+          <p :class="$style.text">
+            Вы подтверждаете смену номера? Услуги, недоступные для нового
+            тарифа, будут сняты.
+          </p>
 
           <div :class="$style.actions">
             <Button

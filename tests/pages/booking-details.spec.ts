@@ -25,6 +25,8 @@ const bookingDetailsRef = ref<{
 
 const mockGetBookingDetails = vi.fn();
 const mockSetChangeRoomUuid = vi.fn();
+const mockSetSelectedServicesByRoom = vi.fn();
+const mockSetSelectedMultiRooms = vi.fn();
 
 const mockBookingStore = {
   currentBookingDetails: bookingDetailsRef,
@@ -35,6 +37,8 @@ const mockBookingStore = {
   getBookingDetails: mockGetBookingDetails,
   getBookingByUuid: vi.fn(),
   setChangeRoomUuid: mockSetChangeRoomUuid,
+  setSelectedServicesByRoom: mockSetSelectedServicesByRoom,
+  setSelectedMultiRooms: mockSetSelectedMultiRooms,
   setDate: vi.fn(),
   setSearchResults: vi.fn(),
   setSelectedRoomType: vi.fn(),
@@ -139,11 +143,14 @@ vi.stubGlobal("useBookingChangeDates", () => ({
   confirmChangeDates: vi.fn(),
 }));
 
+const mockStartChangeRoomFlow = vi.fn(() => null);
+
 vi.stubGlobal("useBookingChangeRoom", () => ({
   isChangeRoomPopupOpen: ref(false),
   isChangingRoom: ref(false),
   changeRoomError: ref(null),
   changeRoomSuccess: ref(null),
+  startChangeRoomFlow: mockStartChangeRoomFlow,
   openChangeRoomPopup: vi.fn(),
   closeChangeRoomPopup: vi.fn(),
   confirmChangeRoom: vi.fn(),
@@ -189,7 +196,7 @@ describe("pages/booking-details.vue management actions", () => {
         email: "ivan@example.com",
         phone: "+79990001122",
       },
-      rooms: [],
+      rooms: [{ id: 1, title: "Standard" }],
       total_price: 10000,
     };
     mockGetBookingDetails.mockResolvedValue(bookingDetailsRef.value);
@@ -229,7 +236,8 @@ describe("pages/booking-details.vue management actions", () => {
     expect(openCancelBookingPopup).toHaveBeenCalled();
 
     await byText("Изменить номер")!.trigger("click");
-    expect(mockSetChangeRoomUuid).toHaveBeenCalledWith("booking-uuid-1");
+    await flushPromises();
+    expect(mockStartChangeRoomFlow).toHaveBeenCalled();
     expect(mockRouterPush).toHaveBeenCalledWith("/rooms");
   });
 });

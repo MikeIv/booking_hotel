@@ -98,8 +98,20 @@ const {
   canEditPackages,
   canEditContacts,
   canCancelBooking,
-  hasManagementActions,
 } = useBookingAllowedActions(() => createdBooking.value?.allowed);
+
+const canChangeRoom = computed(() => {
+  const rooms = createdBooking.value?.rooms;
+  return canEditRoom.value && Array.isArray(rooms) && rooms.length === 1;
+});
+
+const hasVisibleManagementActions = computed(
+  () =>
+    canEditDates.value ||
+    canChangeRoom.value ||
+    canEditPackages.value ||
+    canEditContacts.value,
+);
 
 const currentBookingUuid = computed<string | null>(() => {
   if (currentBookingUuidStore.value?.trim())
@@ -236,6 +248,7 @@ const {
   isChangingRoom,
   changeRoomError,
   changeRoomSuccess,
+  startChangeRoomFlow,
   openChangeRoomPopup,
   closeChangeRoomPopup,
   confirmChangeRoom,
@@ -394,13 +407,23 @@ const handlePrint = () => {
 };
 
 const handleChangeRoom = () => {
+  const flowError = startChangeRoomFlow();
+  if (flowError) {
+    toast.add({
+      severity: "error",
+      summary: "Не удалось изменить номер",
+      detail: flowError,
+      life: 5000,
+    });
+    return;
+  }
+
   if (bookingDate.value) {
     bookingStore.setDate([...bookingDate.value] as [Date, Date]);
   }
   bookingStore.setSearchResults(null);
   bookingStore.setSelectedRoomType(null);
   bookingStore.setSelectedTariff(null);
-  bookingStore.setChangeRoomUuid(currentBookingUuid.value);
   router.push("/rooms");
 };
 
@@ -479,12 +502,12 @@ const handleNewBooking = () => {
               </p>
             </div>
 
-            <template v-if="hasManagementActions">
+            <template v-if="hasVisibleManagementActions">
               <div :class="$style.divider" />
 
               <BookingDetailsManagement
                 :can-edit-dates="canEditDates"
-                :can-edit-room="canEditRoom"
+                :can-edit-room="canChangeRoom"
                 :can-edit-packages="canEditPackages"
                 :can-edit-contacts="canEditContacts"
                 @change-dates="openChangeDatesPopup"

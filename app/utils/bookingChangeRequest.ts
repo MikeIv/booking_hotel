@@ -213,6 +213,16 @@ export function buildSelectedMultiRoomsFromBookingRooms(
   return entries;
 }
 
+export function pickSelectedPackageCodes(
+  services: Array<{ packageCode?: string | null }>,
+): string[] {
+  return services
+    .map((service) => service.packageCode)
+    .filter(
+      (code): code is string => typeof code === "string" && code.trim() !== "",
+    );
+}
+
 /** PUT booking.update: packages для каждого номера (смена услуг) */
 export function mapBookingUpdateRoomsPackages(
   roomsRaw: unknown[],
