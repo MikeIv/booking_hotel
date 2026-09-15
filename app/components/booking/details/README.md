@@ -30,7 +30,7 @@
 **Props:**
 - `canEditDates` / `canEditRoom` / `canEditPackages` / `canEditContacts` - видимость кнопок
 
-Видимость всей секции контролирует родитель через `v-if` (`hasManagementActions` из `useBookingAllowedActions`).
+Видимость всей секции контролирует родитель через `v-if` (`hasVisibleManagementActions`: даты / один номер / услуги / контакты; кнопка смены номера скрыта при мультиброни).
 
 **Events:**
 - `change-dates` - изменить даты

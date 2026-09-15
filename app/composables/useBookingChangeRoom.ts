@@ -26,6 +26,7 @@ export const useBookingChangeRoom = (
     setChangeRoomUuid,
     setSelectedServicesByRoom,
     setSelectedMultiRooms,
+    setChangeServicesUuid,
     getSelectedServicesForRoom,
   } = bookingStore;
 
@@ -57,6 +58,7 @@ export const useBookingChangeRoom = (
 
     setSelectedMultiRooms({});
     syncSelectedServicesFromBooking();
+    setChangeServicesUuid(null);
     setChangeRoomUuid(uuid);
     return null;
   };

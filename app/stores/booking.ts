@@ -481,6 +481,8 @@ export const useBookingStore = defineStore(
         );
 
         if (response.success && response.payload) {
+          setChangeRoomUuid(null);
+          setChangeServicesUuid(null);
           setBookingByUuid(response.payload);
           if (response.payload.redirect_url) {
             skipLoadingReset = true;

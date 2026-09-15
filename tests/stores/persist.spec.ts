@@ -207,4 +207,25 @@ describe("store persist pick", () => {
     expect(tariff).not.toHaveProperty("description");
     expect(tariff).not.toHaveProperty("cancellation_popover");
   });
+
+  it("changeRoomUuid / changeServicesUuid персистятся и очищаются forceReset", () => {
+    setupPersistedPinia();
+    const store = useBookingStore();
+    store.setChangeRoomUuid("room-uuid");
+    store.setChangeServicesUuid("services-uuid");
+    store.$persist();
+
+    const persisted = readStore("booking-store");
+    expect(persisted.changeRoomUuid).toBe("room-uuid");
+    expect(persisted.changeServicesUuid).toBe("services-uuid");
+
+    store.forceReset();
+    store.$persist();
+
+    const afterReset = readStore("booking-store");
+    expect(afterReset.changeRoomUuid ?? null).toBeNull();
+    expect(afterReset.changeServicesUuid ?? null).toBeNull();
+    expect(store.changeRoomUuid).toBeNull();
+    expect(store.changeServicesUuid).toBeNull();
+  });
 });

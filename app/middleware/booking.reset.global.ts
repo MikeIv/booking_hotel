@@ -37,6 +37,13 @@ export default defineNuxtRouteMiddleware((to, from) => {
     didReset = true;
   }
 
+  // Deep-link на / сохраняет даты/гостей, но флаги смены номера/услуг
+  // не относятся к deep-link-состоянию и не должны «подхватывать» старую бронь.
+  if (to.path === "/" && !didReset) {
+    bookingStore.setChangeRoomUuid(null);
+    bookingStore.setChangeServicesUuid(null);
+  }
+
   if (!didReset && !isDeepLinkNavigation && typeof window !== "undefined") {
     const lastActivity = sessionStorage.getItem("last-activity");
     if (lastActivity && Date.now() - parseInt(lastActivity) > 30 * 60 * 1000) {

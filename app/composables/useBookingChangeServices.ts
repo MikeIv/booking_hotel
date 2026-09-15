@@ -61,6 +61,7 @@ export const useBookingChangeServices = (
 
   const {
     setChangeServicesUuid,
+    setChangeRoomUuid,
     setSelectedServicesByRoom,
     setRoomTariffs,
     setSelectedMultiRooms,
@@ -185,6 +186,7 @@ export const useBookingChangeServices = (
     const prepareError = prepareStoreForServicesChange();
     if (prepareError) return prepareError;
 
+    setChangeRoomUuid(null);
     setChangeServicesUuid(uuid);
     return null;
   };

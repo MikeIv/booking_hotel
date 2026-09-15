@@ -34,6 +34,7 @@ const selectedServicesByRoomRef = ref<
 const mockGetBookingByUuid = vi.fn();
 const mockSetChangeRoomUuid = vi.fn();
 const mockSetSelectedMultiRooms = vi.fn();
+const mockSetChangeServicesUuid = vi.fn();
 const mockSetSelectedServicesByRoom = vi.fn((value) => {
   selectedServicesByRoomRef.value = value;
 });
@@ -48,6 +49,7 @@ vi.mock("~/stores/booking", () => ({
     createdBooking: createdBookingRef,
     getBookingByUuid: mockGetBookingByUuid,
     setChangeRoomUuid: mockSetChangeRoomUuid,
+    setChangeServicesUuid: mockSetChangeServicesUuid,
     setSelectedMultiRooms: mockSetSelectedMultiRooms,
     setSelectedServicesByRoom: mockSetSelectedServicesByRoom,
     getSelectedServicesForRoom: mockGetSelectedServicesForRoom,
@@ -87,6 +89,7 @@ describe("useBookingChangeRoom", () => {
 
     expect(startChangeRoomFlow()).toBeNull();
     expect(mockSetSelectedMultiRooms).toHaveBeenCalledWith({});
+    expect(mockSetChangeServicesUuid).toHaveBeenCalledWith(null);
     expect(mockSetChangeRoomUuid).toHaveBeenCalledWith("booking-uuid-1");
     expect(mockSetSelectedServicesByRoom).toHaveBeenCalled();
     const hydrated = mockSetSelectedServicesByRoom.mock.calls[0]?.[0] as Record<
