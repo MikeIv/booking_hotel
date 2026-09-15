@@ -766,6 +766,8 @@ export const useBookingStore = defineStore(
         "selectedTariff",
         "selectedServicesByRoom",
         "selectedMultiRooms",
+        "changeRoomUuid",
+        "changeServicesUuid",
       ],
       serializer: {
         serialize: (state: StateTree) => {

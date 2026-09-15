@@ -1,5 +1,6 @@
 import type { SelectedService } from "~/stores/booking";
 import type { BookingByUuidRoom } from "~/types/booking";
+import { pickPackageCode } from "~/utils/bookingChangeRequest";
 import { pickNumber, pickString } from "~/utils/pick";
 
 const hashStringToNumber = (str: string): number => {
@@ -12,15 +13,26 @@ const hashStringToNumber = (str: string): number => {
   return Math.abs(hash);
 };
 
+/**
+ * id должен совпадать с карточкой на /services (hash package_code),
+ * иначе гидратация из брони не подсветит выбранную услугу.
+ */
 export function parseBookingRoomService(
   service: unknown,
   fallbackId: number,
 ): SelectedService | null {
-  if (typeof service === "string" && service.trim() !== "") {
+  const packageCode = pickPackageCode(service);
+  if (!packageCode && typeof service === "string") {
+    return null;
+  }
+
+  if (typeof service === "string") {
+    const code = packageCode as string;
     return {
-      id: hashStringToNumber(service) || fallbackId,
-      title: service.trim(),
+      id: hashStringToNumber(code) || fallbackId,
+      title: code,
       price: 0,
+      packageCode: code,
     };
   }
 
@@ -28,10 +40,7 @@ export function parseBookingRoomService(
 
   const record = service as Record<string, unknown>;
   const title =
-    pickString(record.title) ??
-    pickString(record.name) ??
-    pickString(record.package_code) ??
-    pickString(record.code);
+    pickString(record.title) ?? pickString(record.name) ?? packageCode ?? null;
 
   if (!title) return null;
 
@@ -41,19 +50,15 @@ export function parseBookingRoomService(
     pickNumber(record.total) ??
     0;
 
-  const packageCode =
-    pickString(record.package_code) ?? pickString(record.code) ?? undefined;
-
-  const id =
-    pickNumber(record.id) ??
-    (packageCode ? hashStringToNumber(packageCode) : null) ??
-    fallbackId;
+  const id = packageCode
+    ? hashStringToNumber(packageCode) || fallbackId
+    : (pickNumber(record.id) ?? fallbackId);
 
   return {
     id,
     title,
     price,
-    packageCode,
+    ...(packageCode ? { packageCode } : {}),
   };
 }
 
@@ -99,4 +104,46 @@ export function mapBookingRoomsServicesToByRoom(
   });
 
   return result;
+}
+
+/** Ключи — строковые индексы комнат (как в booking store) */
+export function selectedServicesByRoomFromBookingRooms(
+  rooms: unknown,
+): Record<string, SelectedService[]> {
+  if (!Array.isArray(rooms) || rooms.length === 0) return {};
+
+  return Object.fromEntries(
+    Object.entries(
+      mapBookingRoomsServicesToByRoom(rooms as BookingByUuidRoom[]),
+    ).map(([key, value]) => [String(key), value]),
+  );
+}
+
+/**
+ * Оставляет только услуги, чей packageCode есть среди доступных.
+ * При пустом availableCodes возвращает исходный выбор без изменений
+ * (нечего сверять — иначе все услуги обнулились бы).
+ */
+export function pruneSelectedServicesByAvailableCodes(
+  selectedByRoom: Record<string, SelectedService[]>,
+  availableCodes: ReadonlySet<string>,
+): Record<string, SelectedService[]> {
+  if (availableCodes.size === 0) {
+    return { ...selectedByRoom };
+  }
+
+  const next: Record<string, SelectedService[]> = {};
+
+  for (const [roomKey, services] of Object.entries(selectedByRoom)) {
+    const kept = services.filter((service) => {
+      const code = service.packageCode?.trim();
+      return Boolean(code && availableCodes.has(code));
+    });
+
+    if (kept.length > 0) {
+      next[roomKey] = kept;
+    }
+  }
+
+  return next;
 }

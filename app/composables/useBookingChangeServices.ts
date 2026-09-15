@@ -1,9 +1,7 @@
 import { useBookingStore } from "~/stores/booking";
 import { storeToRefs } from "pinia";
 import type { ComputedRef } from "vue";
-import type { BookingByUuidRoom } from "~/types/booking";
 import type { Room } from "~/types/room";
-import type { SelectedService } from "~/stores/booking";
 import { pickNumber, pickString } from "~/utils/pick";
 import {
   buildSelectedMultiRoomsFromBookingRooms,
@@ -13,7 +11,7 @@ import {
   pickSelectedPackageCodes,
   resolveBookingNights,
 } from "~/utils/bookingChangeRequest";
-import { mapBookingRoomsServicesToByRoom } from "~/utils/mapBookingRoomServices";
+import { selectedServicesByRoomFromBookingRooms } from "~/utils/mapBookingRoomServices";
 import { parseDateApi } from "~/utils/dateFormat";
 
 type ChangeServicesResponse = {
@@ -75,17 +73,8 @@ export const useBookingChangeServices = (
   const changeServicesSuccess = ref<string | null>(null);
 
   function syncSelectedServicesFromBooking(): void {
-    const rooms = createdBooking.value?.rooms;
-    if (!Array.isArray(rooms) || rooms.length === 0) {
-      setSelectedServicesByRoom({});
-      return;
-    }
-
     setSelectedServicesByRoom(
-      mapBookingRoomsServicesToByRoom(rooms as BookingByUuidRoom[]) as Record<
-        string,
-        SelectedService[]
-      >,
+      selectedServicesByRoomFromBookingRooms(createdBooking.value?.rooms),
     );
   }
 

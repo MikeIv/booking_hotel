@@ -2,6 +2,7 @@
 import { useBookingStore } from "~/stores/booking";
 import { useNotificationToast } from "~/composables/useToast";
 import { getSortedMultiRoomEntries } from "~/utils/multiBooking";
+import { pruneSelectedServicesByAvailableCodes } from "~/utils/mapBookingRoomServices";
 
 definePageMeta({
   layout: "steps",
@@ -16,6 +17,7 @@ const {
   isServerRequest,
   selectedMultiRooms,
   guests,
+  selectedServicesByRoom,
 } = storeToRefs(bookingStore);
 
 const guestsCount = computed(() => {
@@ -187,6 +189,23 @@ const handleContinue = async () => {
   await router.push("/personal");
 };
 
+const pruneSelectedServicesForChangeRoom = () => {
+  if (!bookingStore.changeRoomUuid) return;
+
+  const availableCodes = new Set(
+    packages.value
+      .map((pkg) => pkg.package_code?.trim())
+      .filter((code): code is string => Boolean(code)),
+  );
+
+  bookingStore.setSelectedServicesByRoom(
+    pruneSelectedServicesByAvailableCodes(
+      selectedServicesByRoom.value,
+      availableCodes,
+    ),
+  );
+};
+
 // --- Инициализация ---
 onMounted(async () => {
   if (isMultiRoomsMode.value) {
@@ -229,6 +248,7 @@ onMounted(async () => {
       ? (multiRoomEntriesSorted.value[0]?.roomIdx ?? 0)
       : undefined;
     await bookingStore.searchPackages(firstRoomIdx);
+    pruneSelectedServicesForChangeRoom();
   } catch (err: unknown) {
     toast.add({
       severity: "error",

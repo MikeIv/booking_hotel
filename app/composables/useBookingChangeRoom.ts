@@ -5,6 +5,7 @@ import {
   buildBookingRoomRefs,
   pickSelectedPackageCodes,
 } from "~/utils/bookingChangeRequest";
+import { selectedServicesByRoomFromBookingRooms } from "~/utils/mapBookingRoomServices";
 
 type ChangeBookingRoomResponse = {
   success: boolean;
@@ -21,12 +22,44 @@ export const useBookingChangeRoom = (
   const { createdBooking, selectedRoomType, selectedTariff } =
     storeToRefs(bookingStore);
 
-  const { setChangeRoomUuid, getSelectedServicesForRoom } = bookingStore;
+  const {
+    setChangeRoomUuid,
+    setSelectedServicesByRoom,
+    setSelectedMultiRooms,
+    getSelectedServicesForRoom,
+  } = bookingStore;
 
   const isChangeRoomPopupOpen = ref(false);
   const isChangingRoom = ref(false);
   const changeRoomError = ref<string | null>(null);
   const changeRoomSuccess = ref<string | null>(null);
+
+  function syncSelectedServicesFromBooking(): void {
+    setSelectedServicesByRoom(
+      selectedServicesByRoomFromBookingRooms(createdBooking.value?.rooms),
+    );
+  }
+
+  const startChangeRoomFlow = (): string | null => {
+    const uuid = currentBookingUuid.value;
+    if (!uuid) {
+      return "UUID бронирования не найден. Обновите страницу или проверьте ссылку.";
+    }
+
+    const roomsRaw = createdBooking.value?.rooms;
+    if (!Array.isArray(roomsRaw) || roomsRaw.length === 0) {
+      return "Не удалось определить состав бронирования. Обновите страницу.";
+    }
+
+    if (roomsRaw.length > 1) {
+      return "Смена номера для бронирования с несколькими номерами пока не поддерживается.";
+    }
+
+    setSelectedMultiRooms({});
+    syncSelectedServicesFromBooking();
+    setChangeRoomUuid(uuid);
+    return null;
+  };
 
   const openChangeRoomPopup = () => {
     changeRoomError.value = null;
@@ -39,6 +72,7 @@ export const useBookingChangeRoom = (
     changeRoomSuccess.value = null;
     isChangeRoomPopupOpen.value = false;
     setChangeRoomUuid(null);
+    syncSelectedServicesFromBooking();
   };
 
   const confirmChangeRoom = async () => {
@@ -58,37 +92,28 @@ export const useBookingChangeRoom = (
       return;
     }
 
+    const roomsRaw = createdBooking.value?.rooms;
+    if (!Array.isArray(roomsRaw) || roomsRaw.length !== 1) {
+      changeRoomError.value =
+        "Смена номера доступна только для бронирования с одним номером.";
+      return;
+    }
+
     isChangingRoom.value = true;
     changeRoomError.value = null;
     changeRoomSuccess.value = null;
 
     try {
-      const roomsRaw = createdBooking.value?.rooms;
-      const existingRooms = Array.isArray(roomsRaw) ? roomsRaw : [];
-      const roomRecords = existingRooms.map(
-        (roomRaw) => roomRaw as Record<string, unknown>,
-      );
-
-      const rooms =
-        roomRecords.length > 0
-          ? buildBookingRoomRefs(roomRecords).map((room, index) => ({
-              ...room,
-              room_type_code: roomTypeCode,
-              rate_plan_code: ratePlanCode,
-              packages: pickSelectedPackageCodes(
-                getSelectedServicesForRoom(index),
-              ),
-            }))
-          : [
-              {
-                booking_id: null,
-                room_type_code: roomTypeCode,
-                rate_plan_code: ratePlanCode,
-                packages: pickSelectedPackageCodes(
-                  getSelectedServicesForRoom(0),
-                ),
-              },
-            ];
+      const roomRecord = roomsRaw[0] as Record<string, unknown>;
+      const [roomRef] = buildBookingRoomRefs([roomRecord]);
+      const rooms = [
+        {
+          ...roomRef,
+          room_type_code: roomTypeCode,
+          rate_plan_code: ratePlanCode,
+          packages: pickSelectedPackageCodes(getSelectedServicesForRoom(0)),
+        },
+      ];
 
       const response = (await put<unknown>(
         `/v1/booking/${uuid}`,
@@ -106,6 +131,7 @@ export const useBookingChangeRoom = (
 
       await bookingStore.getBookingByUuid(uuid);
       setChangeRoomUuid(null);
+      syncSelectedServicesFromBooking();
       changeRoomSuccess.value = "Номер успешно изменён.";
     } catch (error: unknown) {
       changeRoomError.value = getErrorMessage(error);
@@ -119,6 +145,7 @@ export const useBookingChangeRoom = (
     isChangingRoom,
     changeRoomError,
     changeRoomSuccess,
+    startChangeRoomFlow,
     openChangeRoomPopup,
     closeChangeRoomPopup,
     confirmChangeRoom,
