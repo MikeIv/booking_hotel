@@ -18,5 +18,5 @@ export const HOTEL_INFO: HotelInfo = {
   email: "mail@mail.ru",
   imageUrl: "/images/room/room-01.jpg",
   checkInTime: "15:00",
-  checkOutTime: "11:00",
+  checkOutTime: "12:00",
 } as const;

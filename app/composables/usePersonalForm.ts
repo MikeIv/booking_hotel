@@ -11,8 +11,8 @@ import {
   type ValidationRules,
 } from "~/composables/useFormValidation";
 import { formatPhoneForApi } from "~/composables/usePhoneMask";
-
-const HH_MM_TIME_REGEX = /^([0-1]?[0-9]|2[0-3]):([0-5][0-9])$/;
+import { formatDateTimeApi } from "~/utils/dateFormat";
+import { HOTEL_INFO } from "~/utils/hotel";
 
 export interface GuestData {
   lastName: string;
@@ -291,22 +291,20 @@ export const usePersonalForm = () => {
     return isValid;
   };
 
-  const formatDateTime = (
-    date: Date,
-    time: string,
-    formatDate: (date: Date) => string,
-  ): string | null => {
-    if (!date || !time) return null;
-    if (!HH_MM_TIME_REGEX.test(time)) {
-      if (import.meta.dev) {
-        console.warn(`Неверный формат времени: ${time}. Ожидается HH:mm.`);
-      }
-      return null;
-    }
-    const formattedDate = formatDate(date);
-    if (!formattedDate) return null;
-    return `${formattedDate}T${time}:00Z`;
-  };
+  const buildAdditionalPayload = (
+    formData: PersonalFormData,
+    date: [Date, Date],
+  ) => ({
+    start_at: formatDateTimeApi(
+      date[0],
+      formData.checkInTime || HOTEL_INFO.checkInTime,
+    ),
+    end_at: formatDateTimeApi(
+      date[1],
+      formData.checkOutTime || HOTEL_INFO.checkOutTime,
+    ),
+    comment: formData.comment || null,
+  });
 
   const prepareBookingData = (
     formData: PersonalFormData,
@@ -351,15 +349,7 @@ export const usePersonalForm = () => {
       payment: formData.paymentMethod || "",
       agreements: formData.agreement,
       children_ages: childrenAges,
-      additional: {
-        start_at: formData.checkInTime
-          ? formatDateTime(date[0], formData.checkInTime, formatDate)
-          : null,
-        end_at: formData.checkOutTime
-          ? formatDateTime(date[1], formData.checkOutTime, formatDate)
-          : null,
-        comment: formData.comment || null,
-      },
+      additional: buildAdditionalPayload(formData, date),
       rooms: [
         {
           room_type_code: selectedRoomType,
@@ -473,15 +463,7 @@ export const usePersonalForm = () => {
       payment: formData.paymentMethod || "",
       agreements: formData.agreement,
       children_ages: allChildrenAges,
-      additional: {
-        start_at: formData.checkInTime
-          ? formatDateTime(date[0], formData.checkInTime, formatDate)
-          : null,
-        end_at: formData.checkOutTime
-          ? formatDateTime(date[1], formData.checkOutTime, formatDate)
-          : null,
-        comment: formData.comment || null,
-      },
+      additional: buildAdditionalPayload(formData, date),
       rooms,
     };
   };
@@ -496,7 +478,6 @@ export const usePersonalForm = () => {
     createRoomGuestData,
     initialGuestData,
     validateForm,
-    formatDateTime,
     prepareBookingData,
     prepareMultiBookingData,
   };

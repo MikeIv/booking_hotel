@@ -7,9 +7,22 @@ import {
   formatWeekdayLong,
   formatDateStringNumeric,
   formatDateStringLong,
+  formatDateTimeApi,
 } from "~/utils/dateFormat";
 
 describe("dateFormat contracts", () => {
+  describe("formatDateTimeApi (additional start_at / end_at)", () => {
+    it("возвращает локальное время без суффикса Z", () => {
+      const date = new Date(2026, 3, 15);
+      expect(formatDateTimeApi(date, "12:00")).toBe("2026-04-15T12:00:00");
+    });
+
+    it("отклоняет неверный формат времени", () => {
+      const date = new Date(2026, 3, 15);
+      expect(formatDateTimeApi(date, "25:00")).toBeNull();
+    });
+  });
+
   describe("formatDateApi (ex booking store)", () => {
     it("форматирует Date в локальный YYYY-MM-DD", () => {
       const date = new Date(2026, 3, 15, 12, 0, 0); // 15 Apr local
