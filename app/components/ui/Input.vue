@@ -147,6 +147,7 @@
 
   .booking {
     container-type: inline-size;
+    min-width: rem(160);
 
     .label {
       font-family: var(--a-font-heading);

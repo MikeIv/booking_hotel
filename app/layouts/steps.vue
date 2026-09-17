@@ -77,5 +77,11 @@
     background-color: var(--a-whiteBg);
     position: relative;
     transition: margin-top 0.2s ease;
+
+    // margin-inline: auto у страницы отменяет stretch колоночного flex —
+    // без явной ширины контейнер схлопывается в shrink-to-fit.
+    > * {
+      width: 100%;
+    }
   }
 </style>
