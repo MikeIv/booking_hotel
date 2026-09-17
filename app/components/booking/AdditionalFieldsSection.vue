@@ -23,7 +23,7 @@ const updateField = (key: string, value: string) => {
 
 const selectFieldKeys = new Set(["checkInTime", "checkOutTime"]);
 const commentFieldKey = "comment";
-/** TODO: временно disabled — вернуть `false`, когда бэк обработает время заезда/выезда */
+/** TODO: временно скрыто — вернуть `false`, когда бэк обработает время заезда/выезда */
 const TIME_SELECTS_DISABLED = true;
 const timeOptions = Array.from({ length: 24 }, (_, hour) => {
   const value = `${String(hour).padStart(2, "0")}:00`;
@@ -42,7 +42,7 @@ const commentField = computed(() =>
   <div :class="$style.formItem">
     <h3 :class="$style.sectionHeader">Дополнительно</h3>
     <div :class="$style.additionalBlock">
-      <div :class="$style.selectsRow">
+      <div v-if="!TIME_SELECTS_DISABLED" :class="$style.selectsRow">
         <div
           v-for="field in selectFields"
           :key="field.key"
@@ -54,7 +54,6 @@ const commentField = computed(() =>
             :placeholder="field.placeholder"
             :aria-label="field.placeholder"
             variant="personal"
-            :disabled="TIME_SELECTS_DISABLED"
             @update:model-value="updateField(field.key, $event)"
           />
         </div>
