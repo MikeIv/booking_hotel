@@ -147,7 +147,7 @@
 
   .booking {
     container-type: inline-size;
-    min-width: rem(160);
+    min-width: var(--booking-field-min);
 
     .label {
       font-family: var(--a-font-heading);

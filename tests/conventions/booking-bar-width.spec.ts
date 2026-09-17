@@ -18,9 +18,8 @@ describe("booking bar: no shrink-to-fit collapse", () => {
     );
   });
 
-  it("rooms page container has width 100% next to max-width + auto margins", () => {
+  it("rooms page keeps max-width + auto margins and relies on steps stretch", () => {
     const style = styleBlock(read("app/pages/rooms/index.vue"));
-    expect(style).toMatch(/\.container\s*\{[\s\S]*?width:\s*100%/);
     expect(style).toMatch(/\.container\s*\{[\s\S]*?max-width:/);
     expect(style).toMatch(/\.container\s*\{[\s\S]*?margin:\s*0 auto/);
   });
@@ -32,17 +31,23 @@ describe("booking bar: no shrink-to-fit collapse", () => {
         /@media \(min-width: #\{size\.\$desktopMedium\}\) \{[\s\S]*?grid-template-columns:[\s\S]*?;/,
       )?.[0] ?? "";
     expect(desktopBlock).toMatch(
-      /minmax\(rem\(220\),\s*1\.25fr\)[\s\S]*minmax\(rem\(180\),\s*1fr\)[\s\S]*minmax\(rem\(160\),\s*0\.8fr\)[\s\S]*rem\(272\)/,
+      /minmax\(rem\(220\),\s*1\.25fr\)[\s\S]*minmax\(rem\(180\),\s*1fr\)[\s\S]*minmax\(var\(--booking-field-min\),\s*0\.8fr\)[\s\S]*rem\(272\)/,
     );
     expect(desktopBlock).not.toMatch(/minmax\(\s*0\s*,/);
   });
 
-  it("booking Input/Select wrappers keep an intrinsic min-width under cqi containment", () => {
+  it("booking field min-width is a shared token used by Input, Select and the promo track", () => {
+    expect(read("app/assets/styles/variables/_booking.scss")).toMatch(
+      /--booking-field-min:\s*#\{rem\(160\)\}/,
+    );
+    expect(read("app/assets/styles/main.scss")).toMatch(
+      /@use\s+"variables\/booking"/,
+    );
     expect(styleBlock(read("app/components/ui/Input.vue"))).toMatch(
-      /\.booking\s*\{[\s\S]*?min-width:\s*rem\(160\)/,
+      /\.booking\s*\{[\s\S]*?min-width:\s*var\(--booking-field-min\)/,
     );
     expect(styleBlock(read("app/components/ui/Select.vue"))).toMatch(
-      /\.booking\s*\{[\s\S]*?min-width:\s*rem\(160\)/,
+      /\.booking\s*\{[\s\S]*?min-width:\s*var\(--booking-field-min\)/,
     );
   });
 });

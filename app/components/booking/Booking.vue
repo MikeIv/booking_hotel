@@ -191,7 +191,7 @@
       grid-template-columns:
         minmax(rem(220), 1.25fr)
         minmax(rem(180), 1fr)
-        minmax(rem(160), 0.8fr)
+        minmax(var(--booking-field-min), 0.8fr)
         rem(272);
       padding: rem(32) rem(24);
     }

@@ -106,7 +106,6 @@
   .container {
     display: flex;
     flex-direction: column;
-    width: 100%;
     max-width: #{size.$desktopMax};
     margin: 0 auto rem(40) auto;
     padding: 0 rem(20);
