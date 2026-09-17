@@ -184,8 +184,15 @@
       padding: rem(20) rem(16);
     }
 
+    // Ненулевой min у треков: иначе при shrink-to-fit родителя
+    // (flex-колонка + margin: auto у .container) поля с cqi и minmax(0, fr)
+    // схлопываются до «таблеток». Кнопка — фиксированные 272, не сжимается.
     @media (min-width: #{size.$desktopMedium}) {
-      grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 0.8fr) rem(272);
+      grid-template-columns:
+        minmax(rem(220), 1.25fr)
+        minmax(rem(180), 1fr)
+        minmax(var(--booking-field-min), 0.8fr)
+        rem(272);
       padding: rem(32) rem(24);
     }
   }
@@ -193,6 +200,7 @@
   .button {
     width: 100%;
     max-width: none;
+    min-width: 0;
     grid-column: 1 / -1;
 
     @media (min-width: #{size.$tabletMin}) {

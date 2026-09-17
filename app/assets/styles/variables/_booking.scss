@@ -1,0 +1,7 @@
+@use "../tools/functions" as *;
+
+:root {
+  // Intrinsic floor for booking Input/Select under cqi containment
+  // and the promo track min on desktopMedium.
+  --booking-field-min: #{rem(160)};
+}

@@ -31,13 +31,10 @@
 
   .globalOverlay {
     position: fixed;
-    top: 0;
-    left: 0;
+    inset: 0;
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 100vw;
-    height: 100vh;
     background-color: rgba(255, 255, 255, 0.8);
     z-index: z.z("modal", "content");
   }
