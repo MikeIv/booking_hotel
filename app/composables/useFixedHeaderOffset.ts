@@ -1,15 +1,16 @@
 /**
- * Header `position: fixed` только ≥ `$desktopMin` (1024px) в header-aside.
- * Ниже — в потоке документа, без компенсационного margin у контента.
+ * Header `position: fixed` только ≥ `$desktopMin` (1024px).
+ * Solid <1024 — relative в потоке (белый фон).
+ * Overlay <1024 — absolute в герое (прозрачный, уезжает со скроллом).
+ * Источник брейкпоинтов для стилей — `resolutions.scss`.
  */
 export const HEADER_FIXED_MIN_PX = 1024;
-/** Sync with `$headerCompactMax` — язык/валюта уходят из шапки в SlideMenu */
-export const HEADER_COMPACT_MAX_PX = 588;
+
+const HEADER_SELECTOR = "[data-app-header]";
 
 function queryHeaderAside(): HTMLElement | null {
   if (typeof document === "undefined") return null;
-  const headerSection = document.querySelector("section[class*='section']");
-  return (headerSection?.querySelector("aside") as HTMLElement | null) ?? null;
+  return document.querySelector<HTMLElement>(HEADER_SELECTOR);
 }
 
 export function useFixedHeaderOffset() {

@@ -27,6 +27,10 @@
 
   const emit = defineEmits(["close"]);
 
+  const closeMenu = () => {
+    emit("close");
+  };
+
   const enterAnimation = (el: Element, done: () => void) => {
     gsap.fromTo(
       el,
@@ -56,19 +60,54 @@
   };
 
   const handleLinkClick = () => {
-    emit("close");
+    closeMenu();
   };
+
+  const onKeydown = (e: KeyboardEvent) => {
+    if (e.key === "Escape") {
+      closeMenu();
+    }
+  };
+
+  const lockScroll = () => {
+    if (typeof document === "undefined") return;
+    document.documentElement.style.overflow = "hidden";
+  };
+
+  const unlockScroll = () => {
+    if (typeof document === "undefined") return;
+    document.documentElement.style.overflow = "";
+  };
+
+  watch(
+    () => props.isOpen,
+    (open) => {
+      if (typeof document === "undefined") return;
+      if (open) {
+        document.addEventListener("keydown", onKeydown);
+        lockScroll();
+      } else {
+        document.removeEventListener("keydown", onKeydown);
+        unlockScroll();
+      }
+    },
+  );
+
+  onUnmounted(() => {
+    if (typeof document !== "undefined") {
+      document.removeEventListener("keydown", onKeydown);
+    }
+    unlockScroll();
+  });
 
   const socialLinks = [
     {
       url: "https://t.me/ithumor",
       iconName: "i-telegram",
-      // text: "Telegram",
     },
     {
       url: "https://vk.com/feed",
       iconName: "i-vk",
-      // text: "ВКонтакте",
     },
   ];
 </script>
@@ -80,7 +119,22 @@
     @enter="enterAnimation"
     @leave="leaveAnimation"
   >
-    <div v-if="isOpen" :class="$style.menuOverlay" :style="menuStyles">
+    <div
+      v-if="isOpen"
+      :class="$style.menuOverlay"
+      :style="menuStyles"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Меню"
+    >
+      <button
+        type="button"
+        :class="$style.closeBtn"
+        aria-label="Закрыть меню"
+        @click="closeMenu"
+      >
+        <UIcon name="i-close" :class="$style.closeIcon" />
+      </button>
       <div :class="$style.menuContent">
         <HeaderNavLinks :links="links" @link-click="handleLinkClick" />
         <slot name="utilities" />
@@ -101,9 +155,37 @@
     bottom: 0;
     background-color: var(--bg-color, var(--a-whiteBg));
     z-index: z.z("modal", "nav-menu");
-    overflow-y: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
     transform: translateY(-100%);
     will-change: transform;
+  }
+
+  .closeBtn {
+    position: absolute;
+    top: rem(16);
+    right: rem(16);
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: rem(44);
+    height: rem(44);
+    padding: 0;
+    background: transparent;
+    border: none;
+    color: var(--secondary);
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+      opacity: 0.7;
+    }
+  }
+
+  .closeIcon {
+    width: rem(24);
+    height: rem(24);
   }
 
   .menuContent {
@@ -112,7 +194,8 @@
     justify-content: center;
     align-items: center;
     gap: rem(24);
-    min-height: calc(100vh - #{rem(70)});
-    padding: rem(32);
+    box-sizing: border-box;
+    min-height: 100%;
+    padding: rem(56) rem(32) rem(32);
   }
 </style>

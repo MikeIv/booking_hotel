@@ -29,6 +29,8 @@
 
   let asideResizeObserver: ResizeObserver | null = null;
 
+  const isOverlay = computed(() => props.variant === "overlay");
+
   // --- Navigation ---
   const navLinks = [
     { url: "https://www.ukraina-hotel.ru/accommodation", text: "Размещение" },
@@ -51,15 +53,12 @@
 
   const updateMenuTopOffset = () => {
     if (!asideRef.value) return;
+    // Desktop fixed: меню под шапкой. <1024: fullscreen (шапка в потоке / уезжает).
     if (isHeaderFixedViewport()) {
       menuTopOffset.value = asideRef.value.offsetHeight;
       return;
     }
-    // Хедер в потоке: меню стыкуется к видимому низу шапки (или к 0, если уехала)
-    menuTopOffset.value = Math.max(
-      0,
-      Math.round(asideRef.value.getBoundingClientRect().bottom),
-    );
+    menuTopOffset.value = 0;
   };
 
   const updateHeight = () => {
@@ -148,7 +147,6 @@
     },
   ]);
 
-  const isOverlay = computed(() => props.variant === "overlay");
   const isScrolled = ref(false);
 
   const updateScroll = () => {
@@ -221,7 +219,12 @@
 <template>
   <aside
     ref="asideRef"
-    :class="[$style.aside, isOverlay && !isScrolled && $style.overlay]"
+    data-app-header
+    :class="[
+      $style.aside,
+      isOverlay && $style.asideOverlay,
+      isOverlay && !isScrolled && $style.overlay,
+    ]"
   >
     <div :class="$style.wrapper">
       <!-- Бургер: скрыт ≥$headerNavMin -->
@@ -452,7 +455,7 @@
   @use "~/assets/styles/variables/z-index" as z;
 
   .aside {
-    /* <1024: в потоке документа (скроллится со страницей) */
+    /* solid: <1024 в потоке (белый); ≥$desktopMin — fixed */
     position: relative;
     width: 100%;
     max-width: 100%;
@@ -460,7 +463,6 @@
     background-color: var(--a-whiteBg);
     z-index: z.z("header");
 
-    /* ≥$desktopMin: зафиксирован сверху */
     @media (min-width: #{size.$desktopMin}) {
       position: fixed;
       top: 0;
@@ -468,12 +470,26 @@
     }
   }
 
+  /* overlay (главная): absolute в герое → прозрачный фон поверх фото, уезжает со скроллом;
+     ≥$desktopMin — fixed как на десктопе */
+  .asideOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+
+    @media (min-width: #{size.$desktopMin}) {
+      position: fixed;
+    }
+  }
+
   /* =====================
      WRAPPER — базовая сетка
      Figma 4585:1652:
-     ≤$headerCompactMax — 2 строки, без языка/валюты;
-     <$desktopMin — 2 строки (search + lang + currency справа);
-     ≥$desktopMin — 1 строка + бургер;
+     ≤$headerCompactMax — без языка/валюты в шапке (в SlideMenu);
+     ≤$headerDenseMax — уплотнение лого/кнопок/поиска;
+     <$desktopMin — 2 строки; solid relative, overlay absolute;
+     ≥$desktopMin — 1 строка + бургер, fixed;
      ≥$headerNavMin — лого + nav вместо бургера
   ===================== */
   .wrapper {
@@ -593,7 +609,7 @@
     height: auto;
     transition: opacity 0.3s ease;
 
-    @media (max-width: #{size.$headerCompactMax}) {
+    @media (max-width: #{size.$headerDenseMax}) {
       width: rem(118);
     }
 
@@ -690,7 +706,7 @@
     height: rem(44);
     padding: rem(12) var(--ds-space-300);
     font-family: var(--a-font-body);
-    font-size: var(--ds-typo-size-body-lg);
+    font-size: var(--ds-typo-size-body-md); /* Figma: 16px */
     font-weight: var(--ds-typo-weight-body);
     line-height: 1;
     background-color: var(--a-whiteBg);
@@ -715,8 +731,8 @@
     min-width: rem(150);
   }
 
-  /* ≤$headerCompactMax / 588: кнопки и текст сжимаются; язык/валюта скрыты */
-  @media (max-width: #{size.$headerCompactMax}) {
+  /* ≤$headerDenseMax: уплотнение кнопок (состав блоков не меняется) */
+  @media (max-width: #{size.$headerDenseMax}) {
     .headerButtonWide,
     .headerButtonNarrow {
       min-width: 0;
@@ -746,7 +762,7 @@
     justify-self: end;
     flex-shrink: 0;
 
-    @media (max-width: #{size.$headerCompactMax}) {
+    @media (max-width: #{size.$headerDenseMax}) {
       gap: rem(8);
       min-height: rem(32);
     }
@@ -853,7 +869,7 @@
     color: var(--ds-neutral-700);
     transition: color 0.2s ease;
 
-    @media (max-width: #{size.$headerCompactMax}) {
+    @media (max-width: #{size.$headerDenseMax}) {
       width: rem(24);
       height: rem(24);
     }
@@ -869,7 +885,7 @@
     height: rem(35);
     color: inherit;
 
-    @media (max-width: #{size.$headerCompactMax}) {
+    @media (max-width: #{size.$headerDenseMax}) {
       width: rem(24);
       height: rem(24);
     }
@@ -1031,14 +1047,10 @@
   }
 
   /* =====================
-     OVERLAY (главная поверх героя)
+     OVERLAY (главная поверх героя) — прозрачный фон на всех ширинах
   ===================== */
   .overlay {
     background-color: transparent;
-
-    @media (max-width: #{size.$desktopMin - 1px}) {
-      background-color: color-mix(in srgb, var(--a-black) 40%, transparent);
-    }
 
     .burgerBtn,
     .searchBtn,
