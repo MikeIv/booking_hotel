@@ -2,6 +2,7 @@
   import LogoRadisson from "~/assets/images/logo_radisson.svg";
 
   import LayoutAuthSection from "~/components/layout/LayoutAuthSection.vue";
+  import { HEADER_FIXED_MIN_PX } from "~/composables/useFixedHeaderOffset";
 
   const props = withDefaults(
     defineProps<{
@@ -28,6 +29,8 @@
 
   let asideResizeObserver: ResizeObserver | null = null;
 
+  const isOverlay = computed(() => props.variant === "overlay");
+
   // --- Navigation ---
   const navLinks = [
     { url: "https://www.ukraina-hotel.ru/accommodation", text: "Размещение" },
@@ -42,37 +45,108 @@
   // --- Burger / SlideMenu ---
   const isMenuOpen = ref(false);
   const asideRef = ref<HTMLElement | null>(null);
-  const asideHeight = ref(94);
+  const menuTopOffset = ref(94);
 
-  const toggleMenu = () => {
-    isMenuOpen.value = !isMenuOpen.value;
+  const isHeaderFixedViewport = () =>
+    typeof window !== "undefined" &&
+    window.matchMedia(`(min-width: ${HEADER_FIXED_MIN_PX}px)`).matches;
+
+  const updateMenuTopOffset = () => {
+    if (!asideRef.value) return;
+    // Desktop fixed: меню под шапкой. <1024: fullscreen (шапка в потоке / уезжает).
+    if (isHeaderFixedViewport()) {
+      menuTopOffset.value = asideRef.value.offsetHeight;
+      return;
+    }
+    menuTopOffset.value = 0;
   };
 
   const updateHeight = () => {
-    if (asideRef.value) {
-      asideHeight.value = asideRef.value.offsetHeight;
-    }
+    if (isMenuOpen.value) return;
+    updateMenuTopOffset();
   };
 
-  // --- Language ---
-  const LOCALE_OPTIONS: { code: "ru" | "en"; label: string }[] = [
-    { code: "ru", label: "Рус" },
-    { code: "en", label: "Eng" },
+  const toggleMenu = () => {
+    const next = !isMenuOpen.value;
+    if (next) updateMenuTopOffset();
+    isMenuOpen.value = next;
+  };
+
+  // --- Language / Currency (Figma 4585:1652) ---
+  const LOCALE_OPTIONS = [
+    { code: "ru" as const, label: "Рус" },
+    { code: "en" as const, label: "Eng" },
   ];
+  const CURRENCY_OPTIONS = [
+    { code: "RUB" as const, symbol: "₽" },
+    { code: "USD" as const, symbol: "$" },
+    { code: "EUR" as const, symbol: "€" },
+  ];
+  type CurrencyCode = (typeof CURRENCY_OPTIONS)[number]["code"];
+
   const isLangOpen = ref(false);
+  const isCurrencyOpen = ref(false);
   const langDropdownRef = ref<HTMLElement | null>(null);
+  const currencyDropdownRef = ref<HTMLElement | null>(null);
+  const currentCurrency = ref<CurrencyCode>("RUB");
+
+  const localeLabel = computed(() => (locale.value === "ru" ? "Рус" : "Eng"));
+  const currencySymbol = computed(
+    () =>
+      CURRENCY_OPTIONS.find((o) => o.code === currentCurrency.value)?.symbol ??
+      "₽",
+  );
+
+  const closeUtilityDropdowns = () => {
+    isLangOpen.value = false;
+    isCurrencyOpen.value = false;
+  };
 
   const toggleLangDropdown = () => {
-    isLangOpen.value = !isLangOpen.value;
+    const next = !isLangOpen.value;
+    closeUtilityDropdowns();
+    isLangOpen.value = next;
+  };
+
+  const toggleCurrencyDropdown = () => {
+    const next = !isCurrencyOpen.value;
+    closeUtilityDropdowns();
+    isCurrencyOpen.value = next;
   };
 
   const selectLocale = (code: "ru" | "en") => {
     setLocale(code);
-    isLangOpen.value = false;
+    closeUtilityDropdowns();
   };
 
-  const localeLabel = computed(() => (locale.value === "ru" ? "Рус" : "Eng"));
-  const isOverlay = computed(() => props.variant === "overlay");
+  const selectCurrency = (code: CurrencyCode) => {
+    currentCurrency.value = code;
+    closeUtilityDropdowns();
+  };
+
+  const menuUtilityGroups = computed(() => [
+    {
+      id: "lang",
+      label: "Язык",
+      options: LOCALE_OPTIONS.map((opt) => ({
+        key: opt.code,
+        label: opt.label,
+        active: locale.value === opt.code,
+        select: () => selectLocale(opt.code),
+      })),
+    },
+    {
+      id: "currency",
+      label: "Валюта",
+      options: CURRENCY_OPTIONS.map((opt) => ({
+        key: opt.code,
+        label: opt.symbol,
+        active: currentCurrency.value === opt.code,
+        select: () => selectCurrency(opt.code),
+      })),
+    },
+  ]);
+
   const isScrolled = ref(false);
 
   const updateScroll = () => {
@@ -98,15 +172,16 @@
     }
   };
 
-  // --- Click outside to close dropdowns ---
+  const isOutside = (el: HTMLElement | null, target: Node) =>
+    Boolean(el && !el.contains(target));
+
   const closeDropdownsOnClickOutside = (e: MouseEvent) => {
     const target = e.target as Node;
-    if (
-      isLangOpen.value &&
-      langDropdownRef.value &&
-      !langDropdownRef.value.contains(target)
-    ) {
+    if (isLangOpen.value && isOutside(langDropdownRef.value, target)) {
       isLangOpen.value = false;
+    }
+    if (isCurrencyOpen.value && isOutside(currencyDropdownRef.value, target)) {
+      isCurrencyOpen.value = false;
     }
   };
 
@@ -144,7 +219,12 @@
 <template>
   <aside
     ref="asideRef"
-    :class="[$style.aside, isOverlay && !isScrolled && $style.overlay]"
+    data-app-header
+    :class="[
+      $style.aside,
+      isOverlay && $style.asideOverlay,
+      isOverlay && !isScrolled && $style.overlay,
+    ]"
   >
     <div :class="$style.wrapper">
       <!-- Бургер: скрыт ≥$headerNavMin -->
@@ -202,7 +282,7 @@
         </Button>
       </div>
 
-      <!-- Утилиты: Поиск + Язык -->
+      <!-- Утилиты: Поиск + Язык + Валюта (Figma 4585:1652) -->
       <div :class="$style.utilityGroup">
         <button
           :class="$style.searchBtn"
@@ -212,7 +292,7 @@
           <UIcon name="i-search" :class="$style.searchIcon" />
         </button>
 
-        <div ref="langDropdownRef" :class="$style.langWrap">
+        <div ref="langDropdownRef" :class="[$style.langWrap, $style.utilityPillWrap]">
           <button
             type="button"
             :class="$style.langPill"
@@ -244,6 +324,49 @@
                 @click.stop="selectLocale(opt.code)"
               >
                 {{ opt.label }}
+              </button>
+            </div>
+          </Transition>
+        </div>
+
+        <div
+          ref="currencyDropdownRef"
+          :class="[$style.langWrap, $style.utilityPillWrap]"
+        >
+          <button
+            type="button"
+            :class="$style.langPill"
+            aria-haspopup="listbox"
+            :aria-expanded="isCurrencyOpen"
+            aria-label="Выбор валюты"
+            @click.stop="toggleCurrencyDropdown"
+          >
+            {{ currencySymbol }}
+            <UIcon
+              name="i-chevron-down"
+              :class="[$style.chevron, { [$style.chevronOpen]: isCurrencyOpen }]"
+            />
+          </button>
+          <Transition name="lang-dropdown">
+            <div
+              v-show="isCurrencyOpen"
+              :class="$style.langDropdown"
+              role="listbox"
+              aria-label="Валюта"
+            >
+              <button
+                v-for="opt in CURRENCY_OPTIONS"
+                :key="opt.code"
+                type="button"
+                role="option"
+                :aria-selected="currentCurrency === opt.code"
+                :class="[
+                  $style.langOption,
+                  currentCurrency === opt.code && $style.langOptionActive,
+                ]"
+                @click.stop="selectCurrency(opt.code)"
+              >
+                {{ opt.symbol }}
               </button>
             </div>
           </Transition>
@@ -282,10 +405,36 @@
   <UiSlideMenu
     :is-open="isMenuOpen"
     :links="navLinks"
-    :top-offset="asideHeight"
+    :top-offset="menuTopOffset"
     background-color="--a-mainBg"
     @close="toggleMenu"
-  />
+  >
+    <template #utilities>
+      <div :class="$style.menuUtilities">
+        <div
+          v-for="group in menuUtilityGroups"
+          :key="group.id"
+          :class="$style.menuUtilityBlock"
+          role="group"
+          :aria-label="group.label"
+        >
+          <span :class="$style.menuUtilityLabel">{{ group.label }}</span>
+          <div :class="$style.menuUtilityPills">
+            <button
+              v-for="opt in group.options"
+              :key="opt.key"
+              type="button"
+              :class="[$style.menuUtilityPill, opt.active && $style.menuUtilityPillActive]"
+              :aria-pressed="opt.active"
+              @click="opt.select()"
+            >
+              {{ opt.label }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </template>
+  </UiSlideMenu>
 
   <LayoutAuthSection
     :auth-dialog-type="authDialogType"
@@ -306,21 +455,42 @@
   @use "~/assets/styles/variables/z-index" as z;
 
   .aside {
-    position: fixed;
-    top: 0;
-    left: 0;
+    /* solid: <1024 в потоке (белый); ≥$desktopMin — fixed */
+    position: relative;
     width: 100%;
     max-width: 100%;
     overflow-x: clip;
     background-color: var(--a-whiteBg);
     z-index: z.z("header");
+
+    @media (min-width: #{size.$desktopMin}) {
+      position: fixed;
+      top: 0;
+      left: 0;
+    }
+  }
+
+  /* overlay (главная): absolute в герое → прозрачный фон поверх фото, уезжает со скроллом;
+     ≥$desktopMin — fixed как на десктопе */
+  .asideOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+
+    @media (min-width: #{size.$desktopMin}) {
+      position: fixed;
+    }
   }
 
   /* =====================
      WRAPPER — базовая сетка
      Figma 4585:1652:
-     <1024 — две строки (150); ≥1024 — одна строка (93);
-     ≥1880 — лого + nav вместо бургера
+     ≤$headerCompactMax — без языка/валюты в шапке (в SlideMenu);
+     ≤$headerDenseMax — уплотнение лого/кнопок/поиска;
+     <$desktopMin — 2 строки; solid relative, overlay absolute;
+     ≥$desktopMin — 1 строка + бургер, fixed;
+     ≥$headerNavMin — лого + nav вместо бургера
   ===================== */
   .wrapper {
     position: relative;
@@ -439,7 +609,7 @@
     height: auto;
     transition: opacity 0.3s ease;
 
-    @media (max-width: #{size.$headerCompactMax}) {
+    @media (max-width: #{size.$headerDenseMax}) {
       width: rem(118);
     }
 
@@ -536,7 +706,7 @@
     height: rem(44);
     padding: rem(12) var(--ds-space-300);
     font-family: var(--a-font-body);
-    font-size: var(--ds-typo-size-body-lg);
+    font-size: var(--ds-typo-size-body-md); /* Figma: 16px */
     font-weight: var(--ds-typo-weight-body);
     line-height: 1;
     background-color: var(--a-whiteBg);
@@ -561,8 +731,8 @@
     min-width: rem(150);
   }
 
-  /* <$headerCompactMax / ~360: кнопки и текст сжимаются, чтобы «Моё бронирование» не выпадало */
-  @media (max-width: #{size.$headerCompactMax}) {
+  /* ≤$headerDenseMax: уплотнение кнопок (состав блоков не меняется) */
+  @media (max-width: #{size.$headerDenseMax}) {
     .headerButtonWide,
     .headerButtonNarrow {
       min-width: 0;
@@ -580,7 +750,7 @@
   }
 
   /* =====================
-     ГРУППА УТИЛИТ (Поиск + Язык)
+     ГРУППА УТИЛИТ (Поиск + Язык + Валюта)
   ===================== */
   .utilityGroup {
     display: flex;
@@ -592,7 +762,7 @@
     justify-self: end;
     flex-shrink: 0;
 
-    @media (max-width: #{size.$headerCompactMax}) {
+    @media (max-width: #{size.$headerDenseMax}) {
       gap: rem(8);
       min-height: rem(32);
     }
@@ -605,6 +775,81 @@
       grid-column: 4;
       gap: var(--ds-space-300);
     }
+  }
+
+  /* Figma: на ≤$headerCompactMax язык/валюта — в SlideMenu, в шапке только поиск */
+  .utilityPillWrap {
+    @media (max-width: #{size.$headerCompactMax}) {
+      display: none;
+    }
+  }
+
+  .menuUtilities {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--ds-space-300);
+    width: 100%;
+    max-width: rem(320);
+
+    @media (max-width: #{size.$headerCompactMax}) {
+      display: flex;
+    }
+  }
+
+  .menuUtilityBlock {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--ds-space-100);
+    width: 100%;
+  }
+
+  .menuUtilityLabel {
+    font-family: var(--a-font-body);
+    font-size: var(--ds-typo-size-body-sm);
+    color: var(--ds-neutral-700);
+    text-transform: uppercase;
+    letter-spacing: rem(1);
+  }
+
+  .menuUtilityPills {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--ds-space-100);
+  }
+
+  .menuUtilityPill {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: rem(64);
+    min-height: rem(40);
+    padding: rem(8) rem(16);
+    background: transparent;
+    border: rem(1) solid var(--ds-neutral-700);
+    border-radius: rem(16);
+    color: var(--ds-neutral-700);
+    font-family: var(--a-font-body);
+    font-size: var(--ds-typo-size-body-sm);
+    cursor: pointer;
+    transition:
+      border-color 0.2s ease,
+      color 0.2s ease,
+      background-color 0.2s ease;
+
+    &:hover {
+      border-color: var(--ds-neutral-900);
+      color: var(--ds-neutral-900);
+    }
+  }
+
+  .menuUtilityPillActive {
+    border-color: var(--ds-neutral-900);
+    color: var(--ds-neutral-900);
+    background-color: var(--a-whiteBg);
+    font-weight: var(--ds-typo-weight-medium);
   }
 
   /* =====================
@@ -624,7 +869,7 @@
     color: var(--ds-neutral-700);
     transition: color 0.2s ease;
 
-    @media (max-width: #{size.$headerCompactMax}) {
+    @media (max-width: #{size.$headerDenseMax}) {
       width: rem(24);
       height: rem(24);
     }
@@ -640,14 +885,14 @@
     height: rem(35);
     color: inherit;
 
-    @media (max-width: #{size.$headerCompactMax}) {
+    @media (max-width: #{size.$headerDenseMax}) {
       width: rem(24);
       height: rem(24);
     }
   }
 
   /* =====================
-     ЯЗЫКОВОЙ ПИЛЬ
+     ЯЗЫК / ВАЛЮТА — пилли
   ===================== */
   .langWrap {
     position: relative;
@@ -671,13 +916,6 @@
     white-space: nowrap;
     transition: border-color 0.2s ease, color 0.2s ease;
 
-    @media (max-width: #{size.$headerCompactMax}) {
-      gap: rem(4);
-      padding: rem(3) rem(8);
-      font-size: rem(12);
-      border-radius: rem(12);
-    }
-
     &:hover {
       border-color: var(--ds-neutral-900);
       color: var(--ds-neutral-900);
@@ -688,11 +926,6 @@
     width: rem(11);
     height: rem(11);
     transition: transform 0.2s ease;
-
-    @media (max-width: #{size.$headerCompactMax}) {
-      width: rem(9);
-      height: rem(9);
-    }
   }
 
   .chevronOpen {
@@ -710,6 +943,12 @@
     box-shadow: var(--ds-shadow-sm);
     overflow: hidden;
     z-index: 1;
+  }
+
+  /* Валюта — крайний правый пилль: дропдаун не уезжает за край */
+  .utilityGroup .langWrap:last-child .langDropdown {
+    left: auto;
+    right: 0;
   }
 
   .langOption {
@@ -808,14 +1047,10 @@
   }
 
   /* =====================
-     OVERLAY (главная поверх героя)
+     OVERLAY (главная поверх героя) — прозрачный фон на всех ширинах
   ===================== */
   .overlay {
     background-color: transparent;
-
-    @media (max-width: #{size.$desktopMin - 1px}) {
-      background-color: color-mix(in srgb, var(--a-black) 40%, transparent);
-    }
 
     .burgerBtn,
     .searchBtn,

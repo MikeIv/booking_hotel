@@ -1,60 +1,11 @@
 <script setup lang="ts">
-  const headerHeight = ref(94);
-  let resizeObserver: ResizeObserver | null = null;
-
-  const updateHeaderHeight = () => {
-    if (typeof window === "undefined") return;
-
-    const headerSection = document.querySelector("section[class*='section']");
-    const headerElement = headerSection?.querySelector("aside");
-
-    if (headerElement) {
-      const height = headerElement.offsetHeight;
-      if (height > 0) {
-        headerHeight.value = height;
-      }
-    }
-  };
-
-  onMounted(() => {
-    nextTick(() => {
-      updateHeaderHeight();
-
-      resizeObserver = new ResizeObserver(() => {
-        updateHeaderHeight();
-      });
-
-      const headerSection = document.querySelector("section[class*='section']");
-      const headerElement = headerSection?.querySelector("aside");
-
-      if (headerElement) {
-        resizeObserver.observe(headerElement);
-      }
-
-      window.addEventListener("resize", updateHeaderHeight);
-    });
-  });
-
-  onUnmounted(() => {
-    if (resizeObserver) {
-      resizeObserver.disconnect();
-    }
-    if (typeof window !== "undefined") {
-      window.removeEventListener("resize", updateHeaderHeight);
-    }
-  });
+  const { contentStyle } = useFixedHeaderOffset();
 </script>
 
 <template>
   <div :class="$style.layout">
     <LayoutHeader />
-    <div
-      :class="$style.wrapper"
-      :style="{
-        marginTop: `${headerHeight}px`,
-        '--header-height': `${headerHeight}px`,
-      }"
-    >
+    <div :class="$style.wrapper" :style="contentStyle">
       <CoreBreadcrumbs />
       <slot />
     </div>
