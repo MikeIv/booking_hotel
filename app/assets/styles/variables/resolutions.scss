@@ -2,10 +2,10 @@ $mobile: 576px;
 $tabletMin: 670px;
 $tablet: 768px;
 $tabletMax: 992px;
-$desktopMin: 1024px;
+$desktopMin: 1024px; // sync: HEADER_FIXED_MIN_PX — fixed header только с этой ширины
 $headerDesktopMin: 1330px; // legacy aside.vue; header-aside переключается на $desktopMin (1024)
 $desktopMedium: 1366px;
 $desktop: 1642px;
 $headerNavMin: 1880px; // горизонтальное меню хедера; ниже — бургер (nav не наезжает на кнопки)
-$headerCompactMax: 459px; // компактный хедер: меньше лого / утилит / текста кнопок
+$headerCompactMax: 588px; // sync: HEADER_COMPACT_MAX_PX — язык/валюта в SlideMenu, не в шапке
 $desktopMax: 1920px;

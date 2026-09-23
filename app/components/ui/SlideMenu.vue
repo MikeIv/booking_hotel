@@ -83,6 +83,7 @@
     <div v-if="isOpen" :class="$style.menuOverlay" :style="menuStyles">
       <div :class="$style.menuContent">
         <HeaderNavLinks :links="links" @link-click="handleLinkClick" />
+        <slot name="utilities" />
         <CoreSocialLinks :links="socialLinks" direction="horizontal" />
       </div>
     </div>

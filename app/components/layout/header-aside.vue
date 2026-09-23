@@ -2,6 +2,7 @@
   import LogoRadisson from "~/assets/images/logo_radisson.svg";
 
   import LayoutAuthSection from "~/components/layout/LayoutAuthSection.vue";
+  import { HEADER_FIXED_MIN_PX } from "~/composables/useFixedHeaderOffset";
 
   const props = withDefaults(
     defineProps<{
@@ -42,16 +43,34 @@
   // --- Burger / SlideMenu ---
   const isMenuOpen = ref(false);
   const asideRef = ref<HTMLElement | null>(null);
-  const asideHeight = ref(94);
+  const menuTopOffset = ref(94);
 
-  const toggleMenu = () => {
-    isMenuOpen.value = !isMenuOpen.value;
+  const isHeaderFixedViewport = () =>
+    typeof window !== "undefined" &&
+    window.matchMedia(`(min-width: ${HEADER_FIXED_MIN_PX}px)`).matches;
+
+  const updateMenuTopOffset = () => {
+    if (!asideRef.value) return;
+    if (isHeaderFixedViewport()) {
+      menuTopOffset.value = asideRef.value.offsetHeight;
+      return;
+    }
+    // Хедер в потоке: меню стыкуется к видимому низу шапки (или к 0, если уехала)
+    menuTopOffset.value = Math.max(
+      0,
+      Math.round(asideRef.value.getBoundingClientRect().bottom),
+    );
   };
 
   const updateHeight = () => {
-    if (asideRef.value) {
-      asideHeight.value = asideRef.value.offsetHeight;
-    }
+    if (isMenuOpen.value) return;
+    updateMenuTopOffset();
+  };
+
+  const toggleMenu = () => {
+    const next = !isMenuOpen.value;
+    if (next) updateMenuTopOffset();
+    isMenuOpen.value = next;
   };
 
   // --- Language / Currency (Figma 4585:1652) ---
@@ -105,6 +124,29 @@
     currentCurrency.value = code;
     closeUtilityDropdowns();
   };
+
+  const menuUtilityGroups = computed(() => [
+    {
+      id: "lang",
+      label: "Язык",
+      options: LOCALE_OPTIONS.map((opt) => ({
+        key: opt.code,
+        label: opt.label,
+        active: locale.value === opt.code,
+        select: () => selectLocale(opt.code),
+      })),
+    },
+    {
+      id: "currency",
+      label: "Валюта",
+      options: CURRENCY_OPTIONS.map((opt) => ({
+        key: opt.code,
+        label: opt.symbol,
+        active: currentCurrency.value === opt.code,
+        select: () => selectCurrency(opt.code),
+      })),
+    },
+  ]);
 
   const isOverlay = computed(() => props.variant === "overlay");
   const isScrolled = ref(false);
@@ -360,10 +402,36 @@
   <UiSlideMenu
     :is-open="isMenuOpen"
     :links="navLinks"
-    :top-offset="asideHeight"
+    :top-offset="menuTopOffset"
     background-color="--a-mainBg"
     @close="toggleMenu"
-  />
+  >
+    <template #utilities>
+      <div :class="$style.menuUtilities">
+        <div
+          v-for="group in menuUtilityGroups"
+          :key="group.id"
+          :class="$style.menuUtilityBlock"
+          role="group"
+          :aria-label="group.label"
+        >
+          <span :class="$style.menuUtilityLabel">{{ group.label }}</span>
+          <div :class="$style.menuUtilityPills">
+            <button
+              v-for="opt in group.options"
+              :key="opt.key"
+              type="button"
+              :class="[$style.menuUtilityPill, opt.active && $style.menuUtilityPillActive]"
+              :aria-pressed="opt.active"
+              @click="opt.select()"
+            >
+              {{ opt.label }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </template>
+  </UiSlideMenu>
 
   <LayoutAuthSection
     :auth-dialog-type="authDialogType"
@@ -384,14 +452,20 @@
   @use "~/assets/styles/variables/z-index" as z;
 
   .aside {
-    position: fixed;
-    top: 0;
-    left: 0;
+    /* <1024: в потоке документа (скроллится со страницей) */
+    position: relative;
     width: 100%;
     max-width: 100%;
     overflow-x: clip;
     background-color: var(--a-whiteBg);
     z-index: z.z("header");
+
+    /* ≥$desktopMin: зафиксирован сверху */
+    @media (min-width: #{size.$desktopMin}) {
+      position: fixed;
+      top: 0;
+      left: 0;
+    }
   }
 
   /* =====================
@@ -641,7 +715,7 @@
     min-width: rem(150);
   }
 
-  /* <$headerCompactMax / ~360: кнопки и текст сжимаются, чтобы «Моё бронирование» не выпадало */
+  /* ≤$headerCompactMax / 588: кнопки и текст сжимаются; язык/валюта скрыты */
   @media (max-width: #{size.$headerCompactMax}) {
     .headerButtonWide,
     .headerButtonNarrow {
@@ -687,11 +761,79 @@
     }
   }
 
-  /* Figma: на самом узком вьюпорте остаются бургер + лого + поиск */
+  /* Figma: на ≤$headerCompactMax язык/валюта — в SlideMenu, в шапке только поиск */
   .utilityPillWrap {
     @media (max-width: #{size.$headerCompactMax}) {
       display: none;
     }
+  }
+
+  .menuUtilities {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--ds-space-300);
+    width: 100%;
+    max-width: rem(320);
+
+    @media (max-width: #{size.$headerCompactMax}) {
+      display: flex;
+    }
+  }
+
+  .menuUtilityBlock {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--ds-space-100);
+    width: 100%;
+  }
+
+  .menuUtilityLabel {
+    font-family: var(--a-font-body);
+    font-size: var(--ds-typo-size-body-sm);
+    color: var(--ds-neutral-700);
+    text-transform: uppercase;
+    letter-spacing: rem(1);
+  }
+
+  .menuUtilityPills {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--ds-space-100);
+  }
+
+  .menuUtilityPill {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: rem(64);
+    min-height: rem(40);
+    padding: rem(8) rem(16);
+    background: transparent;
+    border: rem(1) solid var(--ds-neutral-700);
+    border-radius: rem(16);
+    color: var(--ds-neutral-700);
+    font-family: var(--a-font-body);
+    font-size: var(--ds-typo-size-body-sm);
+    cursor: pointer;
+    transition:
+      border-color 0.2s ease,
+      color 0.2s ease,
+      background-color 0.2s ease;
+
+    &:hover {
+      border-color: var(--ds-neutral-900);
+      color: var(--ds-neutral-900);
+    }
+  }
+
+  .menuUtilityPillActive {
+    border-color: var(--ds-neutral-900);
+    color: var(--ds-neutral-900);
+    background-color: var(--a-whiteBg);
+    font-weight: var(--ds-typo-weight-medium);
   }
 
   /* =====================
