@@ -54,24 +54,58 @@
     }
   };
 
-  // --- Language ---
-  const LOCALE_OPTIONS: { code: "ru" | "en"; label: string }[] = [
-    { code: "ru", label: "Рус" },
-    { code: "en", label: "Eng" },
+  // --- Language / Currency (Figma 4585:1652) ---
+  const LOCALE_OPTIONS = [
+    { code: "ru" as const, label: "Рус" },
+    { code: "en" as const, label: "Eng" },
   ];
+  const CURRENCY_OPTIONS = [
+    { code: "RUB" as const, symbol: "₽" },
+    { code: "USD" as const, symbol: "$" },
+    { code: "EUR" as const, symbol: "€" },
+  ];
+  type CurrencyCode = (typeof CURRENCY_OPTIONS)[number]["code"];
+
   const isLangOpen = ref(false);
+  const isCurrencyOpen = ref(false);
   const langDropdownRef = ref<HTMLElement | null>(null);
+  const currencyDropdownRef = ref<HTMLElement | null>(null);
+  const currentCurrency = ref<CurrencyCode>("RUB");
+
+  const localeLabel = computed(() => (locale.value === "ru" ? "Рус" : "Eng"));
+  const currencySymbol = computed(
+    () =>
+      CURRENCY_OPTIONS.find((o) => o.code === currentCurrency.value)?.symbol ??
+      "₽",
+  );
+
+  const closeUtilityDropdowns = () => {
+    isLangOpen.value = false;
+    isCurrencyOpen.value = false;
+  };
 
   const toggleLangDropdown = () => {
-    isLangOpen.value = !isLangOpen.value;
+    const next = !isLangOpen.value;
+    closeUtilityDropdowns();
+    isLangOpen.value = next;
+  };
+
+  const toggleCurrencyDropdown = () => {
+    const next = !isCurrencyOpen.value;
+    closeUtilityDropdowns();
+    isCurrencyOpen.value = next;
   };
 
   const selectLocale = (code: "ru" | "en") => {
     setLocale(code);
-    isLangOpen.value = false;
+    closeUtilityDropdowns();
   };
 
-  const localeLabel = computed(() => (locale.value === "ru" ? "Рус" : "Eng"));
+  const selectCurrency = (code: CurrencyCode) => {
+    currentCurrency.value = code;
+    closeUtilityDropdowns();
+  };
+
   const isOverlay = computed(() => props.variant === "overlay");
   const isScrolled = ref(false);
 
@@ -98,15 +132,16 @@
     }
   };
 
-  // --- Click outside to close dropdowns ---
+  const isOutside = (el: HTMLElement | null, target: Node) =>
+    Boolean(el && !el.contains(target));
+
   const closeDropdownsOnClickOutside = (e: MouseEvent) => {
     const target = e.target as Node;
-    if (
-      isLangOpen.value &&
-      langDropdownRef.value &&
-      !langDropdownRef.value.contains(target)
-    ) {
+    if (isLangOpen.value && isOutside(langDropdownRef.value, target)) {
       isLangOpen.value = false;
+    }
+    if (isCurrencyOpen.value && isOutside(currencyDropdownRef.value, target)) {
+      isCurrencyOpen.value = false;
     }
   };
 
@@ -202,7 +237,7 @@
         </Button>
       </div>
 
-      <!-- Утилиты: Поиск + Язык -->
+      <!-- Утилиты: Поиск + Язык + Валюта (Figma 4585:1652) -->
       <div :class="$style.utilityGroup">
         <button
           :class="$style.searchBtn"
@@ -212,7 +247,7 @@
           <UIcon name="i-search" :class="$style.searchIcon" />
         </button>
 
-        <div ref="langDropdownRef" :class="$style.langWrap">
+        <div ref="langDropdownRef" :class="[$style.langWrap, $style.utilityPillWrap]">
           <button
             type="button"
             :class="$style.langPill"
@@ -244,6 +279,49 @@
                 @click.stop="selectLocale(opt.code)"
               >
                 {{ opt.label }}
+              </button>
+            </div>
+          </Transition>
+        </div>
+
+        <div
+          ref="currencyDropdownRef"
+          :class="[$style.langWrap, $style.utilityPillWrap]"
+        >
+          <button
+            type="button"
+            :class="$style.langPill"
+            aria-haspopup="listbox"
+            :aria-expanded="isCurrencyOpen"
+            aria-label="Выбор валюты"
+            @click.stop="toggleCurrencyDropdown"
+          >
+            {{ currencySymbol }}
+            <UIcon
+              name="i-chevron-down"
+              :class="[$style.chevron, { [$style.chevronOpen]: isCurrencyOpen }]"
+            />
+          </button>
+          <Transition name="lang-dropdown">
+            <div
+              v-show="isCurrencyOpen"
+              :class="$style.langDropdown"
+              role="listbox"
+              aria-label="Валюта"
+            >
+              <button
+                v-for="opt in CURRENCY_OPTIONS"
+                :key="opt.code"
+                type="button"
+                role="option"
+                :aria-selected="currentCurrency === opt.code"
+                :class="[
+                  $style.langOption,
+                  currentCurrency === opt.code && $style.langOptionActive,
+                ]"
+                @click.stop="selectCurrency(opt.code)"
+              >
+                {{ opt.symbol }}
               </button>
             </div>
           </Transition>
@@ -319,8 +397,10 @@
   /* =====================
      WRAPPER — базовая сетка
      Figma 4585:1652:
-     <1024 — две строки (150); ≥1024 — одна строка (93);
-     ≥1880 — лого + nav вместо бургера
+     ≤$headerCompactMax — 2 строки, без языка/валюты;
+     <$desktopMin — 2 строки (search + lang + currency справа);
+     ≥$desktopMin — 1 строка + бургер;
+     ≥$headerNavMin — лого + nav вместо бургера
   ===================== */
   .wrapper {
     position: relative;
@@ -580,7 +660,7 @@
   }
 
   /* =====================
-     ГРУППА УТИЛИТ (Поиск + Язык)
+     ГРУППА УТИЛИТ (Поиск + Язык + Валюта)
   ===================== */
   .utilityGroup {
     display: flex;
@@ -604,6 +684,13 @@
     @media (min-width: #{size.$headerNavMin}) {
       grid-column: 4;
       gap: var(--ds-space-300);
+    }
+  }
+
+  /* Figma: на самом узком вьюпорте остаются бургер + лого + поиск */
+  .utilityPillWrap {
+    @media (max-width: #{size.$headerCompactMax}) {
+      display: none;
     }
   }
 
@@ -647,7 +734,7 @@
   }
 
   /* =====================
-     ЯЗЫКОВОЙ ПИЛЬ
+     ЯЗЫК / ВАЛЮТА — пилли
   ===================== */
   .langWrap {
     position: relative;
@@ -671,13 +758,6 @@
     white-space: nowrap;
     transition: border-color 0.2s ease, color 0.2s ease;
 
-    @media (max-width: #{size.$headerCompactMax}) {
-      gap: rem(4);
-      padding: rem(3) rem(8);
-      font-size: rem(12);
-      border-radius: rem(12);
-    }
-
     &:hover {
       border-color: var(--ds-neutral-900);
       color: var(--ds-neutral-900);
@@ -688,11 +768,6 @@
     width: rem(11);
     height: rem(11);
     transition: transform 0.2s ease;
-
-    @media (max-width: #{size.$headerCompactMax}) {
-      width: rem(9);
-      height: rem(9);
-    }
   }
 
   .chevronOpen {
@@ -710,6 +785,12 @@
     box-shadow: var(--ds-shadow-sm);
     overflow: hidden;
     z-index: 1;
+  }
+
+  /* Валюта — крайний правый пилль: дропдаун не уезжает за край */
+  .utilityGroup .langWrap:last-child .langDropdown {
+    left: auto;
+    right: 0;
   }
 
   .langOption {
