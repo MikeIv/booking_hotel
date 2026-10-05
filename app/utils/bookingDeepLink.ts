@@ -234,6 +234,43 @@ export function omitBookingDeepLinkQuery(
   return next;
 }
 
+type DeepLinkQueryRouter = {
+  replace: (location: {
+    path: string;
+    hash?: string;
+    query: Record<string, string>;
+  }) => Promise<unknown>;
+};
+
+type DeepLinkQueryRoute = {
+  path: string;
+  hash: string;
+  query: Record<string, unknown>;
+};
+
+/**
+ * Убирает deep-link-параметры из адресной строки, остальные query сохраняет.
+ * Идемпотентно: если параметров уже нет, навигации не происходит.
+ *
+ * Нужна дважды: сразу при применении payload и повторно в `app:mounted`, потому что
+ * Nuxt после плагинов делает `router.replace(initialURL)` с исходным `window.location`
+ * (nuxt/dist/app/plugins/router.js) и возвращает параметры в адресную строку.
+ */
+export async function cleanBookingDeepLinkQuery(
+  router: DeepLinkQueryRouter,
+  route: DeepLinkQueryRoute,
+): Promise<boolean> {
+  const query = getRouteQueryWithLocationFallback(route.query);
+  if (!hasBookingDeepLinkParams(query)) return false;
+
+  await router.replace({
+    path: route.path,
+    hash: route.hash || undefined,
+    query: omitBookingDeepLinkQuery(query),
+  });
+  return true;
+}
+
 type BookingDeepLinkStore = {
   setDate: (value: [Date, Date] | null) => void;
   setGuests: (value: BookingDeepLinkPayload["guests"]) => void;

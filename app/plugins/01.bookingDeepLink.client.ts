@@ -1,30 +1,12 @@
 import {
   applyBookingDeepLinkFromQuery,
   BOOKING_DEEP_LINK_PENDING_SEARCH_KEY,
+  cleanBookingDeepLinkQuery,
   getRouteQueryWithLocationFallback,
   hasBookingDeepLinkParams,
-  omitBookingDeepLinkQuery,
   shouldAutoSearchAfterDeepLink,
 } from "~/utils/bookingDeepLink";
 import { useBookingStore } from "~/stores/booking";
-
-/**
- * Убирает deep-link-параметры из адресной строки.
- * Идемпотентно: если параметров уже нет, навигации не происходит.
- */
-async function cleanDeepLinkQuery(
-  router: ReturnType<typeof useRouter>,
-  route: ReturnType<typeof useRoute>,
-) {
-  const query = getRouteQueryWithLocationFallback(route.query);
-  if (!hasBookingDeepLinkParams(query)) return;
-
-  await router.replace({
-    path: route.path,
-    hash: route.hash || undefined,
-    query: omitBookingDeepLinkQuery(query),
-  });
-}
 
 /**
  * Редирект с ukraina-hotel.ru: query → поля формы бронирования.
@@ -54,14 +36,13 @@ export default defineNuxtPlugin({
       routerReplace: (location) => router.replace(location),
     });
 
-    if (!applied) return;
-
     // Nuxt после плагинов сам делает router.replace(initialURL) с исходным window.location
     // (nuxt/dist/app/plugins/router.js: хук app:created → replace(initialURL)) и возвращает
     // ?check_in=… в адресную строку. Поэтому чистим query повторно — уже после монтирования,
-    // иначе F5 снова поднимает автопоиск по старым параметрам.
+    // иначе F5 снова поднимает автопоиск по старым параметрам. Регистрируем независимо от
+    // результата применения: битую ссылку в адресной строке тоже держать не нужно.
     useNuxtApp().hook("app:mounted", () => {
-      void cleanDeepLinkQuery(router, route);
+      void cleanBookingDeepLinkQuery(router, route);
     });
 
     if (!shouldAutoSearchAfterDeepLink(applied, path)) return;
