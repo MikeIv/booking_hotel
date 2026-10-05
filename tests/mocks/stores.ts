@@ -16,6 +16,8 @@ export function createMockBookingStore() {
     rooms: 1,
     roomList: [{ adults: 1, children: 0, childrenAges: [] }],
   });
+  const roomTariffsRef = ref<unknown[]>([]);
+  const selectedMultiRoomsRef = ref<Record<number, unknown>>({});
 
   return {
     date: ref<[Date, Date] | null>(null),
@@ -24,6 +26,8 @@ export function createMockBookingStore() {
     promoCode: ref(""),
     loading: ref(false),
     searchResults: searchResultsRef,
+    roomTariffs: roomTariffsRef,
+    selectedMultiRooms: selectedMultiRoomsRef,
     // Используем геттер/сеттер как в pinia (на сторе это boolean, не ref)
     get isServerRequest() {
       return isServerRequestRef.value;
@@ -38,10 +42,13 @@ export function createMockBookingStore() {
       isServerRequestRef.value = value;
     }),
     search: vi.fn().mockResolvedValue({}),
+    forceReset: vi.fn(),
     setSelectedRoomType: vi.fn(),
     setDate: vi.fn(),
     setGuests: vi.fn(),
     setPromoCode: vi.fn(),
+    setSelectedMultiRooms: vi.fn(),
+    getSelectedServicesForRoom: vi.fn(() => []),
     setMultiBookingUnavailableRooms: vi.fn(),
     clearMultiBookingUnavailableRooms: vi.fn(),
   };
@@ -62,11 +69,14 @@ export function resetMockBookingStore(
   store.promoCode.value = "";
   store.loading.value = false;
   store.searchResults.value = null;
+  store.roomTariffs.value = [];
+  store.selectedMultiRooms.value = {};
   // Используем сеттер для установки значения
   store.isServerRequest = false;
   store.setLoading.mockClear();
   store.setServerRequest.mockClear();
   store.search.mockResolvedValue({});
+  store.forceReset.mockClear();
   (store.setSelectedRoomType as ReturnType<typeof vi.fn>).mockClear();
 }
 

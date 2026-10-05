@@ -240,12 +240,24 @@ type BookingDeepLinkStore = {
   setPromoCode: (value: string) => void;
 };
 
+/**
+ * Переход с главной отеля — всегда новая сессия бронирования: состояние прошлого
+ * захода (флаги смены номера/услуг, промокод, выбранные тарифы, услуги и мультивыбор)
+ * не должно подхватываться автопоиском. Раньше это делал middleware, но только для
+ * пути «/», а с автопоиском вход идёт сразу на /rooms и /multi-rooms.
+ */
+type BookingDeepLinkResetStore = BookingDeepLinkStore & {
+  forceReset: () => void;
+};
+
 export function applyBookingDeepLinkPayload(
   store: BookingDeepLinkStore,
   payload: BookingDeepLinkPayload,
 ) {
   store.setDate(payload.date);
   store.setGuests(payload.guests);
+  // Только непустой промокод из deep-link: пустой параметр не должен
+  // восстанавливать промокод прошлого захода (его снял forceReset).
   if (payload.promoCode) {
     store.setPromoCode(payload.promoCode);
   }
@@ -255,7 +267,7 @@ type ApplyBookingDeepLinkDeps = {
   query: Record<string, unknown>;
   path: string;
   hash?: string;
-  store: BookingDeepLinkStore;
+  store: BookingDeepLinkResetStore;
   routerReplace: (location: {
     path: string;
     hash?: string;
@@ -286,6 +298,9 @@ export async function applyBookingDeepLinkFromQuery(
 
   if (!payload) return false;
 
+  // Сначала чистим прошлый заход, потом применяем параметры: иначе автопоиск уйдёт
+  // в API со старым промокодом и подхватит незавершённую смену старой брони.
+  deps.store.forceReset();
   applyBookingDeepLinkPayload(deps.store, payload);
   return true;
 }

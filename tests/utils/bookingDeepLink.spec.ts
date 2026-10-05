@@ -140,6 +140,7 @@ describe("applyBookingDeepLinkFromQuery", () => {
     } = {},
   ) {
     const store = {
+      forceReset: vi.fn(),
       setDate: vi.fn(),
       setGuests: vi.fn(),
       setPromoCode: vi.fn(),
@@ -175,6 +176,20 @@ describe("applyBookingDeepLinkFromQuery", () => {
     expect(store.setPromoCode).not.toHaveBeenCalled();
   });
 
+  it("снимает состояние прошлого захода до применения параметров", async () => {
+    const { store, deps } = createDeps();
+
+    await applyBookingDeepLinkFromQuery(deps);
+
+    expect(store.forceReset).toHaveBeenCalledOnce();
+    expect(store.forceReset.mock.invocationCallOrder[0]).toBeLessThan(
+      store.setDate.mock.invocationCallOrder[0],
+    );
+    expect(store.forceReset.mock.invocationCallOrder[0]).toBeLessThan(
+      store.setGuests.mock.invocationCallOrder[0],
+    );
+  });
+
   it("без дат ничего не делает и возвращает false", async () => {
     const { store, routerReplace, deps } = createDeps({ query: {} });
 
@@ -183,6 +198,7 @@ describe("applyBookingDeepLinkFromQuery", () => {
     expect(applied).toBe(false);
     expect(routerReplace).not.toHaveBeenCalled();
     expect(store.setDate).not.toHaveBeenCalled();
+    expect(store.forceReset).not.toHaveBeenCalled();
   });
 
   it("невалидные даты чистит URL, store не трогает и возвращает false", async () => {
@@ -199,6 +215,7 @@ describe("applyBookingDeepLinkFromQuery", () => {
       query: { uuid: "keep" },
     });
     expect(store.setDate).not.toHaveBeenCalled();
+    expect(store.forceReset).not.toHaveBeenCalled();
   });
 });
 

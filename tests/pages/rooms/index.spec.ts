@@ -253,6 +253,7 @@ describe("pages/rooms/index.vue", () => {
         detail: "Укажите даты и количество гостей",
         life: 3000,
       });
+      expect(mockBookingStore.setLoading).toHaveBeenCalledWith(false);
       expect(mockRouterPush).toHaveBeenCalledWith("/");
     });
 
@@ -275,6 +276,7 @@ describe("pages/rooms/index.vue", () => {
         detail: "Укажите даты и количество гостей",
         life: 3000,
       });
+      expect(mockBookingStore.setLoading).toHaveBeenCalledWith(false);
       expect(mockRouterPush).toHaveBeenCalledWith("/");
     });
 
@@ -388,6 +390,7 @@ describe("pages/rooms/index.vue", () => {
       await nextTick();
 
       expect(pendingSearch.value).toBe(false);
+      expect(mockBookingStore.setLoading).toHaveBeenCalledWith(false);
       expect(mockBookingStore.setServerRequest).toHaveBeenCalledWith(false);
       expect(mockRouterPush).toHaveBeenCalledWith("/");
     });
