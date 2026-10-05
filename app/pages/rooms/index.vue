@@ -1,8 +1,9 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
   import { useBookingStore } from "~/stores/booking";
   import { useNotificationToast } from "~/composables/useToast";
   import { useRoomFilters } from "~/composables/useRoomFilters";
   import { isStaleSearchError } from "~/utils/staleSearchError";
+  import { BOOKING_DEEP_LINK_PENDING_SEARCH_KEY } from "~/utils/bookingDeepLink";
 
   definePageMeta({
     layout: "steps",
@@ -12,6 +13,23 @@
   const { searchResults, date, guests, loading } = storeToRefs(bookingStore);
   const toast = useNotificationToast();
   const router = useRouter();
+
+  /**
+   * Флаг deep-link с ukraina-hotel.ru: пришёл переход со страницы поиска.
+   * Значение читаем в onMounted — setup страницы и плагин deep-link идут в разном
+   * порядке, поэтому снимок в setup брать нельзя (ref из useState общий).
+   */
+  const pendingDeepLinkSearch = useState<boolean>(
+    BOOKING_DEEP_LINK_PENDING_SEARCH_KEY,
+    () => false,
+  );
+
+  /** Гасим прелоадер, когда поиск так и не запускается. */
+  function resetPendingSearch() {
+    pendingDeepLinkSearch.value = false;
+    bookingStore.setLoading(false);
+    bookingStore.setServerRequest(false);
+  }
 
   const searchFilters = computed(() => searchResults.value?.filters);
   const { selectedView, viewOptions, filterRoomList } =
@@ -31,7 +49,11 @@
   });
 
   onMounted(async () => {
+    // Читаем флаг после применения deep-link плагином
+    const forceSearch = pendingDeepLinkSearch.value;
+
     if (!date.value || totalAdults.value === 0) {
+      resetPendingSearch();
       toast.add({
         severity: "warn",
         summary: "Некорректные данные",
@@ -42,7 +64,9 @@
       return;
     }
 
-    if (!searchResults.value) {
+    pendingDeepLinkSearch.value = false;
+
+    if (forceSearch || !searchResults.value) {
       try {
         await bookingStore.search();
       } catch (error: unknown) {

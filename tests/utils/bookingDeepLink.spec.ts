@@ -1,11 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   applyBookingDeepLinkFromQuery,
+  BOOKING_DEEP_LINK_SEARCH_PATHS,
+  cleanBookingDeepLinkQuery,
   getRouteQueryWithLocationFallback,
   hasBookingDeepLinkParams,
   isBookingDeepLinkNavigation,
   omitBookingDeepLinkQuery,
   parseBookingDeepLink,
+  shouldAutoSearchAfterDeepLink,
 } from "~/utils/bookingDeepLink";
 import { formatDateApi } from "~/utils/dateFormat";
 
@@ -138,6 +141,7 @@ describe("applyBookingDeepLinkFromQuery", () => {
     } = {},
   ) {
     const store = {
+      forceReset: vi.fn(),
       setDate: vi.fn(),
       setGuests: vi.fn(),
       setPromoCode: vi.fn(),
@@ -157,11 +161,12 @@ describe("applyBookingDeepLinkFromQuery", () => {
     };
   }
 
-  it("чистит query и заполняет store без поиска", async () => {
+  it("чистит query, заполняет store и возвращает true", async () => {
     const { store, routerReplace, deps } = createDeps();
 
-    await applyBookingDeepLinkFromQuery(deps);
+    const applied = await applyBookingDeepLinkFromQuery(deps);
 
+    expect(applied).toBe(true);
     expect(routerReplace).toHaveBeenCalledWith({
       path: "/",
       hash: undefined,
@@ -172,27 +177,110 @@ describe("applyBookingDeepLinkFromQuery", () => {
     expect(store.setPromoCode).not.toHaveBeenCalled();
   });
 
-  it("без дат ничего не делает", async () => {
-    const { store, routerReplace, deps } = createDeps({ query: {} });
+  it("снимает состояние прошлого захода до применения параметров", async () => {
+    const { store, deps } = createDeps();
 
     await applyBookingDeepLinkFromQuery(deps);
 
-    expect(routerReplace).not.toHaveBeenCalled();
-    expect(store.setDate).not.toHaveBeenCalled();
+    expect(store.forceReset).toHaveBeenCalledOnce();
+    expect(store.forceReset.mock.invocationCallOrder[0]).toBeLessThan(
+      store.setDate.mock.invocationCallOrder[0],
+    );
+    expect(store.forceReset.mock.invocationCallOrder[0]).toBeLessThan(
+      store.setGuests.mock.invocationCallOrder[0],
+    );
   });
 
-  it("невалидные даты чистит URL, store не трогает", async () => {
+  it("без дат ничего не делает и возвращает false", async () => {
+    const { store, routerReplace, deps } = createDeps({ query: {} });
+
+    const applied = await applyBookingDeepLinkFromQuery(deps);
+
+    expect(applied).toBe(false);
+    expect(routerReplace).not.toHaveBeenCalled();
+    expect(store.setDate).not.toHaveBeenCalled();
+    expect(store.forceReset).not.toHaveBeenCalled();
+  });
+
+  it("невалидные даты чистит URL, store не трогает и возвращает false", async () => {
     const { store, routerReplace, deps } = createDeps({
       query: { check_in: "invalid", check_out: "2026-09-17", uuid: "keep" },
     });
 
-    await applyBookingDeepLinkFromQuery(deps);
+    const applied = await applyBookingDeepLinkFromQuery(deps);
 
+    expect(applied).toBe(false);
     expect(routerReplace).toHaveBeenCalledWith({
       path: "/",
       hash: undefined,
       query: { uuid: "keep" },
     });
     expect(store.setDate).not.toHaveBeenCalled();
+    expect(store.forceReset).not.toHaveBeenCalled();
+  });
+});
+
+describe("shouldAutoSearchAfterDeepLink", () => {
+  it("автопоиск только на страницах поиска", () => {
+    expect(shouldAutoSearchAfterDeepLink(true, "/rooms")).toBe(true);
+    expect(shouldAutoSearchAfterDeepLink(true, "/multi-rooms")).toBe(true);
+    expect(shouldAutoSearchAfterDeepLink(true, "/")).toBe(false);
+    expect(shouldAutoSearchAfterDeepLink(true, "/cabinet")).toBe(false);
+  });
+
+  it("без применённого deep-link поиск не запускаем", () => {
+    for (const path of BOOKING_DEEP_LINK_SEARCH_PATHS) {
+      expect(shouldAutoSearchAfterDeepLink(false, path)).toBe(false);
+    }
+  });
+});
+
+describe("cleanBookingDeepLinkQuery", () => {
+  function createDeps(query: Record<string, unknown>) {
+    const router = { replace: vi.fn().mockResolvedValue(undefined) };
+    const route = { path: "/rooms", hash: "", query };
+    return { router, route };
+  }
+
+  it("снимает deep-link-параметры и сохраняет остальные", async () => {
+    const { router, route } = createDeps({
+      check_in: "2026-09-15",
+      check_out: "2026-09-17",
+      uuid: "keep",
+    });
+
+    const cleaned = await cleanBookingDeepLinkQuery(router, route);
+
+    expect(cleaned).toBe(true);
+    expect(router.replace).toHaveBeenCalledWith({
+      path: "/rooms",
+      hash: undefined,
+      query: { uuid: "keep" },
+    });
+  });
+
+  it("сохраняет hash страницы", async () => {
+    const { router, route } = createDeps({
+      check_in: "2026-09-15",
+      check_out: "2026-09-17",
+    });
+    route.hash = "#booking";
+
+    await cleanBookingDeepLinkQuery(router, route);
+
+    expect(router.replace).toHaveBeenCalledWith({
+      path: "/rooms",
+      hash: "#booking",
+      query: {},
+    });
+  });
+
+  it("не навигирует, если deep-link-параметров уже нет", async () => {
+    const { router, route } = createDeps({ uuid: "keep" });
+
+    const cleaned = await cleanBookingDeepLinkQuery(router, route);
+
+    expect(cleaned).toBe(false);
+    expect(router.replace).not.toHaveBeenCalled();
   });
 });

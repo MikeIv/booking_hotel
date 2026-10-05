@@ -1,7 +1,22 @@
 /**
  * Моки для Nuxt composables
  */
+import { ref, type Ref } from "vue";
 import { vi } from "vitest";
+
+/**
+ * Nuxt useState вне Nuxt-рантайма: один ключ → один ref на весь тест-ран.
+ * setup.ts стабилизирует через это стор глобальный useState,
+ * спеки могут готовить состояние до монтирования компонента.
+ */
+export const nuxtState = new Map<string, Ref<unknown>>();
+
+export function useStateStub<T>(key: string, init?: () => T): Ref<T> {
+  if (!nuxtState.has(key)) {
+    nuxtState.set(key, ref(init ? init() : (undefined as unknown)));
+  }
+  return nuxtState.get(key) as Ref<T>;
+}
 
 export const mockRouterPush = vi.fn().mockResolvedValue(undefined);
 export const mockRoute: {

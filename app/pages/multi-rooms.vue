@@ -15,6 +15,7 @@
   } from "~/utils/multiBooking";
   import UIPopup from "~/components/ui/Popup.vue";
   import { isStaleSearchError } from "~/utils/staleSearchError";
+  import { BOOKING_DEEP_LINK_PENDING_SEARCH_KEY } from "~/utils/bookingDeepLink";
 
   definePageMeta({
     layout: "steps",
@@ -25,6 +26,22 @@
   const bookingStore = useBookingStore();
   const { searchResults, roomTariffs, date, guests, selectedMultiRooms } =
     storeToRefs(bookingStore);
+
+  /**
+   * Флаг deep-link с ukraina-hotel.ru: пришёл переход со страницы поиска.
+   * Читаем значение в onMounted (ref из useState общий, снимок в setup не берём).
+   */
+  const pendingDeepLinkSearch = useState<boolean>(
+    BOOKING_DEEP_LINK_PENDING_SEARCH_KEY,
+    () => false,
+  );
+
+  /** Гасим прелоадер, когда поиск не запускается (guard или один номер). */
+  function resetPendingSearch() {
+    pendingDeepLinkSearch.value = false;
+    bookingStore.setLoading(false);
+    bookingStore.setServerRequest(false);
+  }
 
   const loading = ref(true);
   const error = ref<Error | null>(null);
@@ -193,6 +210,9 @@
   );
 
   onMounted(async () => {
+    // Читаем флаг после применения deep-link плагином
+    const forceSearch = pendingDeepLinkSearch.value;
+
     // Загружаем сохраненные данные из store
     if (selectedMultiRooms.value && Object.keys(selectedMultiRooms.value).length > 0) {
       selectedByRoomIdx.value = { ...selectedMultiRooms.value };
@@ -209,6 +229,7 @@
       : 0;
 
     if (!date.value || totalAdults === 0) {
+      resetPendingSearch();
       toast.add({
         severity: "warn",
         summary: "Некорректные данные",
@@ -220,13 +241,16 @@
     }
 
     if (roomsCount <= 1) {
+      resetPendingSearch();
       router.push("/rooms/tariff");
       return;
     }
 
+    pendingDeepLinkSearch.value = false;
+
     try {
       loading.value = true;
-      if (!roomTariffs.value.length) {
+      if (forceSearch || !roomTariffs.value.length) {
         await bookingStore.search();
       }
 

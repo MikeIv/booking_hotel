@@ -15,6 +15,28 @@ export const BOOKING_DEEP_LINK_QUERY_KEYS = [
   "checkOutDate",
 ] as const;
 
+/** Ключ Nuxt useState: deep-link пришёл на страницу, которая запускает поиск сама. */
+export const BOOKING_DEEP_LINK_PENDING_SEARCH_KEY =
+  "booking-deep-link-pending-search";
+
+/** Страницы поиска: переход с ukraina-hotel.ru ведёт прямо сюда. */
+export const BOOKING_DEEP_LINK_SEARCH_PATHS = [
+  "/rooms",
+  "/multi-rooms",
+] as const;
+
+/**
+ * Нужно ли странице запускать поиск сразу после deep-link.
+ * `applied` — результат applyBookingDeepLinkFromQuery: невалидные даты поиск не запускают.
+ */
+export function shouldAutoSearchAfterDeepLink(
+  applied: boolean,
+  path: string,
+): boolean {
+  if (!applied) return false;
+  return (BOOKING_DEEP_LINK_SEARCH_PATHS as readonly string[]).includes(path);
+}
+
 export type BookingDeepLinkGuestRoom = {
   adults: number;
   children: number;
@@ -212,10 +234,57 @@ export function omitBookingDeepLinkQuery(
   return next;
 }
 
+type DeepLinkQueryRouter = {
+  replace: (location: {
+    path: string;
+    hash?: string;
+    query: Record<string, string>;
+  }) => Promise<unknown>;
+};
+
+type DeepLinkQueryRoute = {
+  path: string;
+  hash: string;
+  query: Record<string, unknown>;
+};
+
+/**
+ * Убирает deep-link-параметры из адресной строки, остальные query сохраняет.
+ * Идемпотентно: если параметров уже нет, навигации не происходит.
+ *
+ * Нужна дважды: сразу при применении payload и повторно в `app:mounted`, потому что
+ * Nuxt после плагинов делает `router.replace(initialURL)` с исходным `window.location`
+ * (nuxt/dist/app/plugins/router.js) и возвращает параметры в адресную строку.
+ */
+export async function cleanBookingDeepLinkQuery(
+  router: DeepLinkQueryRouter,
+  route: DeepLinkQueryRoute,
+): Promise<boolean> {
+  const query = getRouteQueryWithLocationFallback(route.query);
+  if (!hasBookingDeepLinkParams(query)) return false;
+
+  await router.replace({
+    path: route.path,
+    hash: route.hash || undefined,
+    query: omitBookingDeepLinkQuery(query),
+  });
+  return true;
+}
+
 type BookingDeepLinkStore = {
   setDate: (value: [Date, Date] | null) => void;
   setGuests: (value: BookingDeepLinkPayload["guests"]) => void;
   setPromoCode: (value: string) => void;
+};
+
+/**
+ * Переход с главной отеля — всегда новая сессия бронирования: состояние прошлого
+ * захода (флаги смены номера/услуг, промокод, выбранные тарифы, услуги и мультивыбор)
+ * не должно подхватываться автопоиском. Раньше это делал middleware, но только для
+ * пути «/», а с автопоиском вход идёт сразу на /rooms и /multi-rooms.
+ */
+type BookingDeepLinkResetStore = BookingDeepLinkStore & {
+  forceReset: () => void;
 };
 
 export function applyBookingDeepLinkPayload(
@@ -224,6 +293,8 @@ export function applyBookingDeepLinkPayload(
 ) {
   store.setDate(payload.date);
   store.setGuests(payload.guests);
+  // Только непустой промокод из deep-link: пустой параметр не должен
+  // восстанавливать промокод прошлого захода (его снял forceReset).
   if (payload.promoCode) {
     store.setPromoCode(payload.promoCode);
   }
@@ -233,7 +304,7 @@ type ApplyBookingDeepLinkDeps = {
   query: Record<string, unknown>;
   path: string;
   hash?: string;
-  store: BookingDeepLinkStore;
+  store: BookingDeepLinkResetStore;
   routerReplace: (location: {
     path: string;
     hash?: string;
@@ -242,13 +313,17 @@ type ApplyBookingDeepLinkDeps = {
 };
 
 /**
- * Query с ukraina-hotel.ru → store формы на текущем path.
- * Без автопоиска /rooms — поиск только по кнопке «Поиск».
+ * Query с ukraina-hotel.ru → store формы.
+ *
+ * Возвращает `true` только когда payload распарсен и применён к store
+ * (URL чистится в любом случае, если параметры deep-link есть).
+ * Автопоиск запускает страница по флагу BOOKING_DEEP_LINK_PENDING_SEARCH_KEY —
+ * иначе поиск остаётся только по кнопке «Поиск».
  */
 export async function applyBookingDeepLinkFromQuery(
   deps: ApplyBookingDeepLinkDeps,
-): Promise<void> {
-  if (!hasBookingDeepLinkParams(deps.query)) return;
+): Promise<boolean> {
+  if (!hasBookingDeepLinkParams(deps.query)) return false;
 
   const payload = parseBookingDeepLink(deps.query);
 
@@ -258,7 +333,11 @@ export async function applyBookingDeepLinkFromQuery(
     query: omitBookingDeepLinkQuery(deps.query),
   });
 
-  if (payload) {
-    applyBookingDeepLinkPayload(deps.store, payload);
-  }
+  if (!payload) return false;
+
+  // Сначала чистим прошлый заход, потом применяем параметры: иначе автопоиск уйдёт
+  // в API со старым промокодом и подхватит незавершённую смену старой брони.
+  deps.store.forceReset();
+  applyBookingDeepLinkPayload(deps.store, payload);
+  return true;
 }

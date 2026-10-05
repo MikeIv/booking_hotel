@@ -2,11 +2,12 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { nextTick } from "vue";
 import RoomsPage from "~/pages/rooms/index.vue";
 import { setupPinia, mountComponent } from "../../utils/test-utils";
-import { mockRouterPush, mockToastAdd } from "../../mocks/nuxt";
+import { mockRouterPush, mockToastAdd, useStateStub } from "../../mocks/nuxt";
 import {
   createMockBookingStore,
   resetMockBookingStore,
 } from "../../mocks/stores";
+import { BOOKING_DEEP_LINK_PENDING_SEARCH_KEY } from "~/utils/bookingDeepLink";
 import type { Room } from "~/types/room";
 
 // Мокируем store
@@ -252,6 +253,7 @@ describe("pages/rooms/index.vue", () => {
         detail: "Укажите даты и количество гостей",
         life: 3000,
       });
+      expect(mockBookingStore.setLoading).toHaveBeenCalledWith(false);
       expect(mockRouterPush).toHaveBeenCalledWith("/");
     });
 
@@ -274,6 +276,7 @@ describe("pages/rooms/index.vue", () => {
         detail: "Укажите даты и количество гостей",
         life: 3000,
       });
+      expect(mockBookingStore.setLoading).toHaveBeenCalledWith(false);
       expect(mockRouterPush).toHaveBeenCalledWith("/");
     });
 
@@ -345,6 +348,51 @@ describe("pages/rooms/index.vue", () => {
         life: 3000,
       });
       expect(mockBookingStore.setLoading).not.toHaveBeenCalled();
+    });
+
+    it("должен вызывать search по флагу deep-link даже если результаты уже есть", async () => {
+      const pendingSearch = useStateStub<boolean>(
+        BOOKING_DEEP_LINK_PENDING_SEARCH_KEY,
+        () => false,
+      );
+      mockBookingStore.date.value = [
+        new Date("2024-12-01"),
+        new Date("2024-12-05"),
+      ];
+      mockBookingStore.guests.value = {
+        rooms: 1,
+        roomList: [{ adults: 2, children: 0, childrenAges: [] }],
+      };
+      mockBookingStore.searchResults.value = {
+        rooms: [createMockRoom()],
+        packages: [],
+        available: true,
+        groupedByBed: false,
+      };
+      pendingSearch.value = true;
+
+      const _wrapper = mountComponent(RoomsPage);
+      await nextTick();
+
+      expect(mockBookingStore.search).toHaveBeenCalled();
+      expect(pendingSearch.value).toBe(false);
+    });
+
+    it("должен гасить прелоадер, если по флагу поиск так и не запускается", async () => {
+      const pendingSearch = useStateStub<boolean>(
+        BOOKING_DEEP_LINK_PENDING_SEARCH_KEY,
+        () => false,
+      );
+      pendingSearch.value = true;
+      mockBookingStore.date.value = null;
+
+      const _wrapper = mountComponent(RoomsPage);
+      await nextTick();
+
+      expect(pendingSearch.value).toBe(false);
+      expect(mockBookingStore.setLoading).toHaveBeenCalledWith(false);
+      expect(mockBookingStore.setServerRequest).toHaveBeenCalledWith(false);
+      expect(mockRouterPush).toHaveBeenCalledWith("/");
     });
   });
 
