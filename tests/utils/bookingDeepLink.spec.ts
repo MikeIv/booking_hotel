@@ -1,11 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   applyBookingDeepLinkFromQuery,
+  BOOKING_DEEP_LINK_SEARCH_PATHS,
   getRouteQueryWithLocationFallback,
   hasBookingDeepLinkParams,
   isBookingDeepLinkNavigation,
   omitBookingDeepLinkQuery,
   parseBookingDeepLink,
+  shouldAutoSearchAfterDeepLink,
 } from "~/utils/bookingDeepLink";
 import { formatDateApi } from "~/utils/dateFormat";
 
@@ -157,11 +159,12 @@ describe("applyBookingDeepLinkFromQuery", () => {
     };
   }
 
-  it("чистит query и заполняет store без поиска", async () => {
+  it("чистит query, заполняет store и возвращает true", async () => {
     const { store, routerReplace, deps } = createDeps();
 
-    await applyBookingDeepLinkFromQuery(deps);
+    const applied = await applyBookingDeepLinkFromQuery(deps);
 
+    expect(applied).toBe(true);
     expect(routerReplace).toHaveBeenCalledWith({
       path: "/",
       hash: undefined,
@@ -172,27 +175,44 @@ describe("applyBookingDeepLinkFromQuery", () => {
     expect(store.setPromoCode).not.toHaveBeenCalled();
   });
 
-  it("без дат ничего не делает", async () => {
+  it("без дат ничего не делает и возвращает false", async () => {
     const { store, routerReplace, deps } = createDeps({ query: {} });
 
-    await applyBookingDeepLinkFromQuery(deps);
+    const applied = await applyBookingDeepLinkFromQuery(deps);
 
+    expect(applied).toBe(false);
     expect(routerReplace).not.toHaveBeenCalled();
     expect(store.setDate).not.toHaveBeenCalled();
   });
 
-  it("невалидные даты чистит URL, store не трогает", async () => {
+  it("невалидные даты чистит URL, store не трогает и возвращает false", async () => {
     const { store, routerReplace, deps } = createDeps({
       query: { check_in: "invalid", check_out: "2026-09-17", uuid: "keep" },
     });
 
-    await applyBookingDeepLinkFromQuery(deps);
+    const applied = await applyBookingDeepLinkFromQuery(deps);
 
+    expect(applied).toBe(false);
     expect(routerReplace).toHaveBeenCalledWith({
       path: "/",
       hash: undefined,
       query: { uuid: "keep" },
     });
     expect(store.setDate).not.toHaveBeenCalled();
+  });
+});
+
+describe("shouldAutoSearchAfterDeepLink", () => {
+  it("автопоиск только на страницах поиска", () => {
+    expect(shouldAutoSearchAfterDeepLink(true, "/rooms")).toBe(true);
+    expect(shouldAutoSearchAfterDeepLink(true, "/multi-rooms")).toBe(true);
+    expect(shouldAutoSearchAfterDeepLink(true, "/")).toBe(false);
+    expect(shouldAutoSearchAfterDeepLink(true, "/cabinet")).toBe(false);
+  });
+
+  it("без применённого deep-link поиск не запускаем", () => {
+    for (const path of BOOKING_DEEP_LINK_SEARCH_PATHS) {
+      expect(shouldAutoSearchAfterDeepLink(false, path)).toBe(false);
+    }
   });
 });

@@ -6,7 +6,13 @@ import { beforeEach, vi } from "vitest";
 import { storeToRefs as piniaStoreToRefs } from "pinia";
 import * as Vue from "vue";
 import type { Ref } from "vue";
-import { mockRouterPush, mockRoute, mockToastAdd } from "./mocks/nuxt";
+import {
+  mockRouterPush,
+  mockRoute,
+  mockToastAdd,
+  nuxtState,
+  useStateStub,
+} from "./mocks/nuxt";
 import { setupComponentMocks } from "./mocks/components";
 
 // --- Тишина в консоли для тестов ---
@@ -26,6 +32,10 @@ vi.stubGlobal("useRouter", () => ({
 }));
 
 vi.stubGlobal("useRoute", () => mockRoute);
+
+// useState приходит из Nuxt auto-imports; в Vitest его нет.
+// Состояние живёт в tests/mocks/nuxt.ts, чтобы спеки могли его готовить.
+vi.stubGlobal("useState", useStateStub);
 
 vi.stubGlobal("useToast", () => ({
   add: mockToastAdd,
@@ -204,6 +214,7 @@ vi.stubGlobal("useAttrs", Vue.useAttrs);
 // Сбрасываем моки перед каждым тестом
 beforeEach(() => {
   vi.clearAllMocks();
+  nuxtState.clear();
   mockRouterPush.mockResolvedValue(undefined);
   mockRoute.path = "/";
   mockRoute.query = {};

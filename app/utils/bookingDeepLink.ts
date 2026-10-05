@@ -15,6 +15,28 @@ export const BOOKING_DEEP_LINK_QUERY_KEYS = [
   "checkOutDate",
 ] as const;
 
+/** Ключ Nuxt useState: deep-link пришёл на страницу, которая запускает поиск сама. */
+export const BOOKING_DEEP_LINK_PENDING_SEARCH_KEY =
+  "booking-deep-link-pending-search";
+
+/** Страницы поиска: переход с ukraina-hotel.ru ведёт прямо сюда. */
+export const BOOKING_DEEP_LINK_SEARCH_PATHS = [
+  "/rooms",
+  "/multi-rooms",
+] as const;
+
+/**
+ * Нужно ли странице запускать поиск сразу после deep-link.
+ * `applied` — результат applyBookingDeepLinkFromQuery: невалидные даты поиск не запускают.
+ */
+export function shouldAutoSearchAfterDeepLink(
+  applied: boolean,
+  path: string,
+): boolean {
+  if (!applied) return false;
+  return (BOOKING_DEEP_LINK_SEARCH_PATHS as readonly string[]).includes(path);
+}
+
 export type BookingDeepLinkGuestRoom = {
   adults: number;
   children: number;
@@ -242,13 +264,17 @@ type ApplyBookingDeepLinkDeps = {
 };
 
 /**
- * Query с ukraina-hotel.ru → store формы на текущем path.
- * Без автопоиска /rooms — поиск только по кнопке «Поиск».
+ * Query с ukraina-hotel.ru → store формы.
+ *
+ * Возвращает `true` только когда payload распарсен и применён к store
+ * (URL чистится в любом случае, если параметры deep-link есть).
+ * Автопоиск запускает страница по флагу BOOKING_DEEP_LINK_PENDING_SEARCH_KEY —
+ * иначе поиск остаётся только по кнопке «Поиск».
  */
 export async function applyBookingDeepLinkFromQuery(
   deps: ApplyBookingDeepLinkDeps,
-): Promise<void> {
-  if (!hasBookingDeepLinkParams(deps.query)) return;
+): Promise<boolean> {
+  if (!hasBookingDeepLinkParams(deps.query)) return false;
 
   const payload = parseBookingDeepLink(deps.query);
 
@@ -258,7 +284,8 @@ export async function applyBookingDeepLinkFromQuery(
     query: omitBookingDeepLinkQuery(deps.query),
   });
 
-  if (payload) {
-    applyBookingDeepLinkPayload(deps.store, payload);
-  }
+  if (!payload) return false;
+
+  applyBookingDeepLinkPayload(deps.store, payload);
+  return true;
 }
