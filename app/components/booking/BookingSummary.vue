@@ -304,11 +304,8 @@ const handleRemoveService = (roomIdx: number, serviceId: number) => {
 
   .pageSummaryGrandTotal strong {
     @include typo.typo-h1;
-
-    @media (max-width: calc(#{size.$desktopMin} - 1px)) {
-      font-size: rem(32);
-      line-height: 1.2;
-    }
+    font-size: rem(32);
+    line-height: 1.2;
   }
 
   @media (max-width: calc(#{size.$desktopMin} - 1px)) {
@@ -326,7 +323,6 @@ const handleRemoveService = (roomIdx: number, serviceId: number) => {
 
       .pageSummaryGrandTotal strong {
         font-size: rem(28);
-        line-height: 1.2;
       }
     }
   }

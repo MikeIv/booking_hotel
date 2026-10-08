@@ -186,11 +186,12 @@ const emit = defineEmits<{
     flex: 1;
     min-width: 0;
     @include typo.typo-h3;
+    font-size: rem(18);
+    line-height: 1.2;
     color: var(--a-text-dark);
 
     @media (max-width: calc(#{size.$desktopMin} - 1px)) {
       font-size: clamp(#{rem(14)}, 5cqi, #{rem(18)});
-      line-height: 1.2;
     }
   }
 

@@ -169,12 +169,13 @@ const toggle = () => emit("update:open", !props.open);
   .bookingDetailLabel {
     min-width: 0;
     @include typo.typo-h3;
+    font-size: rem(20);
+    line-height: 1.2;
     color: var(--a-text-dark);
     white-space: nowrap;
 
     @media (max-width: calc(#{size.$desktopMin} - 1px)) {
       font-size: clamp(#{rem(14)}, 6.5cqi, #{rem(20)});
-      line-height: 1.2;
     }
   }
 
@@ -199,8 +200,15 @@ const toggle = () => emit("update:open", !props.open);
     height: rem(8);
     overflow: hidden;
 
-    /* Остриё svg на доли пикселя ниже штриха — сдвиг сажает его на линию. */
-    transform: translateY(-0.6px);
+    @media (max-width: calc(#{size.$desktopMin} - 1px)) {
+      /* Остриё svg на доли пикселя ниже штриха — сдвиг сажает его на линию. */
+      transform: translateY(-0.6px);
+    }
+
+    @media (min-width: #{size.$desktopMin}) {
+      /* На 1x линия в 1px садится на нижний пиксель центра, остриё остаётся выше. */
+      transform: translateY(0.5px);
+    }
   }
 
   .detailArrowIcon {
