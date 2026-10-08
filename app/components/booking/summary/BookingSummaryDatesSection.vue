@@ -33,7 +33,7 @@ const toggle = () => emit("update:open", !props.open);
 </script>
 
 <template>
-  <div :class="$style.section">
+  <div :class="[$style.section, !open && $style.section_collapsed]">
     <div :class="$style.pageSummaryHeader">
       <span :class="$style.pageSummaryTitle">Ваше бронирование:</span>
       <div v-if="showToggle" :class="$style.infoButtonWrapper">
@@ -87,6 +87,20 @@ const toggle = () => emit("update:open", !props.open);
     }
   }
 
+  @media (max-width: calc(#{size.$desktopMin} - 1px)) {
+    .section_collapsed {
+      .pageSummaryHeader {
+        padding-bottom: rem(8);
+      }
+
+      .pageSummaryTitle {
+        font-size: rem(20);
+        line-height: 1.2;
+        white-space: nowrap;
+      }
+    }
+  }
+
   .pageSummaryHeader {
     display: flex;
     align-items: center;
@@ -119,10 +133,14 @@ const toggle = () => emit("update:open", !props.open);
 
   .pageSummaryDatesMobile {
     display: block;
-    margin-bottom: var(--a-space-2);
     @include typo.typo-h3;
     color: var(--a-text-dark);
-    text-align: left;
+    text-align: center;
+
+    /* До 20px и в одну строку: 5.2cqi держит «сентября» внутри шторки. */
+    font-size: clamp(#{rem(13)}, 5.2cqi, #{rem(20)});
+    line-height: 1.2;
+    white-space: nowrap;
 
     @media (min-width: #{size.$desktopMin}) {
       display: none;

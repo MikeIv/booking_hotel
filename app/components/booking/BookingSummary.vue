@@ -311,6 +311,26 @@ const handleRemoveService = (roomIdx: number, serviceId: number) => {
     }
   }
 
+  @media (max-width: calc(#{size.$desktopMin} - 1px)) {
+    .pageSummaryInner:not(.pageSummaryInner_expanded) {
+      padding-top: rem(20);
+      padding-bottom: rem(20);
+
+      .pageSummaryDivider {
+        margin: rem(12) 0;
+      }
+
+      .pageSummaryGrandTotal {
+        margin-bottom: var(--a-space-2);
+      }
+
+      .pageSummaryGrandTotal strong {
+        font-size: rem(28);
+        line-height: 1.2;
+      }
+    }
+  }
+
   .pageSummaryFooter {
     display: flex;
     align-items: center;
