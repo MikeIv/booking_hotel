@@ -256,6 +256,10 @@ const handleRemoveService = (roomIdx: number, serviceId: number) => {
     overflow-y: auto;
     overscroll-behavior: contain;
 
+    @media (max-width: calc(#{size.$desktopMin} - 1px)) {
+      container-type: inline-size;
+    }
+
     @media (min-width: #{size.$desktopMin}) {
       overflow: visible;
     }

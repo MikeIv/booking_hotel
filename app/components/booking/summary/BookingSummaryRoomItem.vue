@@ -189,8 +189,7 @@ const emit = defineEmits<{
     color: var(--a-text-dark);
 
     @media (max-width: calc(#{size.$desktopMin} - 1px)) {
-      font-size: clamp(#{rem(14)}, 4vw, #{rem(18)});
-      font-weight: 700;
+      font-size: clamp(#{rem(14)}, 5cqi, #{rem(18)});
       line-height: 1.2;
     }
   }
@@ -208,7 +207,7 @@ const emit = defineEmits<{
     color: var(--a-text-dark);
 
     @media (max-width: calc(#{size.$desktopMin} - 1px)) {
-      font-size: clamp(#{rem(14)}, 4vw, #{rem(18)});
+      font-size: clamp(#{rem(14)}, 5cqi, #{rem(18)});
       line-height: 1.2;
     }
   }
@@ -280,7 +279,7 @@ const emit = defineEmits<{
     color: var(--a-text-dark);
 
     @media (max-width: calc(#{size.$desktopMin} - 1px)) {
-      font-size: clamp(#{rem(14)}, 4vw, #{rem(16)});
+      font-size: clamp(#{rem(14)}, 5cqi, #{rem(16)});
       line-height: 1.2;
     }
   }

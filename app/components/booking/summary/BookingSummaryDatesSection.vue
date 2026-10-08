@@ -131,7 +131,6 @@ const toggle = () => emit("update:open", !props.open);
 
   .datesBlock {
     display: none;
-    container-type: inline-size;
     grid-template-columns: max-content minmax(0, 1fr) max-content;
     align-items: center;
     column-gap: var(--a-space-2);
@@ -173,7 +172,7 @@ const toggle = () => emit("update:open", !props.open);
     flex: 1 1 auto;
     min-width: rem(12);
     height: 1px;
-    background: currentColor;
+    background: currentcolor;
   }
 
   .detailArrowHead {
@@ -181,12 +180,15 @@ const toggle = () => emit("update:open", !props.open);
     width: rem(10);
     height: rem(8);
     overflow: hidden;
+
     /* Остриё svg на доли пикселя ниже штриха — сдвиг сажает его на линию. */
     transform: translateY(-0.6px);
   }
 
   .detailArrowIcon {
     display: block;
+
+    /* arrow-long.svg viewBox 117×8, остриё справа: окно .detailArrowHead показывает последние 10px. */
     width: rem(117);
     height: rem(8);
     max-width: none;
