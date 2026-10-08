@@ -185,6 +185,7 @@ const toggle = () => emit("update:open", !props.open);
     width: 100%;
     min-width: 0;
     color: var(--a-text-dark);
+    pointer-events: none;
   }
 
   .detailArrowLine {
