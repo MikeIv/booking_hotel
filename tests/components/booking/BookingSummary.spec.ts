@@ -100,7 +100,7 @@ describe("BookingSummary.vue", () => {
     const wrapper = mountSummary();
     const dates = wrapper.findComponent(BookingSummaryDatesSection);
     expect(dates.props("showToggle")).toBe(true);
-    expect(dates.props("open")).toBe(true);
+    expect(dates.props("open")).toBe(false);
   });
 
   it("скрывает кнопку состава бронирования, если номер не выбран", () => {

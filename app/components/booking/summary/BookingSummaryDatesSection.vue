@@ -52,7 +52,12 @@ const toggle = () => emit("update:open", !props.open);
       :class="[$style.datesBlock, open ? $style.datesBlock_open : undefined]"
     >
       <span :class="$style.bookingDetailLabel">{{ checkInFormatted }}</span>
-      <UIcon name="i-arrow-long" :class="$style.detailIcon" />
+      <span :class="$style.detailArrow" aria-hidden="true">
+        <span :class="$style.detailArrowLine" />
+        <span :class="$style.detailArrowHead">
+          <UIcon name="i-arrow-long" :class="$style.detailArrowIcon" />
+        </span>
+      </span>
       <span :class="[$style.bookingDetailLabel, $style.dayRight]">{{
         checkOutFormatted
       }}</span>
@@ -76,7 +81,10 @@ const toggle = () => emit("update:open", !props.open);
   .section {
     display: flex;
     flex-direction: column;
-    container-type: inline-size;
+
+    @media (max-width: calc(#{size.$desktopMin} - 1px)) {
+      display: contents;
+    }
   }
 
   .pageSummaryHeader {
@@ -85,10 +93,23 @@ const toggle = () => emit("update:open", !props.open);
     justify-content: space-between;
     gap: var(--a-space-2);
     margin-bottom: var(--a-space-2);
+
+    @media (max-width: calc(#{size.$desktopMin} - 1px)) {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      margin-bottom: 0;
+      padding-bottom: var(--a-space-2);
+      background: var(--a-whiteBg);
+    }
   }
 
   .infoButtonWrapper {
     flex-shrink: 0;
+
+    @media (min-width: #{size.$desktopMin}) {
+      display: none;
+    }
   }
 
   .pageSummaryTitle {
@@ -110,7 +131,8 @@ const toggle = () => emit("update:open", !props.open);
 
   .datesBlock {
     display: none;
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    container-type: inline-size;
+    grid-template-columns: max-content minmax(0, 1fr) max-content;
     align-items: center;
     column-gap: var(--a-space-2);
     row-gap: var(--a-space-3);
@@ -131,12 +153,47 @@ const toggle = () => emit("update:open", !props.open);
     min-width: 0;
     @include typo.typo-h3;
     color: var(--a-text-dark);
+    white-space: nowrap;
+
+    @media (max-width: calc(#{size.$desktopMin} - 1px)) {
+      font-size: clamp(#{rem(14)}, 6.5cqi, #{rem(20)});
+      line-height: 1.2;
+    }
   }
 
-  .detailIcon {
+  .detailArrow {
+    display: flex;
+    align-items: center;
     width: 100%;
-    height: rem(8);
+    min-width: 0;
     color: var(--a-text-dark);
+  }
+
+  .detailArrowLine {
+    flex: 1 1 auto;
+    min-width: rem(12);
+    height: 1px;
+    background: currentColor;
+  }
+
+  .detailArrowHead {
+    flex: 0 0 rem(10);
+    width: rem(10);
+    height: rem(8);
+    overflow: hidden;
+    /* Остриё svg на доли пикселя ниже штриха — сдвиг сажает его на линию. */
+    transform: translateY(-0.6px);
+  }
+
+  .detailArrowIcon {
+    display: block;
+    width: rem(117);
+    height: rem(8);
+    max-width: none;
+    margin-left: rem(-107);
+    background-repeat: no-repeat;
+    background-position: left center;
+    background-size: rem(117) rem(8);
   }
 
   .dayMeta {
@@ -150,43 +207,6 @@ const toggle = () => emit("update:open", !props.open);
     min-width: 0;
     @include typo.typo-body-md;
     color: var(--a-text-dark);
-  }
-
-  @container (max-width: 420px) {
-    .datesBlock {
-      grid-template-columns: 1fr 1fr;
-      row-gap: var(--a-space-2);
-    }
-
-    .detailIcon {
-      display: none;
-    }
-
-    .bookingDetailLabel:first-child {
-      grid-column: 1;
-      grid-row: 1;
-    }
-
-    .bookingDetailLabel.dayRight {
-      grid-column: 2;
-      grid-row: 1;
-    }
-
-    .dayMeta:first-of-type {
-      grid-column: 1;
-      grid-row: 3;
-    }
-
-    .dayMeta.dayRight {
-      grid-column: 2;
-      grid-row: 3;
-    }
-
-    .weekday {
-      grid-column: 1 / -1;
-      grid-row: 2;
-      justify-self: center;
-    }
   }
 
   .dayRight {

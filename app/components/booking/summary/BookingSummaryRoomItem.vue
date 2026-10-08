@@ -109,6 +109,7 @@ const emit = defineEmits<{
 </template>
 
 <style module lang="scss">
+  @use "~/assets/styles/variables/resolutions" as size;
   @use "~/assets/styles/tools/mixins" as typo;
 
   .pageSummaryItem {
@@ -186,6 +187,12 @@ const emit = defineEmits<{
     min-width: 0;
     @include typo.typo-h3;
     color: var(--a-text-dark);
+
+    @media (max-width: calc(#{size.$desktopMin} - 1px)) {
+      font-size: clamp(#{rem(14)}, 4vw, #{rem(18)});
+      font-weight: 700;
+      line-height: 1.2;
+    }
   }
 
   .roomPrice {
@@ -199,6 +206,11 @@ const emit = defineEmits<{
     @include typo.typo-body-lg;
     font-weight: 700;
     color: var(--a-text-dark);
+
+    @media (max-width: calc(#{size.$desktopMin} - 1px)) {
+      font-size: clamp(#{rem(14)}, 4vw, #{rem(18)});
+      line-height: 1.2;
+    }
   }
 
   .roomDivider {
@@ -211,6 +223,10 @@ const emit = defineEmits<{
     @include typo.typo-body-md;
     font-weight: 500;
     color: var(--a-text-dark);
+
+    @media (max-width: calc(#{size.$desktopMin} - 1px)) {
+      line-height: 1.2;
+    }
   }
 
   .roomTotal {
@@ -236,6 +252,10 @@ const emit = defineEmits<{
     @include typo.typo-body-lg;
     font-weight: 700;
     color: var(--a-text-dark);
+
+    @media (max-width: calc(#{size.$desktopMin} - 1px)) {
+      line-height: 1.2;
+    }
   }
 
   .servicesList {
@@ -254,9 +274,15 @@ const emit = defineEmits<{
 
   .serviceTitle {
     flex: 1;
+    min-width: 0;
     @include typo.typo-body-md;
     font-weight: 500;
     color: var(--a-text-dark);
+
+    @media (max-width: calc(#{size.$desktopMin} - 1px)) {
+      font-size: clamp(#{rem(14)}, 4vw, #{rem(16)});
+      line-height: 1.2;
+    }
   }
 
   .serviceActions {
