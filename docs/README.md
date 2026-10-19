@@ -7,18 +7,11 @@
 ```
 docs/
 ├── README.md              # Этот файл - общая информация о документации
-├── storybook.md           # Storybook: запуск, настройка, истории
 └── components/            # Документация компонентов
     ├── Booking.md         # Документация компонента Booking.vue
     ├── Card.md            # Документация компонента Card.vue
     └── GuestsSelector.md  # Документация компонента GuestsSelector.vue
 ```
-
-## Storybook
-
-Витрина UI-компонентов на базе `@nuxtjs/storybook` и `@storybook-vue/nuxt`: отдельный dev-сервер, истории в `app/components/**/*.stories.*`.
-
-📄 [Документация Storybook в проекте](./storybook.md)
 
 ## Компоненты
 
