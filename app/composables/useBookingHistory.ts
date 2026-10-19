@@ -42,13 +42,6 @@ export const useBookingHistory = () => {
     isLoadingBookings.value = true;
 
     try {
-      if (import.meta.dev) {
-        console.log("📡 Загрузка истории бронирований...", {
-          page: currentPage.value,
-          per_page: perPage.value,
-        });
-      }
-
       const { get } = useApi();
       const response = (await get<BookingHistoryItem[]>(
         "/v1/users/bookings/history",
@@ -57,10 +50,6 @@ export const useBookingHistory = () => {
           per_page: perPage.value,
         },
       )) as BookingHistoryResponse;
-
-      if (import.meta.dev) {
-        console.log("📨 Ответ сервера (история бронирований):", response);
-      }
 
       if (response.success) {
         const newBookings = response.payload || [];
@@ -82,10 +71,6 @@ export const useBookingHistory = () => {
         // Если получили меньше элементов, чем запрашивали, значит это все бронирования
         if (newBookings.length < perPage.value) {
           allBookingsLoaded.value = true;
-        }
-
-        if (import.meta.dev) {
-          console.log(`✅ Загружено бронирований: ${newBookings.length}`);
         }
       } else {
         if (import.meta.dev) {

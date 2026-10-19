@@ -59,19 +59,8 @@
   };
 
   const handleLogin = async () => {
-    if (import.meta.dev) {
-      console.log("🔄 Начало входа...");
-    }
-
     if (!validateForm()) {
-      if (import.meta.dev) {
-        console.log("❌ Валидация не пройдена");
-      }
       return;
-    }
-
-    if (import.meta.dev) {
-      console.log("✅ Валидация пройдена, данные:", formData.value);
     }
 
     apiError.value = null;
@@ -79,22 +68,10 @@
     authStore.setError(null);
 
     try {
-      if (import.meta.dev) {
-        console.log("📡 Отправка запроса на вход...");
-      }
-
       const { post } = useApi();
       const response = await post<LoginResponse>("/v1/auth/login", formData.value);
 
-      if (import.meta.dev) {
-        console.log("📨 Ответ сервера:", response);
-      }
-
       if (response.success && response.payload) {
-        if (import.meta.dev) {
-          console.log("✅ Успешный вход");
-        }
-
         authStore.setToken(response.payload.accessToken);
 
         const userData = {
@@ -113,10 +90,6 @@
         emit("close");
         await router.push("/cabinet");
       } else {
-        if (import.meta.dev) {
-          console.log("❌ Ошибка в ответе:", response.message);
-        }
-
         if (
           response.message?.includes("неверный пароль") ||
           response.message?.includes("invalid password") ||

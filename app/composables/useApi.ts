@@ -30,10 +30,6 @@ export const useApi = () => {
 
   const baseURL = normalizeApiBaseUrl(config.public.apiBase);
 
-  if (import.meta.dev) {
-    console.log("🔧 useApi initialized with baseURL:", baseURL);
-  }
-
   const refreshToken = async (): Promise<string> => {
     if (isRefreshing && refreshPromise) {
       return refreshPromise;
@@ -45,17 +41,9 @@ export const useApi = () => {
       let newToken: string | null = null;
 
       try {
-        if (import.meta.dev) {
-          console.log("🔄 Обновление токена...");
-        }
-
         const authStore = useAuthStore();
         newToken = await fetchRefreshedAccessToken(baseURL, authStore.token);
         authStore.setToken(newToken);
-
-        if (import.meta.dev) {
-          console.log("✅ Токен успешно обновлен");
-        }
       } catch (error: unknown) {
         const status = getFetchErrorStatus(error);
 
@@ -125,13 +113,6 @@ export const useApi = () => {
       const authStore = useAuthStore();
       const token = authStore.token;
 
-      if (import.meta.dev) {
-        console.log(
-          "🔐 Token status:",
-          token ? `Present (${token.substring(0, 20)}...)` : "Missing",
-        );
-      }
-
       const mergedOptions: NitroFetchOptions<NitroFetchRequest> = {
         ...defaultOptions,
         ...options,
@@ -142,17 +123,6 @@ export const useApi = () => {
         ),
       };
 
-      if (import.meta.dev) {
-        console.log("🔄 API Request:", {
-          fullUrl: baseURL + request,
-          baseURL,
-          request,
-          retry: retryCount,
-          hasToken: !!token,
-          headers: mergedOptions.headers,
-        });
-      }
-
       return await $fetch<ApiResponse<T>>(request, mergedOptions);
     } catch (error: unknown) {
       const status = (error as { status?: number }).status;
@@ -162,16 +132,8 @@ export const useApi = () => {
         !request.toString().includes("/auth/refresh") &&
         retryCount === 0
       ) {
-        if (import.meta.dev) {
-          console.log(`⚠️ Получен статус ${status}, пробуем обновить токен...`);
-        }
-
         try {
           await refreshToken();
-
-          if (import.meta.dev) {
-            console.log("🔁 Повторяем запрос с новым токеном...");
-          }
 
           return await fetchApi<T>(request, options, retryCount + 1);
         } catch (refreshError: unknown) {
