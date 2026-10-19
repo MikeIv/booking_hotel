@@ -237,9 +237,13 @@
         <UIcon name="iconamoon:menu-burger-horizontal-bold" :class="$style.burgerIcon" />
       </button>
 
-      <NuxtLink :class="$style.logoBtn" to="/" aria-label="На главную">
+      <a
+        :class="$style.logoBtn"
+        href="https://www.ukraina-hotel.ru/"
+        aria-label="Перейти на сайт отеля ukraina-hotel.ru"
+      >
         <LogoRadisson :class="$style.logo" />
-      </NuxtLink>
+      </a>
 
       <nav :class="$style.desktopNav" aria-label="Основная навигация">
         <a
