@@ -1,8 +1,8 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
   import LogoRadisson from "~/assets/images/logo_radisson.svg";
 
   import LayoutAuthSection from "~/components/layout/LayoutAuthSection.vue";
-  import { HEADER_FIXED_MIN_PX } from "~/composables/useFixedHeaderOffset";
+  import { HEADER_NAV_LINKS } from "~/utils/hotelMenu";
 
   const props = withDefaults(
     defineProps<{
@@ -27,49 +27,16 @@
     switchAuthDialog,
   } = useLayoutAuth();
 
-  let asideResizeObserver: ResizeObserver | null = null;
-
   const isOverlay = computed(() => props.variant === "overlay");
 
   // --- Navigation ---
-  const navLinks = [
-    { url: "https://www.ukraina-hotel.ru/accommodation", text: "Размещение" },
-    { url: "https://www.ukraina-hotel.ru/events", text: "Мероприятия" },
-    { url: "https://collection.wedding/", text: "Свадьбы" },
-    { url: "https://collection.catering/", text: "Кейтеринг" },
-    { url: "https://www.ukraina-hotel.ru/restaurants/", text: "Рестораны" },
-    { url: "https://www.ukraina-hotel.ru/services", text: "Услуги отеля" },
-    { url: "https://www.ukraina-hotel.ru/virtual-tours/", text: "Виртуальные туры" },
-  ] as const;
+  const navLinks = HEADER_NAV_LINKS;
 
-  // --- Burger / SlideMenu ---
+  // --- Burger / меню-шторка ---
   const isMenuOpen = ref(false);
-  const asideRef = ref<HTMLElement | null>(null);
-  const menuTopOffset = ref(94);
-
-  const isHeaderFixedViewport = () =>
-    typeof window !== "undefined" &&
-    window.matchMedia(`(min-width: ${HEADER_FIXED_MIN_PX}px)`).matches;
-
-  const updateMenuTopOffset = () => {
-    if (!asideRef.value) return;
-    // Desktop fixed: меню под шапкой. <1024: fullscreen (шапка в потоке / уезжает).
-    if (isHeaderFixedViewport()) {
-      menuTopOffset.value = asideRef.value.offsetHeight;
-      return;
-    }
-    menuTopOffset.value = 0;
-  };
-
-  const updateHeight = () => {
-    if (isMenuOpen.value) return;
-    updateMenuTopOffset();
-  };
 
   const toggleMenu = () => {
-    const next = !isMenuOpen.value;
-    if (next) updateMenuTopOffset();
-    isMenuOpen.value = next;
+    isMenuOpen.value = !isMenuOpen.value;
   };
 
   // --- Language / Currency (Figma 4585:1652) ---
@@ -124,29 +91,6 @@
     closeUtilityDropdowns();
   };
 
-  const menuUtilityGroups = computed(() => [
-    {
-      id: "lang",
-      label: "Язык",
-      options: LOCALE_OPTIONS.map((opt) => ({
-        key: opt.code,
-        label: opt.label,
-        active: locale.value === opt.code,
-        select: () => selectLocale(opt.code),
-      })),
-    },
-    {
-      id: "currency",
-      label: "Валюта",
-      options: CURRENCY_OPTIONS.map((opt) => ({
-        key: opt.code,
-        label: opt.symbol,
-        active: currentCurrency.value === opt.code,
-        select: () => selectCurrency(opt.code),
-      })),
-    },
-  ]);
-
   const isScrolled = ref(false);
 
   const updateScroll = () => {
@@ -186,14 +130,6 @@
   };
 
   onMounted(() => {
-    nextTick(() => {
-      updateHeight();
-      asideResizeObserver = new ResizeObserver(updateHeight);
-      if (asideRef.value) {
-        asideResizeObserver.observe(asideRef.value);
-      }
-    });
-
     if (typeof document !== "undefined") {
       document.addEventListener("click", closeDropdownsOnClickOutside);
     }
@@ -205,8 +141,6 @@
   });
 
   onUnmounted(() => {
-    asideResizeObserver?.disconnect();
-    asideResizeObserver = null;
     if (typeof document !== "undefined") {
       document.removeEventListener("click", closeDropdownsOnClickOutside);
     }
@@ -218,7 +152,6 @@
 
 <template>
   <aside
-    ref="asideRef"
     data-app-header
     :class="[
       $style.aside,
@@ -405,40 +338,16 @@
     </div>
   </Transition>
 
-  <!-- Выезжающее меню -->
-  <UiSlideMenu
+  <!-- Меню-шторка слева (как на ukraina-hotel) -->
+  <HeaderMenuDrawer
     :is-open="isMenuOpen"
-    :links="navLinks"
-    :top-offset="menuTopOffset"
-    background-color="--a-mainBg"
+    :locale="locale"
+    :currency="currentCurrency"
     @close="toggleMenu"
-  >
-    <template #utilities>
-      <div :class="$style.menuUtilities">
-        <div
-          v-for="group in menuUtilityGroups"
-          :key="group.id"
-          :class="$style.menuUtilityBlock"
-          role="group"
-          :aria-label="group.label"
-        >
-          <span :class="$style.menuUtilityLabel">{{ group.label }}</span>
-          <div :class="$style.menuUtilityPills">
-            <button
-              v-for="opt in group.options"
-              :key="opt.key"
-              type="button"
-              :class="[$style.menuUtilityPill, opt.active && $style.menuUtilityPillActive]"
-              :aria-pressed="opt.active"
-              @click="opt.select()"
-            >
-              {{ opt.label }}
-            </button>
-          </div>
-        </div>
-      </div>
-    </template>
-  </UiSlideMenu>
+    @navigate="toggleMenu"
+    @select-locale="selectLocale"
+    @select-currency="selectCurrency"
+  />
 
   <LayoutAuthSection
     :auth-dialog-type="authDialogType"
@@ -499,6 +408,7 @@
   .wrapper {
     position: relative;
     display: grid;
+
     /* <1024: burger | placeholder | utility */
     grid-template-columns: auto 1fr auto;
     grid-template-rows: rem(70) auto;
@@ -687,6 +597,7 @@
     max-width: 100%;
     min-width: 0;
     flex-shrink: 0;
+
     /* <1024: вторая строка на всю ширину */
     grid-row: 2;
     grid-column: 1 / -1;
@@ -786,74 +697,6 @@
     @media (max-width: #{size.$headerCompactMax}) {
       display: none;
     }
-  }
-
-  .menuUtilities {
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--ds-space-300);
-    width: 100%;
-    max-width: rem(320);
-
-    @media (max-width: #{size.$headerCompactMax}) {
-      display: flex;
-    }
-  }
-
-  .menuUtilityBlock {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: var(--ds-space-100);
-    width: 100%;
-  }
-
-  .menuUtilityLabel {
-    font-family: var(--a-font-body);
-    font-size: var(--ds-typo-size-body-sm);
-    color: var(--ds-neutral-700);
-    text-transform: uppercase;
-    letter-spacing: rem(1);
-  }
-
-  .menuUtilityPills {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: var(--ds-space-100);
-  }
-
-  .menuUtilityPill {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-width: rem(64);
-    min-height: rem(40);
-    padding: rem(8) rem(16);
-    background: transparent;
-    border: rem(1) solid var(--ds-neutral-700);
-    border-radius: rem(16);
-    color: var(--ds-neutral-700);
-    font-family: var(--a-font-body);
-    font-size: var(--ds-typo-size-body-sm);
-    cursor: pointer;
-    transition:
-      border-color 0.2s ease,
-      color 0.2s ease,
-      background-color 0.2s ease;
-
-    &:hover {
-      border-color: var(--ds-neutral-900);
-      color: var(--ds-neutral-900);
-    }
-  }
-
-  .menuUtilityPillActive {
-    border-color: var(--ds-neutral-900);
-    color: var(--ds-neutral-900);
-    background-color: var(--a-whiteBg);
-    font-weight: var(--ds-typo-weight-medium);
   }
 
   /* =====================
