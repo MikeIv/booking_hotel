@@ -17,7 +17,7 @@ export interface HotelInfo {
 export const HOTEL_INFO: HotelInfo = {
   name: 'Многофункциональный гостиничный комплекс "Россия"',
   address: "109012,Россия, г. Москва, ул. Варварка, д.14, стр. 1, 2",
-  phone: "+7 (495) 274-99-99",
+  phone: "+7 (495) 221-55-55",
   bookingPhone: "+7 (495) 221-55-80",
   email: "mail@mail.ru",
   imageUrl: "/images/room/room-01.jpg",

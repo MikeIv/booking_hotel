@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import { HOTEL_INFO } from "~/utils/hotel";
+  import { HOTEL_INFO, toTelHref } from "~/utils/hotel";
 
   const { contacts, loading, fetchContacts } = useContacts();
 
@@ -16,10 +16,7 @@
   const email = computed<string>(
     () => contacts.value?.email ?? HOTEL_INFO.email,
   );
-  const phoneHref = computed<string>(() => {
-    const digits = phone.value.replace(/\D/g, "");
-    return `tel:+${digits}`;
-  });
+  const phoneHref = computed<string>(() => toTelHref(phone.value));
 </script>
 
 <template>
