@@ -116,22 +116,24 @@
       transform: translateX(-50%);
       width: 1px;
       height: 100%;
-      background-color: var(--secondary);
+      background-color: var(--a-white);
+      opacity: 0.6;
     }
   }
 
   .menuLink {
     font-family: var(--a-font-heading);
     font-size: clamp(24px, 3vw, 30px);
-    color: var(--secondary);
+    color: var(--a-white);
     text-decoration: none;
     transition:
       color 0.3s ease,
+      opacity 0.2s ease,
       transform 0.2s ease;
     display: inline-block;
 
     &:hover {
-      color: var(--a-accent);
+      opacity: 0.7;
       transform: translateX(rem(5));
     }
 

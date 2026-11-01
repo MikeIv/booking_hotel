@@ -66,18 +66,6 @@ yarn install
 yarn dev
 ```
 
-### Storybook (витрина компонентов)
-
-Отдельный dev-сервер на `http://localhost:6006`:
-
-```bash
-yarn storybook
-# или короткий алиас:
-yarn stb
-```
-
-Подробнее: [docs/storybook.md](./docs/storybook.md).
-
 ### Сборка
 
 ```bash

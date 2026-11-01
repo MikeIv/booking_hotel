@@ -42,12 +42,7 @@
     setErrors(validationErrors);
 
     apiError.value = null;
-    const isValid = Object.keys(validationErrors).length === 0;
-
-    if (import.meta.dev) {
-      console.log(`✅ Валидация ${isValid ? "пройдена" : "не пройдена"}`);
-    }
-    return isValid;
+    return Object.keys(validationErrors).length === 0;
   };
 
   const handleRegister = async () => {
@@ -60,16 +55,8 @@
     authStore.setError(null);
 
     try {
-      if (import.meta.dev) {
-        console.log("📡 Отправка запроса на регистрацию...");
-      }
-
       const { post } = useApi();
       const response = await post("/v1/auth/register", formData.value);
-
-      if (import.meta.dev) {
-        console.log("📨 Ответ сервера:", response);
-      }
 
       if (response.success && response.payload) {
         authStore.setToken(response.payload.accessToken);
@@ -89,9 +76,6 @@
         emit("registration-success");
         emit("close");
       } else {
-        if (import.meta.dev) {
-          console.log("❌ Ошибка в ответе:", response.message);
-        }
         apiError.value = response.message || "Ошибка регистрации";
         authStore.setError(apiError.value);
       }

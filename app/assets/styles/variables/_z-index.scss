@@ -1,14 +1,14 @@
 @use "sass:map";
 
 // Global stacking scale (bottom → top). Use z.z("…") — avoid raw z-index.
-// Gaps leave room for future layers without reshuffling the whole ladder.
+// Gap leaves room for future layers without reshuffling the ladder.
 // behind            -1
 // default            1   local UI within a component
 // intro             10
 // booking-label     11
-// nav-menu        2900   slide menu: under header so burger stays clickable
 // header          3000
 // booking-summary 3100   mobile bottom sheet (above header when panels meet)
+// nav-menu        3200   левая меню-шторка: выше шапки, закрытие внутри панели
 // dropdown        4000   selects, datepicker panels
 // modal.overlay   5100
 // modal.content   5200
@@ -19,8 +19,8 @@ $z-default: 1;
 $z-intro: 10;
 $z-booking-label: 11;
 $z-header: 3000;
-$z-nav-menu: $z-header - 100;
 $z-booking-summary: $z-header + 100;
+$z-nav-menu: $z-header + 200;
 $z-dropdown: 4000;
 $z-modal-overlay: 5100;
 $z-modal-content: 5200;

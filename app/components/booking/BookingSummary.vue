@@ -118,9 +118,6 @@ watch(
     if (length === 1) {
       expandedRooms.value[roomEntries.value[0]?.roomIdx] = true;
     }
-    if (length > 0) {
-      isDatesDetailsOpen.value = true;
-    }
   },
   { immediate: true },
 );
@@ -140,45 +137,49 @@ const handleRemoveService = (roomIdx: number, serviceId: number) => {
         isDatesDetailsOpen ? $style.pageSummaryInner_expanded : undefined,
       ]"
     >
-      <BookingSummaryDatesSection
-        v-model:open="isDatesDetailsOpen"
-        :date="date"
-        :nights="nights"
-        :show-toggle="hasRoomEntries"
-      />
-
-      <div v-if="hasRoomEntries" :class="$style.pageSummaryList">
-        <BookingSummaryRoomItem
-          v-for="entry in roomEntries"
-          :key="entry.roomIdx + '-' + entry.ratePlanCode"
-          :entry="entry"
+      <div :class="$style.pageSummaryScroll">
+        <BookingSummaryDatesSection
+          v-model:open="isDatesDetailsOpen"
+          :date="date"
           :nights="nights"
-          :guest-lines="roomGuestLines[entry.roomIdx] || []"
-          :services="servicesByRoom[entry.roomIdx] || []"
-          :is-expanded="isRoomExpanded(entry.roomIdx)"
-          :is-single-room="isSingleRoom"
-          :editable-services="editableServices"
-          :room-total="roomTotalWithServices(entry)"
-          @toggle="toggleRoomDetails(entry.roomIdx)"
-          @remove-service="
-            (serviceId) => handleRemoveService(entry.roomIdx, serviceId)
-          "
+          :show-toggle="hasRoomEntries"
         />
+
+        <div v-if="hasRoomEntries" :class="$style.pageSummaryList">
+          <BookingSummaryRoomItem
+            v-for="entry in roomEntries"
+            :key="entry.roomIdx + '-' + entry.ratePlanCode"
+            :entry="entry"
+            :nights="nights"
+            :guest-lines="roomGuestLines[entry.roomIdx] || []"
+            :services="servicesByRoom[entry.roomIdx] || []"
+            :is-expanded="isRoomExpanded(entry.roomIdx)"
+            :is-single-room="isSingleRoom"
+            :editable-services="editableServices"
+            :room-total="roomTotalWithServices(entry)"
+            @toggle="toggleRoomDetails(entry.roomIdx)"
+            @remove-service="
+              (serviceId) => handleRemoveService(entry.roomIdx, serviceId)
+            "
+          />
+        </div>
       </div>
 
-      <div :class="$style.pageSummaryDivider" />
-      <div :class="$style.pageSummaryGrandTotal">
-        <span>Итого:</span>
-        <strong>{{ formatPrice(bookingTotal) }} ₽</strong>
-      </div>
-      <div v-if="isContinueVisible" :class="$style.pageSummaryFooter">
-        <UiButton
-          unstyled
-          :class="$style.pageContinueButton"
-          @click="handleContinue"
-        >
-          Продолжить
-        </UiButton>
+      <div :class="$style.pageSummaryBottom">
+        <div :class="$style.pageSummaryDivider" />
+        <div :class="$style.pageSummaryGrandTotal">
+          <span>Итого:</span>
+          <strong>{{ formatPrice(bookingTotal) }} ₽</strong>
+        </div>
+        <div v-if="isContinueVisible" :class="$style.pageSummaryFooter">
+          <UiButton
+            unstyled
+            :class="$style.pageContinueButton"
+            @click="handleContinue"
+          >
+            Продолжить
+          </UiButton>
+        </div>
       </div>
     </div>
   </aside>
@@ -190,27 +191,34 @@ const handleRemoveService = (roomIdx: number, serviceId: number) => {
   @use "~/assets/styles/tools/mixins" as typo;
 
   .pageSummary {
-    display: block;
+    display: flex;
+    flex-direction: column;
     position: fixed;
     left: 0;
     right: 0;
     bottom: 0;
     width: calc(100% - var(--a-space-6));
     max-width: 100%;
+    max-height: calc(100vh - #{rem(50)});
+    max-height: calc(100dvh - #{rem(50)});
     margin: 0 var(--a-space-3);
     padding: 0;
+    overflow: hidden;
     background: var(--a-whiteBg);
     box-shadow: var(--a-shadow-summary);
     border-radius: var(--a-borderR--dialog) var(--a-borderR--dialog) 0 0;
     z-index: z.z("booking-summary");
 
     @media (min-width: #{size.$desktopMin}) {
+      display: block;
       position: relative;
       left: auto;
       right: auto;
       bottom: auto;
       width: 100%;
+      max-height: none;
       margin: 0;
+      overflow: visible;
       box-shadow: none;
       border-radius: 0;
       z-index: auto;
@@ -219,18 +227,46 @@ const handleRemoveService = (roomIdx: number, serviceId: number) => {
   }
 
   .pageSummaryInner {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
+    min-height: 0;
     background: var(--a-whiteBg);
     box-shadow: none;
     border-radius: var(--a-borderR--dialog) var(--a-borderR--dialog) 0 0;
-    padding: var(--a-space-3) var(--a-space-4);
+    padding: var(--a-space-3) var(--a-space-2);
+    overflow: hidden;
 
     @media (min-width: #{size.$desktopMin}) {
+      display: block;
       position: sticky;
       top: calc(var(--header-height, #{rem(96)}) + var(--a-space-3));
+      min-height: unset;
+      overflow: visible;
       box-shadow: var(--a-shadow-summary);
       border-radius: var(--a-borderR--card);
       padding: var(--a-space-3);
     }
+  }
+
+  .pageSummaryScroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+
+    @media (max-width: calc(#{size.$desktopMin} - 1px)) {
+      container-type: inline-size;
+    }
+
+    @media (min-width: #{size.$desktopMin}) {
+      overflow: visible;
+    }
+  }
+
+  .pageSummaryBottom {
+    flex-shrink: 0;
   }
 
   .pageSummaryList {
@@ -241,6 +277,12 @@ const handleRemoveService = (roomIdx: number, serviceId: number) => {
 
   .pageSummaryInner_expanded .pageSummaryList {
     display: flex;
+  }
+
+  @media (min-width: #{size.$desktopMin}) {
+    .pageSummaryList {
+      display: flex;
+    }
   }
 
   .pageSummaryDivider {
@@ -262,6 +304,27 @@ const handleRemoveService = (roomIdx: number, serviceId: number) => {
 
   .pageSummaryGrandTotal strong {
     @include typo.typo-h1;
+    font-size: rem(32);
+    line-height: 1.2;
+  }
+
+  @media (max-width: calc(#{size.$desktopMin} - 1px)) {
+    .pageSummaryInner:not(.pageSummaryInner_expanded) {
+      padding-top: rem(20);
+      padding-bottom: rem(20);
+
+      .pageSummaryDivider {
+        margin: rem(12) 0;
+      }
+
+      .pageSummaryGrandTotal {
+        margin-bottom: var(--a-space-2);
+      }
+
+      .pageSummaryGrandTotal strong {
+        font-size: rem(28);
+      }
+    }
   }
 
   .pageSummaryFooter {

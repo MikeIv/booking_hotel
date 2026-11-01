@@ -1,4 +1,6 @@
 <script setup lang="ts">
+  import { HOTEL_INFO, toTelHref } from "~/utils/hotel";
+
   interface FooterLink {
     label: string;
     href: string;
@@ -81,7 +83,7 @@
       <section :class="$style.bottom">
         <div :class="$style.bottomItem">
           <Icon name="mdi:phone" :class="$style.icon" aria-hidden="true" />
-          <a href="tel:+74952215555">+7 (495) 221-55-55</a>
+          <a :href="toTelHref(HOTEL_INFO.phone)">{{ HOTEL_INFO.phone }}</a>
         </div>
         <div :class="$style.bottomItem">
           <Icon name="mdi:map-marker" :class="$style.icon" aria-hidden="true" />

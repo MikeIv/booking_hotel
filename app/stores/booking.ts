@@ -463,13 +463,6 @@ export const useBookingStore = defineStore(
           })),
         };
 
-        if (import.meta.dev) {
-          console.log(
-            "📤 Отправка данных бронирования:",
-            JSON.stringify(processedData, null, 2),
-          );
-        }
-
         const multiRoomBooking = processedData.rooms.length > 1;
         const bookingTimeoutMs = multiRoomBooking ? 35000 : 15000;
 

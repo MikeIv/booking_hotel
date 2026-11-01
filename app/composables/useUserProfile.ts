@@ -110,10 +110,6 @@ export const useUserProfile = () => {
     isSaving.value = true;
 
     try {
-      if (import.meta.dev) {
-        console.log("📡 Отправка обновленных данных профиля...");
-      }
-
       const { put } = useApi();
       const response = (await put("/v1/users/profile", {
         name: formData.name,
@@ -123,10 +119,6 @@ export const useUserProfile = () => {
         phone: formData.phone,
         country: formData.country,
       })) as UpdateProfileResponse;
-
-      if (import.meta.dev) {
-        console.log("📨 Ответ сервера (обновление профиля):", response);
-      }
 
       if (response.success && response.payload) {
         // Проверяем, что payload - это объект, а не массив
@@ -191,13 +183,6 @@ export const useUserProfile = () => {
           detail: response.message || "Данные профиля успешно обновлены",
           life: 3000,
         });
-
-        if (import.meta.dev) {
-          console.log(
-            "✅ Данные профиля обновлены из ответа сервера:",
-            updatedUser,
-          );
-        }
       } else {
         if (import.meta.dev) {
           console.warn("⚠️ Не удалось обновить профиль:", response.message);
@@ -222,16 +207,8 @@ export const useUserProfile = () => {
     isLoadingProfile.value = true;
 
     try {
-      if (import.meta.dev) {
-        console.log("📡 Загрузка профиля пользователя...");
-      }
-
       const { get } = useApi();
       const response = (await get("/v1/users/profile")) as ProfileResponse;
-
-      if (import.meta.dev) {
-        console.log("📨 Ответ сервера (профиль):", response);
-      }
 
       if (response.success && response.payload) {
         // Используем данные из ответа сервера как приоритетные
@@ -264,14 +241,6 @@ export const useUserProfile = () => {
 
         await nextTick();
         authStore.setUser(updatedUser);
-
-        if (import.meta.dev) {
-          console.log("✅ Профиль загружен:", profileData);
-          console.log(
-            "✅ Пользователь обновлен в authStore с id:",
-            response.payload.id,
-          );
-        }
       } else {
         if (import.meta.dev) {
           console.warn("⚠️ Не удалось загрузить профиль:", response.message);

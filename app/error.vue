@@ -1,7 +1,7 @@
 <script setup lang="ts">
   import type { NuxtError } from "#app";
 
-  const props = defineProps({
+  defineProps({
     error: {
       type: Object as () => NuxtError,
       required: false,
@@ -10,10 +10,6 @@
   });
 
   const handleError = () => clearError({ redirect: "/" });
-
-  if (import.meta.dev) {
-    console.log("Error", props.error);
-  }
 </script>
 
 <template>

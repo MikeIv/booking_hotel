@@ -6,8 +6,6 @@
 .vscode
 .husky
 .planning
-.storybook
-storybook-static
 docs
 tests
 node_modules

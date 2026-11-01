@@ -74,10 +74,6 @@
   };
 
   const handleLogout = async () => {
-    if (import.meta.dev) {
-      console.log("🔄 Выход из системы...");
-    }
-
     authStore.setLoading(true);
     authStore.setError(null);
 

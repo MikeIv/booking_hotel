@@ -31,6 +31,10 @@
       type: String,
       default: "1.875rem", // 30px
     },
+    color: {
+      type: String,
+      default: "var(--secondary)",
+    },
   });
 
   const socialLinksClasses = computed(() => [
@@ -46,7 +50,11 @@
       $style[socialLinksClasses[0]],
       $style[socialLinksClasses[1]],
     ]"
-    :style="{ '--gap': props.gap, '--icon-size': props.iconSize }"
+    :style="{
+      '--gap': props.gap,
+      '--icon-size': props.iconSize,
+      '--social-color': props.color,
+    }"
   >
     <a
       v-for="link in links"
@@ -124,7 +132,7 @@
     transition: transform 0.3s ease;
 
     :global(path) {
-      fill: var(--secondary);
+      fill: var(--social-color, var(--secondary));
       transition: fill 0.3s ease;
     }
   }

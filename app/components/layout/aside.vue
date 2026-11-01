@@ -66,9 +66,6 @@
     { url: "http://varvarkan.grandfs.ru/contacts.php", text: t("contacts") },
   ]);
 
-  const asideRef = ref<HTMLElement | null>(null);
-  const asideHeight = ref(95);
-
   const CURRENCIES = ["RUB", "USD", "EUR"] as const;
   type CurrencyCode = (typeof CURRENCIES)[number];
   const currentCurrency = ref<CurrencyCode>("RUB");
@@ -102,31 +99,21 @@
     }
   };
 
-  const updateHeight = () => {
-    if (asideRef.value) {
-      asideHeight.value = asideRef.value.offsetHeight;
-    }
-  };
-
   onMounted(() => {
-    updateHeight();
-    const observer = new ResizeObserver(updateHeight);
-    if (asideRef.value) observer.observe(asideRef.value);
     if (typeof document !== "undefined") {
       document.addEventListener("click", closeDropdownsOnClickOutside);
     }
+  });
 
-    onUnmounted(() => {
-      observer.disconnect();
-      if (typeof document !== "undefined") {
-        document.removeEventListener("click", closeDropdownsOnClickOutside);
-      }
-    });
+  onUnmounted(() => {
+    if (typeof document !== "undefined") {
+      document.removeEventListener("click", closeDropdownsOnClickOutside);
+    }
   });
 </script>
 
 <template>
-  <aside ref="asideRef" :class="$style.aside">
+  <aside :class="$style.aside">
     <button :class="$style.logoButton" aria-label="На главную" @click="goToHome">
       <Logo :class="$style.logo" />
     </button>
@@ -236,13 +223,9 @@
     </div>
   </aside>
 
-  <UiSlideMenu
-    :is-open="isMenuOpen"
-    :links="menuLinks"
-    :top-offset="asideHeight"
-    background-color="--a-mainBg"
-    @close="toggleMenu"
-  />
+  <UiSlideMenu :is-open="isMenuOpen" label="Меню" @close="toggleMenu">
+    <HeaderNavLinks :links="menuLinks" @link-click="toggleMenu" />
+  </UiSlideMenu>
 
   <LayoutAuthSection
     :auth-dialog-type="authDialogType"

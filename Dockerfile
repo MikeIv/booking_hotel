@@ -8,7 +8,6 @@ ENV NUXT_PUBLIC_API_BASE=$NUXT_PUBLIC_API_BASE
 WORKDIR /app
 
 COPY package.json yarn.lock ./
-COPY patches ./patches
 RUN corepack enable && yarn install --frozen-lockfile --ignore-scripts
 
 COPY . .

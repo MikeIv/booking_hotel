@@ -298,19 +298,9 @@ onMounted(async () => {
   isLoadingDetails.value = true;
 
   try {
-    if (import.meta.dev) {
-      console.log("📡 Загрузка деталей бронирования через API...", {
-        bookingId,
-      });
-    }
-
     await bookingStore.getBookingDetails(
       typeof bookingId === "string" ? bookingId : String(bookingId),
     );
-
-    if (import.meta.dev) {
-      console.log("✅ Детали бронирования загружены");
-    }
 
     openChangeRoomPopupIfNeeded();
   } catch (err: unknown) {
