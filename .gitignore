@@ -1,24 +1,50 @@
-# Nuxt dev/build outputs
-.output
-.data
+# Nuxt
 .nuxt
+.output
 .nitro
 .cache
 dist
+storybook-static
 
-# Node dependencies
+# Node
 node_modules
-
-# Logs
-logs
 *.log
+yarn-error.log
+.eslintcache
 
-# Misc
-.DS_Store
-.fleet
-.idea
-
-# Local env files
+# Environment
 .env
-.env.*
-!.env.example
+.env.local
+.env.*.local
+
+# IDE
+.idea
+.vscode
+.cursor/
+.cursorrules
+CURSOR_RULES_EXPORT.md
+
+# Agent / planning (local only)
+AGENTS.md
+.planning/
+
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage
+.nyc_output
+.vitest-localstorage*
+vitest.config.ts.timestamp-*
+
+# Playwright
+/test-results/
+/playwright-report/
+/playwright/.cache/
+blob-report/
+playwright/.cache/

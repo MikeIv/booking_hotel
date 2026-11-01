@@ -1,0 +1,131 @@
+<script setup lang="ts">
+interface Props {
+  modelValue: boolean;
+}
+
+interface Emits {
+  (e: "update:modelValue", value: boolean): void;
+}
+
+const props = defineProps<Props>();
+const emit = defineEmits<Emits>();
+
+const forSelf = computed({
+  get: () => props.modelValue,
+  set: (value) => emit("update:modelValue", value),
+});
+
+const bookingForTabs = [
+  { label: "Для себя", value: "self" },
+  { label: "Для другого", value: "other" },
+];
+
+const selectedBookingForTab = computed({
+  get: () => (forSelf.value ? "self" : "other"),
+  set: (value: string) => {
+    forSelf.value = value === "self";
+  },
+});
+</script>
+
+<template>
+  <section :class="$style.personalBlock">
+    <NuxtLink to="/services" :class="$style.return"
+      >Назад к услугам</NuxtLink
+    >
+    <div :class="$style.wrapper">
+      <div :class="$style.bookingForRow">
+        <h3 :class="$style.sectionHeader">Я бронирую</h3>
+        <UiTabs
+          v-model="selectedBookingForTab"
+          :items="bookingForTabs"
+          aria-label="Кто оформляет бронирование"
+          mode="personal"
+          style="margin-bottom: 0"
+        />
+      </div>
+      <p v-if="!forSelf" :class="$style.personalNote">
+        Настоящим подтверждаю, что предоставляю персональные данные лиц, на
+        которых производится бронирование с их согласия
+      </p>
+    </div>
+  </section>
+</template>
+
+<style module lang="scss">
+@use "~/assets/styles/variables/resolutions" as size;
+
+.personalBlock {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: rem(12) rem(20);
+
+  @media (min-width: #{size.$desktopMedium}) {
+    max-width: #{size.$desktop};
+    margin: 0 auto;
+  }
+}
+
+.return {
+  position: relative;
+  margin-bottom: rem(40);
+  padding-left: rem(30);
+  font-family: var(--a-font-heading);
+  font-size: rem(20);
+  color: var(--a-text-dark);
+  text-decoration: none;
+  transition: color 0.3s ease;
+  &:hover {
+    color: var(--a-primary);
+  }
+  &::before {
+    content: "<";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    width: rem(10);
+  }
+}
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding: 0 0 rem(25) 0;
+  border-bottom: rem(1) solid var(--a-border-dark);
+}
+
+.bookingForRow {
+  display: flex;
+  flex-direction: column;
+
+  @media (min-width: #{size.$desktopMin}) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    gap: rem(24);
+  }
+}
+
+.sectionHeader {
+  font-family: var(--a-font-body);
+  font-size: rem(24);
+  font-weight: 400;
+  color: var(--a-text-dark);
+  margin: 0 0 rem(16) 0;
+
+  @media (min-width: #{size.$desktopMin}) {
+    margin: 0;
+    white-space: nowrap;
+  }
+}
+
+.personalNote {
+  font-family: var(--a-font-body);
+  font-size: rem(16);
+  font-weight: 400;
+  color: var(--a-text-light);
+}
+</style>

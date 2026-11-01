@@ -1,0 +1,147 @@
+workflow:
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop"
+    - if: $CI_COMMIT_BRANCH == "master"
+
+variables:
+  DEPLOY_TAG: "prod-${CI_COMMIT_SHORT_SHA}"
+  FRONTEND_IMAGE: "${CI_REGISTRY_IMAGE}:prod-${CI_COMMIT_SHORT_SHA}"
+  BASE_REGISTRY: "dockerhub.timeweb.cloud/library"
+
+stages:
+  - build
+  - deploy
+
+build frontend:
+  stage: build
+  image: node:22.19-alpine
+  environment:
+    name: $CI_COMMIT_BRANCH
+    url: $BASE_URL
+  variables:
+    VITE_BASE_API_URL: $API_BASE_URL
+  script:
+    - corepack enable
+    - yarn install --frozen-lockfile
+    - yarn build
+  artifacts:
+    paths:
+      - .output
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop"
+  tags:
+    - docker
+    - $CI_JOB_STAGE
+
+build production image:
+  stage: build
+  variables:
+    NUXT_PUBLIC_API_BASE: "https://booking.ukraina-hotel.ru/api"
+  script:
+    - printf '%s' "$CI_REGISTRY_PASSWORD" | docker login --username "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+    - |
+      docker build --pull \
+        --build-arg REGISTRY="$BASE_REGISTRY" \
+        --build-arg NUXT_PUBLIC_API_BASE="$NUXT_PUBLIC_API_BASE" \
+        -t "$FRONTEND_IMAGE" \
+        -t "${CI_REGISTRY_IMAGE}:prod" \
+        .
+    - docker push "$FRONTEND_IMAGE"
+    - docker push "${CI_REGISTRY_IMAGE}:prod"
+  after_script:
+    - docker image rm -f "$FRONTEND_IMAGE" "${CI_REGISTRY_IMAGE}:prod" || true
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+  tags:
+    - shell
+    - grand208
+
+deploy ukraina prod:
+  stage: deploy
+  image: docker:latest
+  resource_group: ukraina-prod
+  environment:
+    name: ukraina-prod
+    url: http://booking.ukraina-hotel.ru
+  variables:
+    STACK_NAME: ukraina-front
+    APP_DOMAIN: "booking.ukraina-hotel.ru"
+  needs:
+    - job: build production image
+  script:
+    - apk add --no-cache curl
+    - printf '%s' "$CI_REGISTRY_PASSWORD" | docker login --username "$CI_REGISTRY_USER" --password-stdin "$CI_REGISTRY"
+    - docker stack deploy --with-registry-auth --prune -c .docker/docker-stack.yml "$STACK_NAME"
+    - |
+      # MM notification publish
+      curl -s -X POST -H "Content-Type: application/json; charset=utf-8" -H "Authorization: Bearer ${MM_BOT}" \
+        -d "{\"channel_id\":\"${MM_GROUP}\",\"message\":\"Загружено [**${CI_PROJECT_NAME} / ${CI_ENVIRONMENT_NAME}**](${CI_ENVIRONMENT_URL})\nВетка: ${CI_COMMIT_BRANCH}\nОбраз: ${DEPLOY_TAG}\nКоммит: [${CI_COMMIT_TITLE}](${CI_PROJECT_URL}/-/commit/${CI_COMMIT_SHA})\"}" \
+        https://mm.grandfs-develop.ru/api/v4/posts > /dev/null
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+  tags:
+    - swarm
+    - grand206
+
+create production tag:
+  stage: deploy
+  image: alpine:3.21
+  resource_group: ukraina-prod
+  needs:
+    - job: deploy ukraina prod
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+  script:
+    - apk add --no-cache git
+    - git config --global --add safe.directory "$CI_PROJECT_DIR"
+    - git config user.email "ci@${CI_SERVER_FQDN}"
+    - git config user.name "GitLab CI"
+    - git fetch --tags --force "${CI_REPOSITORY_URL}"
+    - |
+      set -e
+      LATEST=$(git tag -l 'v0.0.*' --sort=-v:refname | head -n 1)
+      if [ -z "$LATEST" ]; then
+        NEXT="v0.0.1"
+      else
+        PATCH="${LATEST#v0.0.}"
+        NEXT="v0.0.$((PATCH + 1))"
+      fi
+      echo "Creating git tag ${NEXT} (previous ${LATEST:-none})"
+      if git ls-remote --exit-code --tags "${CI_REPOSITORY_URL}" "refs/tags/${NEXT}" >/dev/null 2>&1; then
+        echo "Git tag ${NEXT} already exists"
+        exit 0
+      fi
+      git tag "${NEXT}" "${CI_COMMIT_SHA}"
+      git push -o ci.skip "${CI_REPOSITORY_URL}" "refs/tags/${NEXT}"
+  tags:
+    - swarm
+    - grand206
+
+deploy develop:
+  stage: deploy
+  environment:
+    name: dev
+    url: $BASE_URL
+  needs:
+    - job: build frontend
+      artifacts: true
+  script:
+    - cp -rf .output /var/www/ukraina/${CI_COMMIT_BRANCH}
+    - cd /var/www/ukraina/${CI_COMMIT_BRANCH}
+    - git pull ${CI_REPOSITORY_URL} ${CI_COMMIT_BRANCH}
+    - |
+      # Telegram notification publish
+      CI_ESCAPED_AUTHOR=`echo $CI_COMMIT_AUTHOR | sed -e "s/</\&lt;/" -e "s/>/\&gt;/"`
+      curl -s -X POST -H "Content-Type: application/json" \
+        -d "{\"chat_id\":${TELEGRAM_GROUP},\"parse_mode\":\"HTML\",\"disable_web_page_preview\":true,\"text\":\"Загружено <a href='${CI_ENVIRONMENT_URL}'><b>${CI_PROJECT_NAME} / ${CI_ENVIRONMENT_NAME}</b></a>\nВетка: ${CI_COMMIT_BRANCH}\nАвтор: ${CI_ESCAPED_AUTHOR}\nКоммит: <a href='${CI_PROJECT_URL}/-/commit/${CI_COMMIT_SHA}'>${CI_COMMIT_TITLE}</a>\"}" \
+        https://api.telegram.org/bot${TELEGRAM_BOT}/sendMessage > /dev/null || true
+    - |
+      # MM notification publish
+      curl -s -X POST -H "Content-Type: application/json; charset=utf-8" -H "Authorization: Bearer ${MM_BOT}" \
+        -d "{\"channel_id\":\"${MM_GROUP}\",\"message\":\"Загружено [**${CI_PROJECT_NAME} / ${CI_ENVIRONMENT_NAME}**](${CI_ENVIRONMENT_URL})\nВетка: ${CI_COMMIT_BRANCH}\nАвтор: ${CI_COMMIT_AUTHOR}\nПравка: [${CI_COMMIT_TITLE}](${CI_PROJECT_URL}/-/commit/${CI_COMMIT_SHA})\"}" \
+        https://mm.grandfs-develop.ru/api/v4/posts > /dev/null
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop"
+  tags:
+    - shell
+    - grand208

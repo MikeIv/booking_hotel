@@ -1,18 +1,219 @@
-import svgLoader from 'vite-svg-loader'
+import svgLoader from "vite-svg-loader";
+
+const API_BASE_URL =
+  process.env.NUXT_PUBLIC_API_BASE ||
+  "https://ukraina-api.grandfs-develop.ru/api";
+const IS_DEV = process.env.NODE_ENV === "development";
+const YANDEX_METRIKA_ID =
+  process.env.NUXT_PUBLIC_YANDEX_METRIKA_ID ?? "80902204";
+const YANDEX_METRIKA_ENABLED = !IS_DEV && Boolean(YANDEX_METRIKA_ID);
 
 export default defineNuxtConfig({
-  compatibilityDate: '2025-07-15',
-  devtools: { enabled: true },
-  css: [
-    '~/assets/styles/main.scss',
-    '~/assets/styles/variables/_z-index.scss'
+  modules: [
+    "@nuxt/ui",
+    "@nuxt/image",
+    "@nuxtjs/i18n",
+    "@nuxt/eslint",
+    "@vueuse/nuxt",
+    "@pinia/nuxt",
+    "@nuxt/icon",
+    "@nuxt/fonts",
+    "pinia-plugin-persistedstate/nuxt",
+    "@primevue/nuxt-module",
   ],
 
+  fonts: {
+    // Только локальные шрифты — без запросов к Google/CDN на старте
+    providers: {
+      google: false,
+      googleicons: false,
+      fontshare: false,
+      bunny: false,
+      fontsource: false,
+      adobe: false,
+    },
+  },
+
+  ui: {
+    // @ts-expect-error - Nuxt UI types may not include all icon options
+    icons: ["mdi", "simple-icons"],
+    // Палитра Nuxt UI совпадает с CSS-переменными --ui-color-* в app/assets/styles/variables/_colors.scss
+    theme: {
+      colors: [
+        "primary",
+        "secondary",
+        "info",
+        "success",
+        "warning",
+        "error",
+        "bgAccent",
+        "bgDark",
+      ],
+    },
+  },
+
+  icon: {
+    customCollections: [
+      {
+        prefix: "",
+        dir: "./app/assets/icons",
+      },
+    ],
+  },
+
+  ssr: false,
+
+  app: {
+    head: {
+      script: YANDEX_METRIKA_ENABLED
+        ? [
+            {
+              key: "yandex-metrika",
+              src: "https://mc.yandex.ru/metrika/tag.js",
+              async: true,
+              tagPosition: "bodyClose",
+            },
+          ]
+        : [],
+      noscript: YANDEX_METRIKA_ENABLED
+        ? [
+            {
+              innerHTML: `<div><img src="https://mc.yandex.ru/watch/${YANDEX_METRIKA_ID}" style="position:absolute;left:-9999px;" alt="" /></div>`,
+              tagPosition: "bodyOpen",
+            },
+          ]
+        : [],
+    },
+  },
+
+  components: [{ path: "~/components/core", prefix: "Core" }, "~/components"],
+
+  imports: {
+    dirs: [
+      "composables",
+      "composables/*/index.{ts,js,mjs,mts}",
+      "composables/**",
+      "server/utils",
+    ],
+  },
+
+  devtools: {
+    enabled: true,
+    timeline: {
+      enabled: IS_DEV,
+    },
+  },
+
+  primevue: {
+    options: {
+      ripple: true,
+    },
+    components: {
+      include: [
+        "Button",
+        "InputText",
+        "Message",
+        "Select",
+        "Popover",
+        "ProgressSpinner",
+      ],
+    },
+    composables: {
+      // Отключаем все composables PrimeVue, так как используем кастомные
+      include: [],
+    },
+  },
+
+  css: [
+    "~/assets/styles/main.scss",
+    "~/assets/styles/variables/_z-index.scss",
+    "~/assets/styles/variables/_colors.scss",
+  ],
+
+  postcss: {
+    plugins: {
+      autoprefixer: {},
+    },
+  },
+
+  devServer: {
+    https: false,
+    host: process.env.NUXT_HOST || "localhost",
+    port: process.env.NUXT_PORT ? Number(process.env.NUXT_PORT) : 3000,
+  },
+
+  features: {
+    devLogs: false,
+  },
+
+  experimental: {
+    viewTransition: true,
+  },
+
+  compatibilityDate: "2025-07-15",
+
+  runtimeConfig: {
+    apiBase: API_BASE_URL,
+    public: {
+      apiBase:
+        process.env.NUXT_PUBLIC_API_BASE ||
+        "https://ukraina-api.grandfs-develop.ru/api",
+      isDev: IS_DEV,
+      yandexMetrikaId: YANDEX_METRIKA_ID,
+    },
+  },
+
+  nitro: {
+    static: true,
+    // devProxy: {
+    //   "/api/v1": {
+    //     target: "https://ukraina-api.grandfs-develop.ru/api/v1",
+    //     changeOrigin: true,
+    //     rewrite: (path) => path.replace(/^\/api\/v1/, ""),
+    //     headers: {
+    //       Accept: "application/json",
+    //       "Content-Type": "application/json",
+    //     },
+    //   },
+    // },
+    prerender: {
+      routes: ["/", "/recovery"],
+    },
+  },
+
+  build: {
+    transpile: [
+      "@nuxt/ui",
+      "@nuxt/icon",
+      "@nuxt/image",
+      "@nuxt/eslint",
+      "@vueuse/nuxt",
+      "@pinia/nuxt",
+    ],
+    ...(!IS_DEV && {
+      analyze: {
+        analyzerMode: "static",
+        openAnalyzer: false,
+      },
+    }),
+  },
+
   vite: {
-    plugins: [svgLoader()],
+    build: {
+      target: "esnext",
+      chunkSizeWarningLimit: 1600,
+    },
+    optimizeDeps: {
+      exclude: ["@nuxt/ui"],
+    },
+    define: {
+      "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV),
+    },
+    plugins: [svgLoader({ svgo: false })],
     css: {
+      devSourcemap: true,
       modules: {
-        generateScopedName: '[name]__[local]___[hash:base64:5]'
+        generateScopedName: "[name]__[local]___[hash:base64:5]",
       },
       preprocessorOptions: {
         scss: {
@@ -20,60 +221,126 @@ export default defineNuxtConfig({
             @use "sass:math";
             @use "~/assets/styles/tools/functions" as *;
             @use "~/assets/styles/variables" as *;
-          `
-        }
-      }
-    }
+          `,
+        },
+      },
+    },
   },
 
-  components: [
-    { path: '~/components/core', prefix: 'Core' },
-    { path: '~/components/modules', prefix: 'Module' },
-    '~/components'
-  ],
-
-  imports: {
-    dirs: [
-      'composables',
-      'composables/*/index.{ts,js,mjs,mts}',
-      'composables/**'
-    ]
+  eslint: {
+    config: {
+      // @ts-expect-error - ESLint config types may not include all rule options
+      rules: {
+        "vue/no-v-html": "off",
+        "vue/no-multiple-template-root": "off",
+        "vue/require-default-prop": "off",
+        "vue/multi-word-component-names": "warn",
+        "vue/attribute-hyphenation": ["warn", "always"],
+        "vue/prop-name-casing": ["warn", "camelCase"],
+        "vue/v-on-event-hyphenation": "warn",
+        // Порядок атрибутов в Vue компонентах: v-for должен идти перед v-if/v-else/v-else-if
+        "vue/attributes-order": [
+          "warn",
+          {
+            order: [
+              "DEFINITION",
+              "LIST_RENDERING",
+              "CONDITIONALS",
+              "RENDER_MODIFIERS",
+              "GLOBAL",
+              ["UNIQUE", "SLOT"],
+              "TWO_WAY_BINDING",
+              "OTHER_DIRECTIVES",
+              "OTHER_ATTR",
+              "EVENTS",
+              "CONTENT",
+            ],
+            alphabetical: false,
+          },
+        ],
+        // Разрешаем @ts-nocheck для файлов, где Vue преобразует kebab-case в camelCase
+        "@typescript-eslint/ban-ts-comment": [
+          "error",
+          {
+            "ts-nocheck": "allow-with-description",
+            "ts-ignore": "allow-with-description",
+          },
+        ],
+        "no-console": process.env.NODE_ENV === "production" ? "error" : "warn",
+        "no-debugger": process.env.NODE_ENV === "production" ? "error" : "warn",
+        "vue/html-indent": [
+          "error",
+          2,
+          {
+            baseIndent: 1,
+            ignores: [],
+          },
+        ],
+      },
+    },
+    checker: {
+      lintOnStart: true,
+      formatter: "stylish",
+      // Отключаем проверку TypeScript для шаблонов Vue (kebab-case атрибуты)
+      // TypeScript не понимает преобразование kebab-case в camelCase в шаблонах
+      // Примечание: опция typescript не поддерживается vite-plugin-eslint2
+      // Проверка TypeScript выполняется через ESLint правила
+    },
+    fix: process.env.NODE_ENV === "development",
+    cache: true,
   },
 
-  routeRules: {
-    '/': { static: true },
-    '/about': { static: true },
-    '/blog/**': { static: true },
-    '/user/**': { ssr: true },
-    '/products/**': { ssr: true },
-    '/news': { swr: 3600 },
-    '/old-page': { redirect: '/new-page' }
-  },
-
-  modules: [
-    '@nuxtjs/i18n',
-  ],
   i18n: {
-    langDir: 'locales',
-    strategy: 'no_prefix',
-    defaultLocale: 'ru',
+    langDir: "locales",
+    strategy: "no_prefix",
+    defaultLocale: "ru",
+    // Не подставлять язык браузера: продукт по умолчанию на русском.
+    // Иначе EN-браузер получает Check-in/Select dates при defaultLocale: "ru".
+    detectBrowserLanguage: false,
     locales: [
       {
-        code: 'ru',
-        iso: 'ru-RU',
-        file: 'ru.json',
-        name: 'Русский'
+        code: "ru",
+        iso: "ru-RU",
+        file: "ru.json",
+        name: "Русский",
       },
       {
-        code: 'en',
-        iso: 'en-US',
-        file: 'en.json',
-        name: 'English'
+        code: "en",
+        iso: "en-US",
+        file: "en.json",
+        name: "English",
       },
     ],
-    detectBrowserLanguage: {
-      useCookie: true,
-      cookieKey: 'i18n_redirected'
+  },
+
+  image: {
+    domains: ["https://ukraina-v2.grandfs-develop.ru/"],
+    presets: {
+      cover: {
+        modifiers: {
+          fit: "cover",
+          format: "webp",
+          quality: 80,
+        },
+      },
+      avatar: {
+        modifiers: {
+          fit: "cover",
+          width: 50,
+          height: 50,
+          format: "webp",
+        },
+      },
     },
-  }
-})
+    format: ["webp"],
+    provider: "ipx",
+    screens: {
+      xs: 320,
+      sm: 640,
+      md: 768,
+      lg: 1024,
+      xl: 1280,
+      xxl: 1536,
+    },
+  },
+});

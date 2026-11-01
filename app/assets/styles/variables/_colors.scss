@@ -1,23 +1,201 @@
+/* Синхронизировано с Figma Color Styles:
+   https://www.figma.com/design/8VW5pfsag9wEyJSzPwRvhM/Booking-Ukr?node-id=6026-2&m=dev */
 :root {
-  // Base
-  --a-white: #fff;
-  --a-black: #000;
-  --a-base: #BF9D7C;
+  /* Design System tokens (Figma) */
+  --ds-primary-50: #f7f4ee;
+  --ds-primary-100: #eae3d8;
+  --ds-primary-300: #c8bba4;
+  --ds-primary-500: #928b7d;
+  --ds-primary-700: #746e63;
+  --ds-primary-900: #4f4a42;
+  --ds-primary-hover: #746e63;
+  --ds-primary-active: #4f4a42;
+  --ds-primary-disabled: #cfc8bc;
 
-  // Typography
-  --a-mainText: #1C1C1B;
+  --ds-neutral-0: #fff;
+  --ds-neutral-50: #f8f8f8;
+  --ds-neutral-100: #ebebeb;
+  --ds-neutral-200: #e4dccc;
+  --ds-neutral-300: #d0d0d0;
+  --ds-neutral-500: #9a9a9a;
+  --ds-neutral-700: #525252;
+  --ds-neutral-900: #000;
 
+  --ds-semantic-success: #1e9e4a;
+  --ds-semantic-warning: #d08a00;
+  --ds-semantic-error: #cc0001;
+  --ds-semantic-info: #1677ff;
 
-  // Background
-  --a-whiteBg: #fff;
-  --a-blackBg: #000;
-  --a-mainBg: #e5e5e5;
-  --a-accentBg: #C2A283;
-  --a-accentDarkBg: #996D42;
-  --a-btnAccentBg: #A02525;
+  --ds-role-primary: #928b7d;
+  --ds-role-primary-hover: #746e63;
+  --ds-role-primary-active: #4f4a42;
+  --ds-role-primary-disabled: #cfc8bc;
+  --ds-role-secondary: #525252;
+  --ds-role-accent: #cc0001;
+  --ds-role-background: #f8f8f8;
+  --ds-role-surface: #fff;
+  --ds-role-border: #d0d0d0;
+  --ds-role-text-primary: #000;
+  --ds-role-text-secondary: #525252;
+  --ds-role-text-muted: #9a9a9a;
+  --ds-role-success: #1e9e4a;
+  --ds-role-warning: #d08a00;
+  --ds-role-error: #cc0001;
+  --ds-role-info: #1677ff;
+  --ds-role-booking-surface: #625e57;
 
+  /* Landing palette (home sections — exact HEX, Wave 9 prep) */
+  --ds-landing-ink: #0b0f1b;
+  --ds-landing-text: #111;
+  --ds-landing-text-soft: #1a1a1a;
+  --ds-landing-surface-muted: #efefef;
+  --ds-landing-muted: #c8c8c8;
+  --ds-landing-accent: #8f2727;
+  --ds-landing-accent-deep: #7a2a2a;
 
-  // Border
-  --a-border: #e5e5e5;
+  /* Design System shadows (Figma 1.5 Shadows) */
+  --ds-shadow-sm: 0 0 10px rgba(0, 0, 0, 0.1);
+  --ds-shadow-inner: 0 0 10px rgba(0, 0, 0, 0.1);
+  --ds-shadow-md: 4px 4px 30px -10px rgba(0, 0, 0, 0.1);
+  --ds-shadow-lg: 4px 4px 102px -10px rgba(0, 0, 0, 0.1);
+  --ds-shadow-booking-module: 0 4px 4px rgba(0, 0, 0, 0.25);
 
+  /* Backward-compatible aliases */
+  --primary: var(--ds-role-primary);
+  --secondary: var(--ds-role-secondary);
+  --success: var(--ds-semantic-success);
+  --info: var(--ds-semantic-info);
+  --ui-bgAccent: var(--ds-role-accent);
+  --ui-bgDark: var(--ds-neutral-900);
+
+  --ui-color-primary-50: var(--ds-primary-50);
+  --ui-color-primary-100: var(--ds-primary-100);
+  --ui-color-primary-300: var(--ds-primary-300);
+  --ui-color-primary-600: var(--ds-primary-500);
+  --ui-color-primary-700: var(--ds-primary-700);
+  --ui-color-secondary-50: var(--ds-neutral-50);
+  --ui-color-secondary-200: var(--ds-neutral-200);
+  --ui-color-secondary-300: var(--ds-neutral-300);
+  --ui-color-secondary-500: var(--ds-neutral-500);
+  --ui-color-secondary-950: var(--ds-neutral-900);
+  --ui-color-accent-a30: #cc00014d;
+
+  /* Base */
+  --a-white: var(--ds-neutral-0);
+  --a-black: var(--ds-neutral-900);
+  --a-base: var(--ds-role-primary);
+
+  /* Typography */
+  --a-text-white: var(--ds-neutral-0);
+  --a-text-primary: var(--ds-role-text-primary);
+  --a-text-secondary: var(--ds-role-text-secondary);
+  --a-text-light: var(--ds-role-text-muted);
+  --a-text-dark: var(--ds-role-text-primary);
+  --a-text-accent: var(--ds-role-accent);
+  --a-text-error: var(--ds-role-error);
+
+  /* Background */
+  --a-whiteBg: var(--ds-role-surface);
+  --a-blackBg: var(--ds-neutral-900);
+  --a-mainBg: var(--ds-role-background);
+  --a-primaryBg: var(--ds-role-primary);
+  --a-lightBg: var(--ds-neutral-200);
+  --a-lightPrimaryBg: var(--ds-primary-100);
+  --a-bookingModuleBg: var(--ds-role-booking-surface);
+  --a-accentBg: var(--ds-role-accent);
+  --a-accentLightBg: var(--ds-primary-50);
+  --a-accentDarkBg: var(--ds-primary-900);
+  --a-btnAccentBg: var(--ds-role-accent);
+
+  /* Landing aliases */
+  --a-landing-ink: var(--ds-landing-ink);
+  --a-landing-text: var(--ds-landing-text);
+  --a-landing-text-soft: var(--ds-landing-text-soft);
+  --a-landing-surface-muted: var(--ds-landing-surface-muted);
+  --a-landing-muted: var(--ds-landing-muted);
+  --a-landing-accent: var(--ds-landing-accent);
+  --a-landing-accent-deep: var(--ds-landing-accent-deep);
+
+  /* Banner backgrounds */
+  --a-banner-alert-bg: #fdeeee;
+  --a-banner-info-bg: #edf4ff;
+  --a-banner-warning-bg: #fff5e8;
+
+  /* Border */
+  --a-border: var(--ds-role-border);
+  --a-border-white: var(--ds-role-border);
+  --a-border-primary: var(--ds-role-primary);
+  --a-border-primary-accent: var(--ds-primary-700);
+  --a-border-dark: var(--ds-neutral-900);
+  --a-border-light: var(--ds-role-text-muted);
+  --a-border-accent: var(--ds-role-accent);
+
+  /* Тени */
+  --a-shadow-color: rgba(0, 0, 0, 0.1);
+  --a-shadow-color-strong: rgba(0, 0, 0, 0.2);
+  --a-shadow-card: var(--ds-shadow-sm);
+  --a-shadow-summary: var(--ds-shadow-md);
+  --a-shadow-summary-inner: var(--ds-shadow-inner);
+  --a-shadow-weekday: var(--ds-shadow-lg);
+  --a-shadow-booking-module: var(--ds-shadow-booking-module);
+
+  --a-gray-50: var(--ds-neutral-50);
+  --a-gray-200: var(--ds-neutral-200);
+  --a-gray-300: var(--ds-neutral-300);
+  --a-primary: var(--primary);
+
+  /* Typography tokens (Figma Typography) */
+  --ds-typo-family-heading: "Gotham Pro", "Playfair Display", serif;
+  --ds-typo-family-body: "Gotham Pro", sans-serif;
+
+  /* Селекты и поля выбора в потоке бронирования — по макету: Inter, 26px */
+  --ds-typo-family-select: "Inter", sans-serif;
+
+  --ds-typo-weight-light: 300;
+  --ds-typo-weight-regular: 400;
+  --ds-typo-weight-medium: 500;
+  --ds-typo-weight-semibold: 600;
+  --ds-typo-weight-bold: 700;
+  --ds-typo-weight-black: 900;
+
+  --ds-typo-size-h1: 2.125rem; /* 34px */
+  --ds-typo-size-h2: 1.75rem; /* 28px */
+  --ds-typo-size-h3: 1.375rem; /* 22px */
+  --ds-typo-size-body-lg: 1.125rem; /* 18px */
+  --ds-typo-size-body-md: 1rem; /* 16px */
+  --ds-typo-size-body-sm: 0.875rem; /* 14px */
+  --ds-typo-size-caption: 0.75rem; /* 12px */
+  --ds-typo-size-select: 1.625rem; /* 26px */
+  --ds-typo-size-select-fluid: clamp(1rem, 6.5cqi, var(--ds-typo-size-select));
+
+  --ds-typo-line-h1: 2.625rem; /* 42px */
+  --ds-typo-line-h2: 2.125rem; /* 34px */
+  --ds-typo-line-h3: 1.75rem; /* 28px */
+  --ds-typo-line-body-lg: 1.6875rem; /* 27px */
+  --ds-typo-line-body-md: 1.5rem; /* 24px */
+  --ds-typo-line-body-sm: 1.25rem; /* 20px */
+  --ds-typo-line-caption: 1rem; /* 16px */
+  --ds-typo-line-select: 1; /* компактная строка для значения в селекте */
+
+  --ds-typo-weight-h: 700;
+  --ds-typo-weight-body: 400;
+  --ds-typo-weight-caption: 500;
+  --ds-typo-weight-select: var(--ds-typo-weight-regular);
+
+  /* Legacy aliases kept for compatibility */
+  --ds-typo-size-display: var(--ds-typo-size-h1);
+  --ds-typo-size-ui-lg: var(--ds-typo-size-body-lg);
+  --ds-typo-size-body: var(--ds-typo-size-body-md);
+  --ds-typo-line-tight: 1;
+  --ds-typo-line-default: 1.3;
+  --ds-typo-line-comfort: 1.5;
+
+  --ds-typo-tracking-caps: 0.04em;
+
+  --a-font-heading: var(--ds-typo-family-heading);
+  --a-font-body: var(--ds-typo-family-body);
+  --a-font-select: var(--ds-typo-family-select);
+
+  /* PrimeVue Toast warn (base/_global.scss) */
+  --p-toast-warn-border-color: var(--ds-semantic-warning);
 }

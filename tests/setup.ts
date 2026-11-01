@@ -1,0 +1,221 @@
+/**
+ * Глобальная настройка для всех тестов
+ * Этот файл выполняется перед каждым тестом
+ */
+import { beforeEach, vi } from "vitest";
+import { storeToRefs as piniaStoreToRefs } from "pinia";
+import * as Vue from "vue";
+import type { Ref } from "vue";
+import {
+  mockRouterPush,
+  mockRoute,
+  mockToastAdd,
+  nuxtState,
+  useStateStub,
+} from "./mocks/nuxt";
+import { setupComponentMocks } from "./mocks/components";
+
+// --- Тишина в консоли для тестов ---
+// В компонентах есть отладочные логи под DEV, они не должны засорять вывод Vitest.
+vi.spyOn(console, "log").mockImplementation(() => {});
+vi.spyOn(console, "info").mockImplementation(() => {});
+vi.spyOn(console, "debug").mockImplementation(() => {});
+vi.spyOn(console, "warn").mockImplementation(() => {});
+vi.spyOn(console, "error").mockImplementation(() => {});
+
+// Настраиваем моки компонентов один раз для всех тестов
+setupComponentMocks();
+
+// Настраиваем глобальные моки для Nuxt auto-imports
+vi.stubGlobal("useRouter", () => ({
+  push: mockRouterPush,
+}));
+
+vi.stubGlobal("useRoute", () => mockRoute);
+
+// useState приходит из Nuxt auto-imports; в Vitest его нет.
+// Состояние живёт в tests/mocks/nuxt.ts, чтобы спеки могли его готовить.
+vi.stubGlobal("useState", useStateStub);
+
+vi.stubGlobal("useToast", () => ({
+  add: mockToastAdd,
+}));
+
+// Глобальный мок для проектного toast composable (для явных импортов)
+vi.mock("~/composables/useToast", () => ({
+  useNotificationToast: () => ({
+    add: mockToastAdd,
+  }),
+}));
+
+// Глобальные стабы для проектных composables, используемых как авто-импорты
+// (без явного import-оператора в исходниках)
+vi.stubGlobal("useNotificationToast", () => ({
+  add: mockToastAdd,
+}));
+
+vi.stubGlobal("useApi", () => ({
+  get: vi.fn(),
+  post: vi.fn(),
+  put: vi.fn(),
+  delete: vi.fn(),
+}));
+
+vi.stubGlobal("useApiHelpers", () => ({
+  getErrorMessage: (e: unknown) => (e instanceof Error ? e.message : String(e)),
+}));
+
+// storeToRefs из Pinia должен быть доступен глобально.
+// В тестах мы часто мокируем store как простой объект с ref-полями — для него достаточно identity.
+vi.stubGlobal("storeToRefs", (store: unknown) => {
+  if (!store || typeof store !== "object")
+    return piniaStoreToRefs(store as never);
+  const s = store as Record<string, unknown>;
+  // Если это не настоящий pinia store, возвращаем объект как есть
+  if (!("$id" in s) && !("_p" in s) && !("_hmrPayload" in s)) return store;
+  return piniaStoreToRefs(store as never);
+});
+
+// Мокируем useBookingStore (будет переопределен в тестах через vi.mock, если нужно)
+// Базовый мок для компонентов, которые не мокируют store явно
+vi.stubGlobal("useBookingStore", () => {
+  return {
+    date: ref(null),
+    guests: ref({
+      rooms: 1,
+      roomList: [{ adults: 1, children: 0, childrenAges: [] }],
+    }),
+    setSelectedRoomType: vi.fn(),
+    setLoading: vi.fn(),
+    search: vi.fn().mockResolvedValue({}),
+    loading: ref(false),
+    isServerRequest: ref(false),
+  };
+});
+
+// Мокируем definePageMeta для Nuxt страниц
+vi.stubGlobal("definePageMeta", vi.fn());
+
+// Моки для head/seo composables (Nuxt)
+const mockUseHead = vi.fn();
+const mockUseSeoMeta = vi.fn();
+vi.stubGlobal("useHead", mockUseHead);
+vi.stubGlobal("useSeoMeta", mockUseSeoMeta);
+// Доп. страховка для случаев, когда free-var берётся напрямую из globalThis
+(globalThis as Record<string, unknown>).useHead = mockUseHead;
+(globalThis as Record<string, unknown>).useSeoMeta = mockUseSeoMeta;
+
+// Мокируем useMemoize из @vueuse/core (просто возвращает функцию как есть)
+vi.stubGlobal(
+  "useMemoize",
+  <T extends (...args: unknown[]) => unknown>(fn: T): T => fn,
+);
+
+// Мокируем useBanners (используется в Booking и страницах бронирования)
+vi.stubGlobal("useBanners", () => ({
+  getBannersByVisibility: vi.fn(() => []),
+}));
+
+// Мокируем composables, которые используются в компонентах
+vi.stubGlobal("useCalendarPrices", () => ({
+  fetchCalendarPrices: vi.fn().mockResolvedValue(undefined),
+  getPriceForDate: vi.fn().mockReturnValue(null),
+  formatPrice: vi.fn((price: number) => `${price.toLocaleString("ru-RU")} ₽`),
+  loading: { value: false },
+}));
+
+// Мокируем useNights - должен быть функцией, принимающей dateRange
+vi.stubGlobal("useNights", (dateRange: Ref<[Date, Date] | null>) => {
+  const nights = Vue.computed(() => {
+    if (!dateRange || !dateRange.value || dateRange.value.length < 2) return 0;
+    const start = new Date(dateRange.value[0]);
+    const end = new Date(dateRange.value[1]);
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) return 0;
+    const diffTime = end.getTime() - start.getTime();
+    if (diffTime <= 0) return 0;
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  });
+  return nights;
+});
+
+// Мокируем useRoomCarousel
+vi.stubGlobal("useRoomCarousel", () => ({
+  carouselImages: Vue.computed(() => [
+    "photo1.jpg",
+    "photo2.jpg",
+    { placeholder: true, label: "Room Photo" },
+  ]),
+}));
+
+vi.stubGlobal("useDateLocale", () => ({
+  monthNames: {
+    value: [
+      "Январь",
+      "Февраль",
+      "Март",
+      "Апрель",
+      "Май",
+      "Июнь",
+      "Июль",
+      "Август",
+      "Сентябрь",
+      "Октябрь",
+      "Ноябрь",
+      "Декабрь",
+    ],
+  },
+  weekDays: { value: ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"] },
+  formatDate: vi.fn((date: Date) => {
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    return `${day}.${month}.${year}`;
+  }),
+}));
+
+// @nuxtjs/i18n auto-imports useI18n; Vitest has no Nuxt auto-imports
+vi.stubGlobal("useI18n", () => ({
+  t: (key: string) => {
+    const messages: Record<string, string> = {
+      "datepicker.checkInOut": "Заезд — выезд",
+      "datepicker.selectDates": "Выберите даты",
+      "datepicker.cancel": "Отмена",
+      "datepicker.select": "Выбрать",
+    };
+    return messages[key] ?? key;
+  },
+  locale: Vue.ref("ru"),
+}));
+
+// Делаем Vue composables доступными глобально (как в Nuxt auto-imports)
+vi.stubGlobal("ref", Vue.ref);
+vi.stubGlobal("shallowRef", Vue.shallowRef);
+vi.stubGlobal("computed", Vue.computed);
+vi.stubGlobal("reactive", Vue.reactive);
+vi.stubGlobal("readonly", Vue.readonly);
+vi.stubGlobal("watch", Vue.watch);
+vi.stubGlobal("watchEffect", Vue.watchEffect);
+vi.stubGlobal("onMounted", Vue.onMounted);
+vi.stubGlobal("onUnmounted", Vue.onUnmounted);
+vi.stubGlobal("onBeforeMount", Vue.onBeforeMount);
+vi.stubGlobal("onBeforeUnmount", Vue.onBeforeUnmount);
+vi.stubGlobal("onUpdated", Vue.onUpdated);
+vi.stubGlobal("onBeforeUpdate", Vue.onBeforeUpdate);
+vi.stubGlobal("provide", Vue.provide);
+vi.stubGlobal("inject", Vue.inject);
+vi.stubGlobal("nextTick", Vue.nextTick);
+vi.stubGlobal("defineProps", Vue.defineProps);
+vi.stubGlobal("defineEmits", Vue.defineEmits);
+vi.stubGlobal("defineExpose", Vue.defineExpose);
+vi.stubGlobal("withDefaults", Vue.withDefaults);
+vi.stubGlobal("useSlots", Vue.useSlots);
+vi.stubGlobal("useAttrs", Vue.useAttrs);
+
+// Сбрасываем моки перед каждым тестом
+beforeEach(() => {
+  vi.clearAllMocks();
+  nuxtState.clear();
+  mockRouterPush.mockResolvedValue(undefined);
+  mockRoute.path = "/";
+  mockRoute.query = {};
+});

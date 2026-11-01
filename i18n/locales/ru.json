@@ -1,5 +1,15 @@
 {
   "home": "Главная",
   "about": "О нас",
-  "contacts": "Контакты"
+  "hotel": "Отель",
+  "services": "Сервисы",
+  "gallery": "Галерея",
+  "construction": "Этапы строительства",
+  "contacts": "Контакты",
+  "datepicker": {
+    "checkInOut": "Заезд — выезд",
+    "selectDates": "Выберите даты",
+    "cancel": "Отмена",
+    "select": "Выбрать"
+  }
 }

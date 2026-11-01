@@ -1,5 +1,15 @@
 {
   "home": "Home",
   "about": "About",
-  "contacts": "Contacts"
+  "hotel": "Hotel",
+  "services": "Services",
+  "gallery": "Gallery",
+  "construction": "Construction",
+  "contacts": "Contacts",
+  "datepicker": {
+    "checkInOut": "Check-in — Check-out",
+    "selectDates": "Select dates",
+    "cancel": "Cancel",
+    "select": "Select"
+  }
 }

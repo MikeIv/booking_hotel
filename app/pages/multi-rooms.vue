@@ -1,0 +1,635 @@
+<script setup lang="ts">
+  import { useBookingStore } from "~/stores/booking";
+  import type { PackageResource } from "~/types/room";
+  import type { SelectedEntry } from "~/types/booking";
+  import { toPricePerNight, toStayTotal } from "~/utils/price";
+  import { buildSelectedEntry } from "~/utils/selectedEntry";
+  import { useNotificationToast } from "~/composables/useToast";
+  import { useRoomFilters } from "~/composables/useRoomFilters";
+  import { formatCount } from "~/utils/declension";
+  import {
+    getExpectedRoomCount,
+    getTariffStayTotalForRoom,
+    getUnavailableRoomIndices,
+    MULTI_BOOKING_UNAVAILABLE_TOAST,
+  } from "~/utils/multiBooking";
+  import UIPopup from "~/components/ui/Popup.vue";
+  import { isStaleSearchError } from "~/utils/staleSearchError";
+  import { BOOKING_DEEP_LINK_PENDING_SEARCH_KEY } from "~/utils/bookingDeepLink";
+
+  definePageMeta({
+    layout: "steps",
+  });
+
+  const router = useRouter();
+  const toast = useNotificationToast();
+  const bookingStore = useBookingStore();
+  const { searchResults, roomTariffs, date, guests, selectedMultiRooms } =
+    storeToRefs(bookingStore);
+
+  /**
+   * Флаг deep-link с ukraina-hotel.ru: пришёл переход со страницы поиска.
+   * Читаем значение в onMounted (ref из useState общий, снимок в setup не берём).
+   */
+  const pendingDeepLinkSearch = useState<boolean>(
+    BOOKING_DEEP_LINK_PENDING_SEARCH_KEY,
+    () => false,
+  );
+
+  /** Гасим прелоадер, когда поиск не запускается (guard или один номер). */
+  function resetPendingSearch() {
+    pendingDeepLinkSearch.value = false;
+    bookingStore.setLoading(false);
+    bookingStore.setServerRequest(false);
+  }
+
+  const loading = ref(true);
+  const error = ref<Error | null>(null);
+  const isServicePopupOpen = ref(false);
+  const selectedService = ref<PackageResource | null>(null);
+  const isWarningPopupOpen = ref(false);
+  const roomsUnavailable = ref(false);
+
+  const searchFilters = computed(() => searchResults.value?.filters);
+  const { selectedView, viewOptions, filterRoomListWithIndex } =
+    useRoomFilters(searchFilters);
+
+  const filteredRoomCards = computed(() =>
+    filterRoomListWithIndex(roomTariffs.value),
+  );
+
+  const nights = useNights(date);
+
+  const selectedByRoomIdx = ref<Record<string, SelectedEntry>>({});
+  const isInitialLoad = ref(true);
+
+  function handleSelectTariff(
+    ratePlanCode: string,
+    roomIdx: number,
+    roomCardIdx?: number,
+  ) {
+    // Если передан roomCardIdx, используем его для поиска комнаты
+    // Иначе используем roomIdx (для обратной совместимости)
+    const cardIdx = roomCardIdx !== undefined ? roomCardIdx : roomIdx;
+    const room = roomTariffs.value?.[cardIdx];
+    if (!room) return;
+    const tar =
+      room.tariffs?.find((t) => t.rate_plan_code === ratePlanCode) || null;
+
+    // Используем составной ключ для уникальной идентификации номера в конкретной карточке
+    const key = roomCardIdx !== undefined
+      ? `${roomCardIdx}-${roomIdx}`
+      : `${roomIdx}`;
+    const already = selectedByRoomIdx.value[key];
+
+    if (!ratePlanCode || (already && already.ratePlanCode === ratePlanCode)) {
+      Reflect.deleteProperty(selectedByRoomIdx.value, key);
+      return;
+    }
+
+    // Проверяем, не выбран ли уже этот номер (roomIdx) в другой карточке
+    // Если выбран, запрещаем выбор
+    const isRoomIdxAlreadySelected = selectedRoomIndices.value.has(roomIdx) &&
+      Object.values(selectedByRoomIdx.value).some(
+        (entry) => entry.roomIdx === roomIdx && entry.roomCardIdx !== cardIdx
+      );
+
+    if (isRoomIdxAlreadySelected) {
+      toast.add({
+        severity: "warn",
+        summary: "Номер уже выбран",
+        detail: `Номер ${roomIdx + 1} уже выбран в другой карточке. Каждый номер можно выбрать только один раз.`,
+        life: 3000,
+      });
+      return;
+    }
+
+    if (tar && room.room_type_code && room.room_type_code.trim() !== "") {
+      const stayTotal = getTariffStayTotalForRoom(tar, roomIdx);
+      if (stayTotal === null) return;
+
+      selectedByRoomIdx.value[key] = buildSelectedEntry({
+        room,
+        ratePlanCode: tar.rate_plan_code,
+        tariffTitle: tar.title,
+        pricePerNight: toPricePerNight(stayTotal, nights.value),
+        roomIdx,
+        roomCardIdx: cardIdx,
+      });
+    }
+  }
+
+  const selectedCodes = computed<Record<string, string>>(() => {
+    const map: Record<string, string> = {};
+    Object.entries(selectedByRoomIdx.value).forEach(([key, entry]) => {
+      map[key] = entry.ratePlanCode;
+    });
+    return map;
+  });
+
+  // Множество уже выбранных индексов номеров (roomIdx) - для блокировки дубликатов
+  const selectedRoomIndices = computed<Set<number>>(() => {
+    const indices = new Set<number>();
+    Object.values(selectedByRoomIdx.value).forEach((entry) => {
+      indices.add(entry.roomIdx);
+    });
+    return indices;
+  });
+
+  const requiredRoomsCount = computed(() => {
+    return guests.value?.roomList
+      ? guests.value.roomList.length
+      : guests.value?.rooms || 1;
+  });
+
+  const selectedRoomsCount = computed(() => {
+    return Object.keys(selectedByRoomIdx.value).length;
+  });
+
+  const isAllRoomsSelected = computed(() => {
+    return selectedRoomsCount.value >= requiredRoomsCount.value;
+  });
+
+  const bookingTotal = computed(() => {
+    const roomsTotal = Object.values(selectedByRoomIdx.value).reduce(
+      (sum, e) => sum + toStayTotal(e.price, nights.value),
+      0,
+    );
+    const servicesTotal = Object.values(selectedByRoomIdx.value).reduce(
+      (sum, entry) =>
+        sum +
+        bookingStore.getSelectedServicesForRoom(entry.roomIdx).reduce(
+          (s, svc) => s + svc.price,
+          0,
+        ),
+      0,
+    );
+    return roomsTotal + servicesTotal;
+  });
+
+  const dateValue = computed(() => date.value);
+
+  const openServicePopup = (event: MouseEvent, service: PackageResource) => {
+    event.stopPropagation();
+    selectedService.value = service;
+    isServicePopupOpen.value = true;
+  };
+
+  const closeServicePopup = () => {
+    isServicePopupOpen.value = false;
+    selectedService.value = null;
+  };
+
+  const handleContinue = () => {
+    // Проверяем, что выбрано нужное количество номеров
+    if (selectedRoomsCount.value < requiredRoomsCount.value) {
+      isWarningPopupOpen.value = true;
+      return;
+    }
+
+    // Сохраняем выбранные номера в store перед переходом на страницу услуг
+    bookingStore.setSelectedMultiRooms(selectedByRoomIdx.value);
+    router.push("/services");
+  };
+
+  const closeWarningPopup = () => {
+    isWarningPopupOpen.value = false;
+  };
+
+  // Синхронизация selectedByRoomIdx с store при изменениях
+  watch(
+    selectedByRoomIdx,
+    (newValue) => {
+      // Пропускаем синхронизацию при первой загрузке данных из store
+      if (isInitialLoad.value) {
+        return;
+      }
+      bookingStore.setSelectedMultiRooms(newValue);
+    },
+    { deep: true },
+  );
+
+  onMounted(async () => {
+    // Читаем флаг после применения deep-link плагином
+    const forceSearch = pendingDeepLinkSearch.value;
+
+    // Загружаем сохраненные данные из store
+    if (selectedMultiRooms.value && Object.keys(selectedMultiRooms.value).length > 0) {
+      selectedByRoomIdx.value = { ...selectedMultiRooms.value };
+    }
+
+    // После загрузки данных разрешаем синхронизацию
+    await nextTick();
+    isInitialLoad.value = false;
+
+    const roomsCount = getExpectedRoomCount(guests.value);
+
+    const totalAdults = guests.value?.roomList
+      ? guests.value.roomList.reduce((sum, r) => sum + r.adults, 0)
+      : 0;
+
+    if (!date.value || totalAdults === 0) {
+      resetPendingSearch();
+      toast.add({
+        severity: "warn",
+        summary: "Некорректные данные",
+        detail: "Укажите даты и количество гостей",
+        life: 3000,
+      });
+      router.push("/");
+      return;
+    }
+
+    if (roomsCount <= 1) {
+      resetPendingSearch();
+      router.push("/rooms/tariff");
+      return;
+    }
+
+    pendingDeepLinkSearch.value = false;
+
+    try {
+      loading.value = true;
+      if (forceSearch || !roomTariffs.value.length) {
+        await bookingStore.search();
+      }
+
+      const unavailable = getUnavailableRoomIndices(
+        roomTariffs.value,
+        roomsCount,
+      );
+      if (unavailable.length > 0) {
+        bookingStore.setMultiBookingUnavailableRooms(unavailable);
+        roomsUnavailable.value = true;
+        toast.add(MULTI_BOOKING_UNAVAILABLE_TOAST);
+        return;
+      }
+      bookingStore.clearMultiBookingUnavailableRooms();
+    } catch (err: unknown) {
+      if (isStaleSearchError(err)) {
+        return;
+      }
+      error.value = err as Error;
+      toast.add({
+        severity: "error",
+        summary: "Ошибка загрузки",
+        detail:
+          (err as Error)?.message || "Произошла ошибка при загрузке тарифов",
+        life: 3000,
+      });
+    } finally {
+      loading.value = false;
+    }
+  });
+</script>
+
+<template>
+  <div :class="$style.container">
+    <h1 :class="$style.header">Выбор номеров и тарифов</h1>
+
+    <Booking mode="inner" />
+
+    <div :class="$style.filtersWrapper">
+      <UiFilterSelect
+        v-model="selectedView"
+        :options="viewOptions"
+        option-label="title"
+        option-value="id"
+        placeholder="Вид из окна"
+      />
+    </div>
+
+    <section :class="[$style.block, $style.blockWithSummary]">
+      <div v-if="loading" :class="$style.loadingContainer">
+        <ProgressSpinner
+          style="width: 50px; height: 50px"
+          stroke-width="4"
+          fill="transparent"
+          animation-duration="2.5s"
+          aria-label="Загрузка тарифов"
+        />
+        <p :class="$style.loadingText">Загрузка тарифов...</p>
+      </div>
+
+      <div v-else-if="error" :class="$style.errorContainer">
+        <p>Произошла ошибка при загрузке тарифов. Попробуйте позже.</p>
+      </div>
+
+      <div v-else-if="roomsUnavailable" :class="$style.errorContainer">
+        <p>
+          Не все номера доступны для выбранного состава гостей. Измените параметры
+          в блоке «Гости» выше.
+        </p>
+      </div>
+
+      <template v-else>
+        <div v-if="roomTariffs?.length > 0">
+          <div v-if="filteredRoomCards.length > 0" :class="$style.twoCols">
+            <div :class="$style.cards">
+              <BookingMultiCard
+                v-for="{ room, cardIdx } in filteredRoomCards"
+                :key="room.room_type_code"
+                :room="room"
+                :room-card-idx="cardIdx"
+                :services="searchResults?.packages || []"
+                :selected-codes="selectedCodes"
+                :is-all-rooms-selected="isAllRoomsSelected"
+                :disabled-room-indices="selectedRoomIndices"
+                @open-service-popup="openServicePopup"
+                @select-tariff="handleSelectTariff"
+              />
+
+              <BookingServicePopup
+                v-if="selectedService"
+                :service="selectedService"
+                :is-open="isServicePopupOpen"
+                @close="closeServicePopup"
+              />
+            </div>
+
+            <UIPopup
+              :is-open="isWarningPopupOpen"
+              :max-width="'500px'"
+              @close="closeWarningPopup"
+            >
+              <template #content>
+                <div :class="$style.warningContent">
+                  <h2 :class="$style.warningTitle">Не все номера выбраны</h2>
+                  <p :class="$style.warningText">
+                    Для продолжения необходимо выбрать все {{ formatCount(requiredRoomsCount, 'room') }}.
+                    Выбрано: {{ selectedRoomsCount }} из {{ requiredRoomsCount }}.
+                  </p>
+                </div>
+              </template>
+              <template #footer>
+                <Button
+                  unstyled
+                  :class="$style.warningButton"
+                  @click="closeWarningPopup"
+                >
+                  Понятно
+                </Button>
+              </template>
+            </UIPopup>
+
+            <div :class="$style.summaryWrapper">
+              <BookingSummary
+                :selected-entries="selectedByRoomIdx"
+                :date="dateValue"
+                :nights="nights"
+                :booking-total="bookingTotal"
+                @continue="handleContinue"
+              />
+            </div>
+          </div>
+
+          <div v-else :class="$style.noFilterResults">
+            Нет номеров с выбранными параметрами
+          </div>
+
+          <div :class="$style.summaryWrapperMobile">
+            <BookingSummary
+              :selected-entries="selectedByRoomIdx"
+              :date="dateValue"
+              :nights="nights"
+              :booking-total="bookingTotal"
+              @continue="handleContinue"
+            />
+          </div>
+        </div>
+
+        <div
+          v-else-if="searchResults && !searchResults.available"
+          :class="$style.noResults"
+        >
+          <p>К сожалению, на выбранные даты нет доступных номеров.</p>
+        </div>
+      </template>
+    </section>
+  </div>
+</template>
+
+<style module lang="scss">
+  @use "~/assets/styles/variables/resolutions" as size;
+
+  .container {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: rem(40);
+    padding: 0 rem(20);
+
+    @media (min-width: #{size.$desktopMin}) {
+      padding: 0 rem(60);
+    }
+  }
+
+  .header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: rem(40) 0;
+    text-align: center;
+    font-family: var(--a-font-heading);
+    font-size: rem(28);
+    font-weight: 600;
+    color: var(--a-black);
+  }
+
+  .block {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 0 0 rem(40) 0;
+
+    @media (min-width: #{size.$desktopMedium}) {
+      max-width: #{size.$desktop};
+      margin: 0 auto;
+    }
+  }
+
+  .blockWithSummary {
+    padding-bottom: rem(300);
+
+    @media (min-width: #{size.$tablet}) {
+      padding-bottom: rem(350);
+    }
+
+    @media (min-width: #{size.$desktopMin}) {
+      padding-bottom: rem(40);
+    }
+  }
+
+  .twoCols {
+    display: flex;
+    flex-direction: column;
+    gap: rem(24);
+
+    @media (min-width: #{size.$desktopMin}) {
+      flex-direction: row;
+      align-items: stretch;
+    }
+  }
+
+  .summaryWrapper {
+    display: none;
+
+    @media (min-width: #{size.$desktopMin}) {
+      display: flex;
+      flex-direction: column;
+      width: 33.3333%;
+      flex-shrink: 0;
+    }
+  }
+
+  .summaryWrapperMobile {
+    display: block;
+
+    @media (min-width: #{size.$desktopMin}) {
+      display: none;
+    }
+  }
+
+  .filtersWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: rem(16);
+    margin-bottom: rem(20);
+    width: 100%;
+
+    @media (min-width: #{size.$tabletMin}) {
+      flex-direction: row;
+      gap: rem(24);
+    }
+
+    @media (min-width: #{size.$desktopMedium}) {
+      max-width: #{size.$desktop};
+      margin: 0 auto rem(40) auto;
+    }
+  }
+
+  .return {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-bottom: rem(40);
+    padding-left: rem(30);
+    font-family: var(--a-font-heading);
+    font-size: rem(20);
+    color: var(--a-text-dark);
+    cursor: pointer;
+
+    &::before {
+      content: "<";
+      position: absolute;
+      top: 50%;
+      left: 0;
+      transform: translateY(-50%);
+      width: 10px;
+    }
+  }
+
+  .cards {
+    display: flex;
+    flex-direction: column;
+    gap: rem(32);
+    margin-bottom: rem(40);
+
+    @media (min-width: #{size.$tablet}) {
+      gap: rem(32);
+    }
+  }
+
+  @media (min-width: #{size.$desktopMin}) {
+    .twoCols > .cards {
+      width: 66.6667%;
+      margin-bottom: 0;
+    }
+  }
+
+  .noFilterResults {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: rem(40);
+    font-size: var(--ds-typo-size-body-lg);
+    color: var(--a-text-accent);
+    text-align: center;
+  }
+
+  .noResults {
+    padding: rem(20);
+    text-align: center;
+    color: var(--a-text-error);
+    background-color: var(--a-lightPrimaryBg);
+    border-radius: var(--a-borderR--card);
+    margin-bottom: rem(40);
+  }
+
+  .loadingContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: rem(16);
+    padding: rem(40) 0;
+  }
+
+  .loadingText {
+    margin: 0;
+    text-align: center;
+    font-family: var(--a-font-body);
+    font-size: rem(14);
+    font-weight: 400;
+    color: var(--a-text-dark);
+  }
+
+  .errorContainer {
+    padding: rem(20);
+    text-align: center;
+    color: var(--a-text-error);
+    background-color: var(--a-lightPrimaryBg);
+    border-radius: var(--a-borderR--card);
+    margin-bottom: rem(40);
+  }
+
+  .warningContent {
+    display: flex;
+    flex-direction: column;
+    gap: rem(16);
+    padding: rem(20);
+    text-align: center;
+  }
+
+  .warningTitle {
+    margin: 0;
+    font-family: var(--a-font-heading);
+    font-size: rem(24);
+    font-weight: 600;
+    color: var(--a-text-dark);
+  }
+
+  .warningText {
+    margin: 0;
+    font-family: var(--a-font-body);
+    font-size: rem(16);
+    line-height: 1.5;
+    color: var(--a-text-dark);
+  }
+
+  .warningButton {
+    padding: rem(12) rem(24);
+    border-radius: var(--a-borderR--btn);
+    background-color: var(--a-blackBg);
+    color: var(--a-white);
+    border: none;
+    cursor: pointer;
+    font-family: var(--a-font-body);
+    font-size: rem(16);
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: var(--a-btnAccentBg);
+    }
+  }
+</style>

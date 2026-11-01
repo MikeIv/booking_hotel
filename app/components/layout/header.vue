@@ -1,11 +1,21 @@
-<script setup lang="ts">
-
-</script>
+<script setup lang="ts"></script>
 
 <template>
-<h1>Заголовок</h1>
+  <section :class="$style.section">
+    <LayoutHeaderAside />
+  </section>
 </template>
 
-<style scoped>
+<style module lang="scss">
+  @use "~/assets/styles/variables/resolutions" as size;
 
+  .section {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: auto;
+    margin: 0 auto;
+    overflow: hidden;
+  }
 </style>

@@ -1,0 +1,335 @@
+# История бронирований в личном кабинете
+
+## Обзор
+
+Функционал истории бронирований реализован на странице личного кабинета (`app/pages/cabinet.vue`). При нажатии на кнопку "Мои бронирования" выполняется API запрос для получения списка бронирований пользователя.
+
+## API Endpoints
+
+### История бронирований
+
+**URL:** `https://varvarka-api.grandfs-develop.ru/api/v1/users/bookings/history`  
+**Метод:** GET  
+**Требуется авторизация:** Да (Bearer Token)
+
+**Query параметры:**
+
+- `is_actual` (boolean, required) - Фильтр по актуальности
+  - `true` - показывать только будущие бронирования
+  - `false` - показывать прошедшие бронирования
+- `page` (integer, required, >= 1) - Номер страницы
+- `per_page` (integer, required) - Количество элементов на странице
+
+**⚠️ Важно:** Параметр использует **snake_case** (`is_actual`), не camelCase (`isActual`).
+
+**Пример запроса:**
+
+```bash
+curl --request GET \
+  --url 'https://varvarka-api.grandfs-develop.ru/api/v1/users/bookings/history?is_actual=true&page=1&per_page=10' \
+  --header 'Accept: application/json' \
+  --header 'Authorization: Bearer {token}'
+```
+
+### Обновление токена
+
+**URL:** `https://varvarka-api.grandfs-develop.ru/api/v1/auth/refresh`  
+**Метод:** POST  
+**Требуется авторизация:** Да (через cookies)
+**Ответ:**
+
+```json
+{
+  "success": true,
+  "message": "string",
+  "payload": {
+    "token": "новый_jwt_токен"
+  }
+}
+```
+
+### Текущая структура ответа
+
+```json
+{
+  "success": true,
+  "message": "string",
+  "payload": []
+}
+```
+
+## Типизация
+
+### BookingHistoryItem
+
+Интерфейс для элемента истории бронирований (расширяемый):
+
+```typescript
+interface BookingHistoryItem {
+  id?: number | string;
+  uuid?: string;
+  booking_number?: string;
+  start_at?: string;
+  end_at?: string;
+  rooms_count?: number;
+  status?: string;
+  created_at?: string;
+  [key: string]: unknown; // Для дополнительных полей
+}
+```
+
+### BookingHistoryResponse
+
+```typescript
+interface BookingHistoryResponse {
+  success: boolean;
+  message: string;
+  payload: BookingHistoryItem[];
+}
+```
+
+## Функциональность
+
+### Состояния
+
+- `bookingHistory` - массив с данными бронирований
+- `isLoadingBookings` - флаг загрузки
+- `bookingsLoaded` - флаг успешной загрузки данных
+- `isActualBookings` - фильтр по актуальности (true - будущие, false - прошедшие)
+- `currentPage` - текущая страница пагинации
+- `perPage` - количество элементов на странице (по умолчанию 10)
+- `totalPages` - общее количество страниц
+
+### Метод fetchBookingHistory(resetPage?: boolean)
+
+Загружает историю бронирований пользователя с учетом фильтров и пагинации.
+
+**Параметры:**
+
+- `resetPage` (boolean, optional) - если `true`, сбрасывает пагинацию на первую страницу
+
+**Отправляемые query параметры:**
+
+- `is_actual` - значение из `isActualBookings.value` (boolean)
+- `page` - значение из `currentPage.value` (number)
+- `per_page` - значение из `perPage.value` (number)
+
+#### Особенности:
+
+- Проверка авторизации пользователя
+- Отправка обязательных query параметров
+- Обработка состояния загрузки
+- Обработка ошибок с уведомлениями
+- Логирование в режиме разработки
+
+### Метод toggleBookingsType(isActual: boolean)
+
+Переключает фильтр между актуальными и прошедшими бронированиями.
+
+**Параметры:**
+
+- `isActual` - `true` для будущих бронирований, `false` для прошедших
+
+**Действия:**
+
+- Обновляет `isActualBookings`
+- Сбрасывает пагинацию на первую страницу
+- Вызывает `fetchBookingHistory(true)`
+
+### Метод goToPage(page: number)
+
+Переходит на указанную страницу пагинации.
+
+**Параметры:**
+
+- `page` - номер страницы (>= 1, <= totalPages)
+
+**Ограничения:**
+
+- Блокируется во время загрузки
+- Валидация диапазона страниц
+
+## UI состояния
+
+### 1. Фильтры
+
+Кнопки переключения между актуальными и прошедшими бронированиями:
+
+```vue
+<div class="bookingsFilters">
+  <Button label="Актуальные" :class="isActualBookings ? 'active' : ''" />
+  <Button label="Прошедшие" :class="!isActualBookings ? 'active' : ''" />
+</div>
+```
+
+### 2. Загрузка
+
+```vue
+<div class="loadingIndicator">
+  Загрузка истории бронирований...
+</div>
+```
+
+### 3. Пустое состояние
+
+Отображается, если `payload` пустой (с учетом фильтра):
+
+```vue
+<div class="emptyState">
+  <p>{{ isActualBookings ? 'У вас нет актуальных бронирований' : 'У вас нет прошедших бронирований' }}</p>
+  <Button label="Забронировать номер" @click="handleNewBooking" />
+</div>
+```
+
+### 4. Список бронирований
+
+Отображает все бронирования из `payload`:
+
+```vue
+<article class="bookingCard">
+  <div class="bookingTitle">Бронирование № {booking_number}</div>
+  <div class="bookingDates">{start_at} - {end_at}</div>
+  <div class="bookingRooms">Количество номеров: {rooms_count}</div>
+  <div class="bookingStatus">Статус: {status}</div>
+  <details>
+    <summary>Подробная информация</summary>
+    <pre>{JSON данные бронирования}</pre>
+  </details>
+</article>
+```
+
+### 5. Пагинация
+
+Отображается, если `totalPages > 1`:
+
+```vue
+<nav class="pagination">
+  <Button 
+    label="Назад" 
+    :disabled="currentPage === 1" 
+    @click="goToPage(currentPage - 1)" 
+  />
+  <span>Страница {{ currentPage }} из {{ totalPages }}</span>
+  <Button 
+    label="Вперед" 
+    :disabled="currentPage === totalPages" 
+    @click="goToPage(currentPage + 1)" 
+  />
+</nav>
+```
+
+## Расширение функционала
+
+### Добавление новых полей
+
+Благодаря типу `[key: string]: unknown` интерфейс `BookingHistoryItem` автоматически поддерживает любые дополнительные поля из API.
+
+Для добавления нового поля в UI:
+
+1. Добавьте поле в интерфейс (необязательно, если используете динамический доступ):
+
+```typescript
+interface BookingHistoryItem {
+  // ... существующие поля
+  new_field?: string;
+}
+```
+
+2. Отобразите поле в шаблоне:
+
+```vue
+<div v-if="booking.new_field" :class="$style.bookingNewField">
+  {{ booking.new_field }}
+</div>
+```
+
+3. Добавьте стили при необходимости:
+
+```scss
+.bookingNewField {
+  color: var(--a-text-dark);
+  font-size: rem(15);
+  margin-bottom: rem(8);
+}
+```
+
+## Примеры использования
+
+### Загрузка бронирований
+
+```vue
+<Button
+  label="Мои бронирования"
+  @click="
+    () => {
+      activeSection = 'bookings';
+      if (!bookingsLoaded) fetchBookingHistory(true);
+    }
+  "
+/>
+```
+
+### Переключение фильтра
+
+```vue
+<Button label="Актуальные" @click="toggleBookingsType(true)" />
+<Button label="Прошедшие" @click="toggleBookingsType(false)" />
+```
+
+### Пагинация
+
+```vue
+<Button
+  label="Следующая страница"
+  :disabled="currentPage === totalPages"
+  @click="goToPage(currentPage + 1)"
+/>
+```
+
+### Прямой вызов API
+
+```typescript
+const response = await get("/v1/users/bookings/history", {
+  is_actual: true, // boolean
+  page: 1, // number
+  per_page: 10, // number
+});
+```
+
+## Обработка ошибок
+
+Все ошибки API обрабатываются с помощью toast-уведомлений:
+
+- **Предупреждение:** Если `success: false`
+- **Ошибка:** При сетевых ошибках или исключениях
+
+### Автоматическое обновление токена
+
+При получении статуса **401** или **302** (Unauthorized/Redirect) система автоматически:
+
+1. Отправляет запрос на `/v1/auth/refresh` для получения нового токена
+2. Сохраняет новый токен в `authStore`
+3. Повторяет исходный запрос с обновленным токеном
+4. Если обновление токена не удалось - перенаправляет на главную страницу
+
+**Особенности:**
+
+- Предотвращает множественные одновременные запросы на обновление токена
+- Максимум одна попытка повтора запроса
+- Логирование всех этапов в режиме разработки
+
+## Отладка
+
+В режиме разработки (`process.dev`) в консоль выводятся:
+
+- 📡 Запрос на загрузку
+- 📨 Ответ сервера
+- ✅ Успешная загрузка с количеством элементов
+- ⚠️ Предупреждения
+- 💥 Ошибки
+
+## Доступность
+
+- Используется семантическая разметка: `<section>`, `<article>`, `<details>`
+- Заголовки с правильными `id` и `aria-labelledby`
+- Индикаторы состояния доступны для скринридеров

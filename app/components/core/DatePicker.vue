@@ -1,0 +1,281 @@
+﻿<script setup lang="ts">
+  import { computed, ref, watch } from "vue";
+  import VueDatePicker from "@vuepic/vue-datepicker";
+  import "@vuepic/vue-datepicker/dist/main.css";
+  import { formatDateNumeric } from "~/utils/dateFormat";
+
+  const props = defineProps<{
+    modelValue: [Date, Date] | null;
+    /**
+     * Управляет тем, где рендерится меню календаря.
+     * true (default) — телепорт в body (поведение либы),
+     * false — меню внутри компонента (нужно, например, для попапов,
+     * чтобы контейнер мог растягиваться по высоте).
+     */
+    teleport?: boolean;
+  }>();
+
+  const hidenIcon = ref(true);
+
+  const emit = defineEmits<{
+    (e: "update:modelValue", value: [Date, Date] | null): void;
+    (e: "open" | "closed"): void;
+  }>();
+
+  const value = computed({
+    get: () => props.modelValue,
+    set: (val) => emit("update:modelValue", val),
+  });
+
+  // Следим за изменениями value
+  watch(
+    value,
+    (newVal) => {
+      hidenIcon.value = !newVal || newVal.length !== 2;
+    },
+    { immediate: true },
+  );
+
+  const formatDisplayValue = (dates: Date[] | null): string => {
+    if (!dates || dates.length !== 2) return "";
+    return `${formatDateNumeric(dates[0])} - ${formatDateNumeric(dates[1])}`;
+  };
+</script>
+
+<template>
+  <div class="datepicker-container">
+    <span class="period-label">Заезд — выезд</span>
+    <VueDatePicker
+      v-model="value"
+      range
+      :enable-time-picker="false"
+      :format="formatDisplayValue"
+      locale="ru"
+      :max-range="365"
+      cancel-text="Отмена"
+      select-text="Выбрать"
+      :input-class-name="'custom-datepicker-input'"
+      :multi-calendars="true"
+      :teleport="props.teleport ?? true"
+      class="date-range-picker"
+      @open="emit('open')"
+      @closed="emit('closed')"
+    >
+      <template #input-icon>
+        <div class="calendar-icon-wrapper">
+          <UIcon v-if="hidenIcon" name="i-calendar" class="calendarIcon" />
+        </div>
+      </template>
+      <template #input-value="{ value: dateValue }">
+        <div class="date-display">
+          <span v-if="dateValue?.length === 2" class="selected-dates">
+            {{ formatDisplayValue(dateValue) }}
+          </span>
+        </div>
+      </template>
+    </VueDatePicker>
+  </div>
+</template>
+
+<style lang="scss">
+  @use "~/assets/styles/variables/resolutions" as size;
+  @use "~/assets/styles/variables/z-index" as z;
+
+  .datepicker-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: rem(4);
+
+    @media (min-width: #{size.$desktopMin}) {
+      width: calc(50% - rem(12));
+    }
+
+    @media (min-width: #{size.$desktopMedium}) {
+      width: auto;
+      min-width: rem(400);
+    }
+
+    .period-label {
+      position: absolute;
+      top: rem(8);
+      left: rem(50);
+      font-size: rem(12);
+      font-weight: 400;
+      font-family: var(--a-font-body);
+      color: var(--a-text-light);
+      margin-left: rem(12);
+      z-index: z.z("booking-label");
+    }
+  }
+
+  .date-range-picker {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 0;
+    font-family: var(--a-font-body);
+
+    & .dp__calendar_item .dp--future {
+      font-weight: 500;
+      color: var(--ui-color-primary-700);
+      background-color: var(--ui-color-primary-50);
+
+      &.dp__range_start {
+        color: var(--ui-color-primary-100);
+        background-color: var(--primary);
+      }
+
+      &.dp__range_between {
+        color: var(--ui-color-primary-600);
+        background-color: var(--ui-color-primary-300);
+      }
+
+      &.dp__range_end {
+        color: var(--ui-color-primary-100);
+        background-color: var(--primary);
+      }
+    }
+
+    & .dp__calendar_item .dp__today {
+      font-weight: 500;
+      color: var(--info);
+    }
+
+    & .dp__calendar_item .dp--past {
+      color: var(--ui-color-secondary-300);
+    }
+
+    & .dp__input_wrap {
+      position: relative;
+      display: flex;
+      width: 100%;
+      height: rem(67);
+      color: var(--a-mainText);
+
+      @media (min-width: #{size.$desktopMedium}) {
+        width: auto;
+        min-width: rem(400);
+      }
+      @media (min-width: #{size.$desktop}) {
+        min-width: rem(500);
+      }
+    }
+
+    & .dp__outer_menu_wrap {
+      left: 0 !important;
+    }
+
+    & .dp__input {
+      position: relative;
+      display: flex;
+      flex-grow: 1;
+      width: 100%;
+      padding: rem(22) rem(36) rem(2) rem(12);
+      font-family: var(--a-font-body);
+      font-size: rem(16);
+      border: rem(1) solid var(--a-border-light);
+      border-radius: var(--a-borderR--input);
+      background-color: var(--a-white);
+      transition:
+        border-color 0.3s ease,
+        box-shadow 0.3s ease;
+
+      &:hover {
+        border-color: var(--a-border-primary);
+      }
+
+      &:focus,
+      &:focus-visible {
+        outline: none;
+        border-color: var(--a-border-primary);
+        box-shadow: 0 0 0 2px rgba(191, 157, 124, 0.1);
+      }
+    }
+
+    .dp__input_icon {
+      position: absolute;
+      right: rem(12);
+      left: auto;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .calendar-icon-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dp__today {
+      background-color: var(--a-mainBg);
+      border: 1px solid var(--a-borderAccent);
+    }
+
+    .dp--header-wrap {
+      background-color: var(--a-mainBg);
+    }
+
+    .dp__action_buttons {
+      display: flex;
+      align-items: center;
+      gap: rem(12);
+
+      & .dp__action_button {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: rem(28);
+        padding: rem(8) rem(12);
+        border: none;
+      }
+
+      & .dp__action_cancel {
+        font-weight: 600;
+        color: var(--ui-color-secondary-950);
+        background-color: var(--ui-color-secondary-200);
+
+        &:hover {
+          color: var(--a-white);
+          background-color: var(--ui-color-secondary-500);
+        }
+      }
+
+      & .dp__action_select {
+        font-weight: 600;
+        background-color: var(--primary);
+
+        &:hover {
+          color: var(--a-white);
+          background-color: var(--ui-color-primary-600);
+        }
+      }
+    }
+
+    .date-display {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      position: relative;
+    }
+
+    .selected-dates {
+      font-size: rem(14);
+      font-weight: 600;
+      color: var(--a-mainText);
+      margin-top: rem(16);
+    }
+  }
+
+  .calendarIcon {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--a-text-light);
+    width: rem(30);
+    height: rem(30);
+  }
+</style>

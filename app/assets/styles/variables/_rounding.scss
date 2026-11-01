@@ -1,6 +1,33 @@
-// Скругления
+/* Синхронизировано с Figma Rounding:
+   https://www.figma.com/design/8VW5pfsag9wEyJSzPwRvhM/Booking-Ukr?node-id=6001-2&m=dev
+   Variable collection: Booking / Rounding */
 :root {
-  --a-borderR--x6: 6px; //Радиус скругления для блока
-  --a-borderR--x10: 10px; //Радиус скругления для блока
-  --a-borderR--x16: 16px; //Радиус скругления для кнопок
+  /* Canonical Design System tokens */
+  --ds-radius-sm: 4px;
+  --ds-radius-md: 8px;
+  --ds-radius-lg: 12px;
+  --ds-radius-xl: 16px;
+
+  /* Допустимый усиленный вариант xl для крупных модалок (по гайду 16/20) */
+  --ds-radius-xl-strong: 20px;
+
+  /* Backward-compatible aliases for incremental migration */
+  --a-borderR--x6: var(--ds-radius-sm);
+  --a-borderR--x8: var(--ds-radius-md);
+  --a-borderR--x10: var(--ds-radius-lg);
+  --a-borderR--x20: var(--ds-radius-xl-strong);
+  --a-borderR--x30: 30px;
+
+  /* Закрепленные соответствия из дизайн-системы */
+  --a-borderR--btn: var(--ds-radius-md); /* кнопки -> md */
+  --a-borderR--card: var(--ds-radius-lg); /* карточки -> lg */
+  --a-borderR--dialog: var(--ds-radius-xl); /* модалки -> xl */
+
+  /* Специализированные legacy-токены */
+  --ds-radius-booking-module: 10px;
+  --a-borderR--booking-module: var(--ds-radius-booking-module);
+  --a-borderR--input: var(--ds-radius-xl);
+  --a-borderR--select: 15px;
+  --a-borderR--pill: 39px;
+  --p-banner-border-radius: 30px;
 }
